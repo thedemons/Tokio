@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{4d76ed60-0c1e-4456-b9a1-fea338839598}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ImGui">
+      <UniqueIdentifier>{7ceacb84-f533-4a58-8e9c-206f1b3c51d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ImGui\Impl">
+      <UniqueIdentifier>{d59bfa79-b9ad-419e-9941-b81afa962350}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third-Party">
+      <UniqueIdentifier>{02f914b2-566f-460a-a8a5-8d9c62357d8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Views">
+      <UniqueIdentifier>{8c1d0f33-1882-48c3-a611-93049419e499}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Tokio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_draw.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_tables.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_widgets.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_win32.cpp">
+      <Filter>GUI\ImGui\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGui\imgui_impl_dx11.cpp">
+      <Filter>GUI\ImGui\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="MainView.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ImGui\imconfig.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_internal.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_rectpack.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_textedit.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imstb_truetype.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_win32.h">
+      <Filter>GUI\ImGui\Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ThirdParty\Result.hpp">
+      <Filter>Third-Party</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewScanner.hpp">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="MainView.h">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseView.hpp">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="settings.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Serialize.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGui\imgui_impl_dx11.h">
+      <Filter>GUI\ImGui\Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="Themes.hpp">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewWatchList.hpp">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewAttachProc.hpp">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
