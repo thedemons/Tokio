@@ -120,6 +120,8 @@ bool CreateDeviceD3D()
 
 #ifdef DX11_ENABLE_DEBUG_LAYER
 
+    // Thanks to the author of the blog
+    // https://walbourn.github.io/direct3d-sdk-debug-layer-tricks/
 
     if (SUCCEEDED(g_pd3dDevice->QueryInterface(IID_ID3D11Debug, (void**)&g_pd3dDebug)))
     {
@@ -134,8 +136,8 @@ bool CreateDeviceD3D()
 
             D3D11_MESSAGE_ID hide[] =
             {
-            D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
-            // Add more message IDs here as needed
+                D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
+                // Add more message IDs here as needed
             };
 
             D3D11_INFO_QUEUE_FILTER filter = {};

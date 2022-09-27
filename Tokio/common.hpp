@@ -10,6 +10,7 @@ enum class errcode
 	RegisterWndClassFailed,
 	CreateWindowFailed,
 	CreateD3DDeviceFailed,
+	CannotFindTheViewWindow,
 };
 
 inline std::unordered_map<errcode, std::wstring> rcErrorMessages = {
@@ -17,6 +18,7 @@ inline std::unordered_map<errcode, std::wstring> rcErrorMessages = {
 	{errcode::RegisterWndClassFailed, L"Failed to register window class"},
 	{errcode::CreateWindowFailed, L"Failed to create the window"},
 	{errcode::CreateD3DDeviceFailed, L"Failed to create D3D Device"},
+	{errcode::CannotFindTheViewWindow, L"Cannot find the view window"},
 };
 
 
@@ -62,6 +64,11 @@ public:
 		}
 
 		MessageBoxW(NULL, message, title.c_str(), MB_ICONERROR);
+	}
+
+	inline void show()
+	{
+		return show(L"Error");
 	}
 };
 

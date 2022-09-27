@@ -7,32 +7,52 @@
 #include "ViewWatchList.hpp"
 #include "ViewAttachProc.hpp"
 
-struct ViewListData
-{
-	BaseView* pView = nullptr;
-	bool bOpen = false;
-};
-
-std::vector<ViewListData> m_ViewList;
 
 namespace MainView
 {
 
 void Init()
 {
-
-
 	ThemeSettings::SetDarkVSTheme();
 
-	m_ViewList.push_back(
-		{ static_cast<BaseView*>(new ViewScanner()), true }
-	);
-	m_ViewList.push_back(
-		{ static_cast<BaseView*>(new ViewWatchList()), true }
-	);
-	m_ViewList.push_back(
-		{ static_cast<BaseView*>(new ViewAttachProc()), true }
-	);
+	BaseView* viewScanner = new ViewScanner();
+	BaseView* viewWatchList = new ViewWatchList();
+	BaseView* viewAttachProc = new ViewAttachProc();
+
+	m_ViewList.push_back({ viewScanner, viewScanner->defaultOpenMode() });
+	m_ViewList.push_back({ viewWatchList, viewWatchList->defaultOpenMode() });
+	m_ViewList.push_back({ viewAttachProc, viewAttachProc->defaultOpenMode() });
+}
+
+void RenderMenuBar()
+{
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::Selectable("Attach Process"))
+			{
+				auto viewAttachProc = FindViewByClass<ViewAttachProc>();
+
+				if (viewAttachProc.has_error()) viewAttachProc.error().show();
+				else viewAttachProc.value().bOpen = true;
+
+			}
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Views"))
+		{
+			for (auto& view : m_ViewList)
+			{
+				if (!view.pView->isClosable()) continue;
+				ImGui::MenuItem(view.pView->Title().c_str(), nullptr, &view.bOpen);
+			}
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenuBar();
+	}
 }
 
 void Render()
@@ -55,46 +75,33 @@ void Render()
 	ImGui::SetNextWindowSize(viewport->Size);
 	ImGui::SetNextWindowViewport(viewport->ID);
 
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 0.f, 0.f });
 
-	ImGui::Begin("##TokioDockSpace", 0, window_flags);
+	ImGui::Begin("##TokioMainDockSpace", 0, window_flags);
 
+	// must pop those styles before rendering the menu bar
 	ImGui::PopStyleVar(3);
 
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			ImGui::Selectable("Attach Process");
-			ImGui::EndMenu();
-		}
+	RenderMenuBar();
 
-		if (ImGui::BeginMenu("Views"))
-		{
-			for (auto& view : m_ViewList)
-			{
-				if (!view.pView->isClosable()) continue;
-				ImGui::MenuItem(view.pView->Title().c_str(), nullptr, &view.bOpen);
-			}
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMenuBar();
-	}
-
-
-	ImGuiID dockspace_id = ImGui::GetID("##TokioDockSpace");
-	ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlagsPrivate_::ImGuiDockNodeFlags_NoWindowMenuButton;
-
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockSpaceFlags);
+	// render the dock space
+	ImGui::DockSpace(
+		ImGui::GetID("##TokioMainDockSpace"),
+		{ 0.f, 0.f },
+		ImGuiDockNodeFlags_NoWindowMenuButton
+	);
 
 	ImGui::End();
 
+	// render view windows
 	for (auto& view : m_ViewList)
 	{
-		view.pView->Render(&view.bOpen);
+		view.pView->Render(view.bOpen);
 	}
 }
+
+
+
 }

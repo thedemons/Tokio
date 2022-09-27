@@ -14,10 +14,16 @@ public:
 		return true;
 	}
 
-	void Render(bool* bOpen) override
+	inline bool defaultOpenMode() override
 	{
-		if (!*bOpen) return;
-		ImGui::Begin(Title().c_str(), bOpen);
+		return true;
+	}
+
+	void Render(bool& bOpen) override
+	{
+		if (!bOpen) return;
+
+		ImGui::Begin(Title().c_str(), &bOpen);
 		ImGui::End();
 	}
 };
