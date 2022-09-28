@@ -12,41 +12,16 @@ enum class ThemeType
 	Custom,
 };
 
-class ThemeData : public Serializable
+class ThemeData
 {
-protected:
-
-	void Serialize(SerializeStream& stream) override
-	{
-		stream << type << customThemePath;
-	}
-
-	void Deserialize(SerializeStream& stream) override
-	{
-		stream >> type >> customThemePath;
-	}
-
 public:
 	ThemeType type;
 	std::wstring customThemePath;
 };
 
 
-class SettingData : public Serializable
+class SettingData
 {
-public:
-	friend class Serializable;
-	friend class SerializeStream;
-
-	void Serialize(SerializeStream& stream) override
-	{
-		//stream << theme;
-	}
-
-	void Deserialize(SerializeStream& stream) override
-	{
-		//stream >> theme;
-	}
 public:
 	ThemeData theme;
 

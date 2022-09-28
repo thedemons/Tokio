@@ -3,6 +3,7 @@
 
 class ViewScanner : public BaseView
 {
+
 public:
 	inline std::string Title() override
 	{
@@ -24,6 +25,8 @@ public:
 		if (!bOpen) return;
 
 		ImGui::Begin(Title().c_str(), &bOpen);
+
+		
 		ImGui::End();
 	}
 };

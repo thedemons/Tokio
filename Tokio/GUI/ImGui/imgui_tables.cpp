@@ -2090,7 +2090,7 @@ void ImGui::TableSetColumnWidth(int column_n, float width)
 
     // Apply constraints early
     // Compare both requested and actual given width to avoid overwriting requested width when column is stuck (minimum size, bounded)
-    IM_ASSERT(table->MinColumnWidth > 0.0f);
+    //IM_ASSERT(table->MinColumnWidth > 0.0f);
     const float min_width = table->MinColumnWidth;
     const float max_width = ImMax(min_width, TableGetMaxColumnWidth(table, column_n));
     column_0_width = ImClamp(column_0_width, min_width, max_width);

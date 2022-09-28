@@ -3,9 +3,12 @@
 #include "MainView.h"
 #include "Themes.hpp"
 
-#include "ViewScanner.hpp"
-#include "ViewWatchList.hpp"
-#include "ViewAttachProc.hpp"
+#include "common_helper.hpp"
+#include "Widgets/WTable.hpp"
+#include "Widgets/WTextInput.hpp"
+#include "Views/ViewScanner.hpp"
+#include "Views/ViewWatchList.hpp"
+#include "Views/ViewAttachProc.hpp"
 
 
 namespace MainView

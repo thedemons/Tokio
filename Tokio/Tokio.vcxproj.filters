@@ -28,78 +28,48 @@
     <Filter Include="GUI\Views">
       <UniqueIdentifier>{8c1d0f33-1882-48c3-a611-93049419e499}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\Widgets">
+      <UniqueIdentifier>{db139f84-2800-4eb3-896e-17fefcaeaa59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ImGui\imgui.cpp">
-      <Filter>GUI\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_draw.cpp">
-      <Filter>GUI\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_tables.cpp">
-      <Filter>GUI\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_widgets.cpp">
-      <Filter>GUI\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGui\imgui_impl_win32.cpp">
-      <Filter>GUI\ImGui\Impl</Filter>
-    </ClCompile>
-    <ClCompile Include="MainWindow.cpp">
+    <ClCompile Include="GUI\MainWindow.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="ImGui\imgui_impl_dx11.cpp">
+    <ClCompile Include="GUI\ImGui\imgui_widgets.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ImGui\imgui.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ImGui\imgui_draw.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ImGui\imgui_tables.cpp">
+      <Filter>GUI\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ImGui\Impl\imgui_impl_win32.cpp">
       <Filter>GUI\ImGui\Impl</Filter>
     </ClCompile>
-    <ClCompile Include="MainView.cpp">
-      <Filter>GUI\Views</Filter>
+    <ClCompile Include="GUI\ImGui\Impl\imgui_impl_dx11.cpp">
+      <Filter>GUI\ImGui\Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\MainView.cpp">
+      <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImGui\imconfig.h">
-      <Filter>GUI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui.h">
-      <Filter>GUI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_internal.h">
-      <Filter>GUI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_rectpack.h">
-      <Filter>GUI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_textedit.h">
-      <Filter>GUI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imstb_truetype.h">
-      <Filter>GUI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGui\imgui_impl_win32.h">
-      <Filter>GUI\ImGui\Impl</Filter>
-    </ClInclude>
-    <ClInclude Include="MainWindow.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="ThirdParty\Result.hpp">
       <Filter>Third-Party</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common.hpp">
+    <ClInclude Include="common_err.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ViewScanner.hpp">
-      <Filter>GUI\Views</Filter>
-    </ClInclude>
-    <ClInclude Include="MainView.h">
-      <Filter>GUI\Views</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseView.hpp">
-      <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="settings.hpp">
       <Filter>Header Files</Filter>
@@ -107,17 +77,59 @@
     <ClInclude Include="Serialize.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImGui\imgui_impl_dx11.h">
-      <Filter>GUI\ImGui\Impl</Filter>
-    </ClInclude>
-    <ClInclude Include="Themes.hpp">
+    <ClInclude Include="GUI\MainWindow.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="ViewWatchList.hpp">
+    <ClInclude Include="GUI\Views\ViewAttachProc.hpp">
       <Filter>GUI\Views</Filter>
     </ClInclude>
-    <ClInclude Include="ViewAttachProc.hpp">
+    <ClInclude Include="GUI\Views\ViewScanner.hpp">
       <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Views\ViewWatchList.hpp">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Views\BaseView.hpp">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\imstb_rectpack.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\imstb_textedit.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\imstb_truetype.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\imconfig.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\imgui.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\imgui_internal.h">
+      <Filter>GUI\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\Impl\imgui_impl_dx11.h">
+      <Filter>GUI\ImGui\Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\Impl\imgui_impl_win32.h">
+      <Filter>GUI\ImGui\Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\MainView.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\WTable.hpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Themes.hpp">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="common_helper.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\WTextInput.hpp">
+      <Filter>GUI\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

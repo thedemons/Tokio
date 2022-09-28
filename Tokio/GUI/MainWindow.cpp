@@ -179,31 +179,34 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-    case WM_SIZE:
-        if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
-        {
-            CleanupRenderTarget();
-            g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
-            CreateRenderTarget();
-        }
-        return 0;
-    case WM_SYSCOMMAND:
-        if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+        case WM_SIZE:
+            if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
+            {
+                CleanupRenderTarget();
+                g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, 0);
+                CreateRenderTarget();
+            }
             return 0;
-        break;
-    case WM_DESTROY:
-        ::PostQuitMessage(0);
-        return 0;
-    case WM_DPICHANGED:
-        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DpiEnableScaleViewports)
-        {
-            const RECT* suggested_rect = (RECT*)lParam;
-            ::SetWindowPos(hWnd, NULL, suggested_rect->left, suggested_rect->top, suggested_rect->right - suggested_rect->left, suggested_rect->bottom - suggested_rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
-        }
-        break;
+        case WM_SYSCOMMAND:
+            if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+                return 0;
+            break;
+        case WM_DESTROY:
+            ::PostQuitMessage(0);
+            return 0;
+        case WM_DPICHANGED:
+            if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DpiEnableScaleViewports)
+            {
+                //const int dpi = HIWORD(wParam);
+                //printf("WM_DPICHANGED to %d (%.0f%%)\n", dpi, (float)dpi / 96.0f * 100.0f);
+                const RECT* suggested_rect = (RECT*)lParam;
+                ::SetWindowPos(hWnd, NULL, suggested_rect->left, suggested_rect->top, suggested_rect->right - suggested_rect->left, suggested_rect->bottom - suggested_rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+            }
+            break;
     }
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
+
 
 void SetRenderCallback(PRenderCallBack callback)
 {
@@ -212,20 +215,19 @@ void SetRenderCallback(PRenderCallBack callback)
 
 void StartLoop()
 {
-    MSG wndMessage;
     bool done = false;
-
     const float clear_color_with_alpha[4] = { 0.f, 0.f, 0.f, 0.f };
 
-
-    while (!done)
+    while (true)
     {
+        MSG wndMessage;
         while (::PeekMessage(&wndMessage, NULL, 0U, 0U, PM_REMOVE))
         {
             ::TranslateMessage(&wndMessage);
             ::DispatchMessage(&wndMessage);
-            done = wndMessage.message == WM_QUIT;
+            if (wndMessage.message == WM_QUIT) done = true;
         }
+        if (done) break;
 
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_pMainRenderTargetView, NULL);
         g_pd3dDeviceContext->ClearRenderTargetView(g_pMainRenderTargetView, clear_color_with_alpha);
@@ -236,17 +238,26 @@ void StartLoop()
 
         if (RenderCallback) RenderCallback();
 
-        //static char fps_info[1024];
-        //sprintf_s(fps_info, "FPS: %.2f", ImGui::GetIO().Framerate);
-        //ImGui::GetForegroundDrawList()->AddText({ 5.f, 5.f }, 0xffffffff, fps_info);
+        static char fps_info[1024];
+        sprintf_s(fps_info, "FPS: %.2f", ImGui::GetIO().Framerate);
+
+        ImGui::GetForegroundDrawList()->AddText({ ImGui::GetMainViewport()->Size.x - 100.f, 5.f}, 0xffffffff, fps_info);
 
 
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
         g_pSwapChain->Present(1, 0); // Present with vsync
-
     }
+
+    // Cleanup
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+
+    CleanupDeviceD3D();
+    ::DestroyWindow(hWnd);
+    ::UnregisterClass(wndClass.lpszClassName, wndClass.hInstance);
 
 }
 
@@ -290,7 +301,8 @@ void D3DDebugPrintMsg()
                 message->ID,
                 fmtSeverity[message->Severity],
                 fmtCategory[message->Category],
-                message->DescriptionByteLength, message->pDescription
+                static_cast<int>(message->DescriptionByteLength),
+                message->pDescription
             );
 
             free(message);

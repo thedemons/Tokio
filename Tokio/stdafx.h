@@ -7,14 +7,18 @@
 #include <fstream>
 #include <filesystem>
 #include <iostream>
+#include <chrono>
+#include <cwctype>
 
 #include <Windows.h>
+#include <TlHelp32.h>
+#include <Psapi.h>
 
 #include "Serialize.hpp"
-#include "common.hpp"
+#include "common_err.hpp"
 #include "settings.hpp"
 
-#define SafeResult(T) cpp::result<T, common::err>
+#define SafeResult(...) cpp::result<__VA_ARGS__, common::err>
 
 #define WINAPI_FAILIFN(result, code) \
 if (!(result)) { \
