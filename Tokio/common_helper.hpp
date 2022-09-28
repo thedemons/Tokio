@@ -368,8 +368,6 @@ PROCESSENTRY32W GetRootProcess(std::map<DWORD, PROCESSENTRY32W> processes, PROCE
 // windows
 auto BhGetAllWindows() -> SafeResult(std::vector<WindowData>)
 {
-	std::vector<WindowData> results;
-
 	static auto enumProc = [](HWND hwnd, LPARAM lParam)  -> BOOL __stdcall
 	{
 		auto lpResults = reinterpret_cast<std::vector<WindowData>*>(lParam);
@@ -389,7 +387,9 @@ auto BhGetAllWindows() -> SafeResult(std::vector<WindowData>)
 		return true;
 	};
 
+	std::vector<WindowData> results;
 	EnumWindows(enumProc, reinterpret_cast<LPARAM>(&results));
+
 	WINAPI_FAILIFN_NM(results.size() > 0);
 
 	return results;

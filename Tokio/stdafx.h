@@ -14,9 +14,15 @@
 #include <TlHelp32.h>
 #include <Psapi.h>
 
+#ifdef _DEBUG
+#define DPRINT(...) printf(__VA_ARGS__)
+#else
+#define DPRINT(...) // __VA_ARGS__
+#endif // _DEBUG
+
 #include "Serialize.hpp"
+#include "Settings.hpp"
 #include "common_err.hpp"
-#include "settings.hpp"
 
 #define SafeResult(...) cpp::result<__VA_ARGS__, common::err>
 

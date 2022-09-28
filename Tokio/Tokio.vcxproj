@@ -231,7 +231,7 @@
     <ClInclude Include="GUI\Widgets\WTable.hpp" />
     <ClInclude Include="GUI\Widgets\WTextInput.hpp" />
     <ClInclude Include="Serialize.hpp" />
-    <ClInclude Include="settings.hpp" />
+    <ClInclude Include="Settings.hpp" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="common_err.hpp" />
     <ClInclude Include="ThirdParty\Result.hpp" />

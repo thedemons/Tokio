@@ -41,8 +41,9 @@ int main()
 		return 1;
 	}
 
-
 	MainView::Init();
+	Settings::data.Load();
+
 	MainWindow::SetRenderCallback(MainLoop);
 	MainWindow::StartLoop();
 

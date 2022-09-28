@@ -96,19 +96,23 @@ public:
 	};
 
 	// return true to keep rendering; false to stop the loop
-	typedef Execution (*LPRENDER_CALLBACK)(Table* table, UINT index, void* UserData);
+	typedef Execution (*LPRENDER_CALLBACK)(Table* table, UINT row, void* UserData);
 
 	// sorting callback
 	typedef void (*LPSORT_CALLBACK)(Table* table, UINT column, ImGuiSortDirection direction, void* UserData);
+
+	// input callback
+	typedef void (*LPINPUT_CALLBACK)(Table* table, UINT row, void* UserData);
 
 	struct Desc
 	{
 		std::string Name;
 		bool IsMultiSelection = false;
 		ImGuiTableFlags Flags = ImGuiTableFlags_None;
-		LPRENDER_CALLBACK RenderCallback = nullptr;
-		LPSORT_CALLBACK SortCallback = nullptr;
-		//LPROW_RENDER_CALLBACK InputCallback = nullptr;
+
+		LPSORT_CALLBACK SortCallback = nullptr;			// callback when the table is being sort
+		LPINPUT_CALLBACK InputCallback = nullptr;		// mouse, keyboard inputs are passed to this callback
+		LPRENDER_CALLBACK RenderCallback = nullptr;		// MUST HAVE!! render your rows in this callback
 	};
 
 private:
@@ -132,8 +136,11 @@ private:
 public:
 	inline void Setup(Desc desc)
 	{
+		assert(desc.RenderCallback != nullptr);
+
 		m_desc = desc;
 		m_desc.Name = GUIUtils::GetUniqueName(m_desc.Name, this);
+
 	}
 
 	inline void AddColumn(const std::string& Name, float width = 0.f, ImGuiTableColumnFlags Flags = ImGuiTableColumnFlags_None)

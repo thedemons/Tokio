@@ -151,10 +151,10 @@ private:
 	std::vector<ProcessData> m_processList;
 
 	static Widgets::Table::Execution
-	TableRenderCallback(Widgets::Table* table, UINT index, void* UserData)
+	TableRenderCallback(Widgets::Table* table, UINT row, void* UserData)
 	{
 		ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
-		ProcessData& procData = pThis->m_processList[index];
+		ProcessData& procData = pThis->m_processList[row];
 
 		if (pThis->IsItemFiltered(procData)) return Widgets::Table::Execution::Skip;
 
@@ -239,21 +239,22 @@ public:
 		desc.Name = "##TableAttachProc";
 		desc.RenderCallback = TableRenderCallback;
 		desc.SortCallback = TableSortCallback;
-		desc.Flags = ImGuiTableFlags_RowBg			| // two background mode
-					 ImGuiTableFlags_Borders		| // row borders
-					 ImGuiTableFlags_ScrollY		| // enable vertical scrool
-					 ImGuiTableFlags_Hideable		| // hide the columns
-					 ImGuiTableFlags_Sortable		| // enable sorting
-					 ImGuiTableFlags_Resizable		| // not sure what this does
-					 ImGuiTableFlags_Reorderable	; // re-order the coulmns
+		desc.Flags = ImGuiTableFlags_RowBg							| // two background mode
+					 ImGuiTableFlags_Borders						| // row borders
+					 ImGuiTableFlags_ScrollY						| // enable vertical scrool
+					 ImGuiTableFlags_Hideable						| // hide the columns
+					 ImGuiTableFlags_Sortable						| // enable sorting
+					 ImGuiTableFlags_Resizable						| // not sure what this does
+					 ImGuiTableFlags_Reorderable					; // re-order the coulmns
 
 		m_table.Setup(desc);
 
+		// flags for the first column, aka the icon/creation time
 		auto colFlags = ImGuiTableColumnFlags_NoHide				| // don't hide me please
 						ImGuiTableColumnFlags_NoResize				| // do not resize me also
-						ImGuiTableColumnFlags_DefaultSort			| // who else
-						ImGuiTableColumnFlags_PreferSortDescending	| // descending creation time, latest spawned process will be on top
-						ImGuiTableColumnFlags_WidthFixed			; // need this to initialize the width
+						ImGuiTableColumnFlags_WidthFixed			| // need this to initialize the width
+						ImGuiTableColumnFlags_DefaultSort			| // default sort by creation time
+						ImGuiTableColumnFlags_PreferSortDescending	; // latest spawned process will be on top
 
 		m_table.AddColumn("# ", 15.f, colFlags);
 		m_table.AddColumn("Process");
