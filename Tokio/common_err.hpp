@@ -11,6 +11,26 @@ enum class errcode
 	CreateWindowFailed,
 	CreateD3DDeviceFailed,
 	CannotFindTheViewWindow,
+	AttachProcessFailed,
+
+	ReadProcessMemoryFailed,
+	ReadProcessMemoryNotEnoughByte,
+
+	WriteProcessMemoryFailed,
+	WriteProcessMemoryNotEnoughByte,
+
+	EnumProcessModulesFailed,
+	EnumProcesSymbolsFailed,
+
+	TheImageFileFormatIsNotSupported,
+	CannotParseImagePEHeader
+};
+
+enum class errtype
+{
+	None,
+	WinAPI,
+	HRESULT,
 };
 
 inline std::unordered_map<errcode, std::wstring> rcErrorMessages = {
@@ -19,6 +39,15 @@ inline std::unordered_map<errcode, std::wstring> rcErrorMessages = {
 	{errcode::CreateWindowFailed, L"Failed to create the window"},
 	{errcode::CreateD3DDeviceFailed, L"Failed to create D3D Device"},
 	{errcode::CannotFindTheViewWindow, L"Cannot find the view window"},
+	{errcode::AttachProcessFailed, L"Failed to attach to the target process"},
+	{errcode::ReadProcessMemoryFailed, L"Failed to read from the process memory"},
+	{errcode::ReadProcessMemoryNotEnoughByte, L"ReadProcessMemory didn't read enough bytes"},
+	{errcode::WriteProcessMemoryFailed, L"Failed to write to the process memory"},
+	{errcode::WriteProcessMemoryNotEnoughByte, L"WriteProcessMemory didn't write enough bytes"},
+	{errcode::EnumProcessModulesFailed, L"Failed to enumerate the process' modules"},
+	{errcode::EnumProcesSymbolsFailed, L"Failed to enumerate the process' symbols"},
+	{errcode::TheImageFileFormatIsNotSupported, L"The image file format is not supported"},
+	{errcode::CannotParseImagePEHeader, L"Cannot parse the image PE Header"},
 };
 
 
@@ -26,15 +55,18 @@ class err
 {
 private:
 	errcode code;
-	bool isWinApiErr;
-	DWORD winApiCode = 0;
+	errtype type;
+	DWORD extra_code = 0;
 
 public:
 
-	err(const errcode code = errcode::NoMessage, bool isWinApiErr = false)
-		: code(code), isWinApiErr(isWinApiErr)
+	err(
+		const errcode code = errcode::NoMessage,
+		errtype type = errtype::None,
+		DWORD extra_code = 0
+	)
+		: code(code), type(type), extra_code(extra_code)
 	{
-		if (isWinApiErr) winApiCode = GetLastError();
 	}
 
 	inline std::wstring format()
@@ -50,13 +82,19 @@ public:
 	void show(const std::wstring& title)
 	{
 		wchar_t message[1024];
-		if (isWinApiErr && winApiCode)
+		if (type == errtype::WinAPI && extra_code)
 		{
 			wchar_t* winMessage = nullptr;
 			size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-				NULL, winApiCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPWSTR>(&winMessage), 0, NULL);
+				NULL, extra_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPWSTR>(&winMessage), 0, NULL);
 
-			swprintf_s(message, L"%s\n\nWinAPI Error: %s\nWinAPI Error code: 0x%x", format().c_str(), winMessage, winApiCode);
+			swprintf_s(message, L"%s\n\nWinAPI Error: %s\nWinAPI Error code: 0x%x", format().c_str(), winMessage, extra_code);
+		}
+		else if (type == errtype::HRESULT && extra_code)
+		{
+			_com_error err(extra_code);
+			LPCTSTR errMsg = err.ErrorMessage();
+			swprintf_s(message, L"%s\n\nHRESULT Error: %s\nHRESULT Error code: 0x%x", format().c_str(), errMsg, extra_code);
 		}
 		else
 		{

@@ -1,23 +1,16 @@
-#pragma once
+﻿#pragma once
 
 
 class ViewScanner : public BaseView
 {
 
 public:
-	inline std::string Title() override
+	ViewScanner()
 	{
-		return "Memeory Scan";
-	}
+		m_title = u8"🔍 Memory Scan";
 
-	inline bool isClosable() override
-	{
-		return true;
-	}
-
-	inline bool defaultOpenMode() override
-	{
-		return true;
+		auto viewList = MainView::FindMultipleViewByClass<ViewScanner>();
+		if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
 	}
 
 	void Render(bool& bOpen) override

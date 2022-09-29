@@ -1,22 +1,14 @@
-#pragma once
-
+﻿#pragma once
 
 class ViewWatchList : public BaseView
 {
 public:
-	inline std::string Title() override
+	ViewWatchList()
 	{
-		return "Watch List";
-	}
+		m_title = u8"👁 Watch List";
 
-	inline bool isClosable() override
-	{
-		return true;
-	}
-
-	inline bool defaultOpenMode() override
-	{
-		return true;
+		auto viewList = MainView::FindMultipleViewByClass<ViewScanner>();
+		if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
 	}
 
 	void Render(bool& bOpen) override

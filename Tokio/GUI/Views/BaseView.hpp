@@ -1,9 +1,29 @@
 #pragma once
 class BaseView
 {
+protected:
+	std::string m_title;
+
 public:
-	inline virtual std::string Title() = 0;
-	inline virtual bool isClosable() = 0;
-	inline virtual bool defaultOpenMode() = 0;
+	_CONSTEXPR20 virtual std::string Title() const
+	{
+		return m_title;
+	}
+
+	_CONSTEXPR20 virtual bool isClosable() const
+	{
+		return true;
+	}
+
+	_CONSTEXPR20 virtual bool isDefaultOpen() const
+	{
+		return true;
+	}
+
+	_CONSTEXPR20 virtual bool isAllowMultipleViews() const
+	{
+		return true;
+	}
+
 	virtual void Render(bool& bOpen) = 0;
 };

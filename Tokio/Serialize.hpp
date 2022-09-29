@@ -91,9 +91,10 @@ public:
 	SerializeStream& operator << (const std::wstring& text)
 	{
 		dsize stringSize = static_cast<dsize>(text.size());
+		size_t byteSize = text.size() * sizeof(wchar_t);
 
 		push_back(stringSize);
-		push_back(text.data(), stringSize * static_cast<dsize>(sizeof(wchar_t)));
+		push_back(text.data(), byteSize);
 		return *this;
 	}
 
@@ -101,9 +102,10 @@ public:
 	SerializeStream& operator >> (std::wstring& text)
 	{
 		dsize stringSize = pop_front<dsize>();
+		size_t byteSize = static_cast<size_t>(stringSize) * sizeof(wchar_t);
 
 		text.resize(static_cast<size_t>(stringSize));
-		pop_front(text.data(), stringSize * static_cast<dsize>(sizeof(wchar_t)));
+		pop_front(text.data(), byteSize);
 		return *this;
 	}
 
@@ -159,7 +161,8 @@ public:
 		}
 		else
 		{
-			push_back(vector.data(), vectorSize * sizeof(Type));
+			size_t byteSize = vector.size() * sizeof(Type);
+			push_back(vector.data(), byteSize);
 		}
 
 		return *this;
@@ -185,8 +188,10 @@ public:
 		}
 		else
 		{
-			vector.resize(vectorSize);
-			pop_front(vector.data(), vectorSize * sizeof(Type));
+			vector.resize(static_cast<size_t>(vectorSize));
+
+			size_t byteSize = vector.size() * sizeof(Type);
+			pop_front(vector.data(), byteSize);
 		}
 
 		return *this;
@@ -209,7 +214,8 @@ public:
 		}
 		else
 		{
-			push_back(valArray, Size * sizeof(Type));
+			size_t byteSize = Size * sizeof(Type);
+			push_back(valArray, byteSize);
 		}
 
 		return *this;
@@ -233,7 +239,8 @@ public:
 		}
 		else
 		{
-			pop_front(valArray, Size * sizeof(Type));
+			size_t byteSize = Size * sizeof(Type);
+			pop_front(valArray, byteSize);
 		}
 
 		return *this;
@@ -241,43 +248,43 @@ public:
 
 
 public:
-	[[nodiscard]] constexpr std::vector<BYTE>& vector() noexcept
+	_NODISCARD _CONSTEXPR20 std::vector<BYTE>& vector() noexcept
 	{
 		return m_data;
 	}
 
 	// BYTE* buffer
-	[[nodiscard]] constexpr BYTE* data() noexcept
+	_NODISCARD _CONSTEXPR20 BYTE* data() noexcept
 	{
 		return m_data.data();
 	}
 
 	// const BYTE* buffer
-	[[nodiscard]] constexpr const BYTE* data() const noexcept
+	_NODISCARD _CONSTEXPR20 const BYTE* data() const noexcept
 	{
 		return m_data.data();
 	}
 
 	// void* buffer
-	[[nodiscard]] constexpr void* pdata() noexcept
+	_NODISCARD _CONSTEXPR20 void* pdata() noexcept
 	{
 		return static_cast<void*>(m_data.data());
 	}
 
 	// const void* buffer
-	[[nodiscard]] constexpr const void* pdata() const noexcept
+	_NODISCARD _CONSTEXPR20 const void* pdata() const noexcept
 	{
 		return static_cast<const void*>(m_data.data());
 	}
 
 	// size of the buffer
-	[[nodiscard]] constexpr size_t size() const noexcept
+	_NODISCARD _CONSTEXPR20 size_t size() const noexcept
 	{
 		return m_data.size();
 	}
 
 	// don't think i would ever use this
-	[[nodiscard]] constexpr operator std::vector<BYTE>& () noexcept
+	_NODISCARD _CONSTEXPR20 operator std::vector<BYTE>& () noexcept
 	{
 		return m_data;
 	}
@@ -300,7 +307,7 @@ public:
 	}
 
 	// construct object from stream
-	constexpr void FromStream(SerializeStream& stream)
+	inline void FromStream(SerializeStream& stream)
 	{
 		Deserialize(stream);
 	}

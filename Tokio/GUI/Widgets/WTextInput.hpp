@@ -31,7 +31,7 @@ private:
 	}
 
 public:
-	inline void Setup(Desc desc)
+	void Setup(const Desc& desc)
 	{
 		m_desc = desc;
 		m_desc.Label = GUIUtils::GetUniqueName(m_desc.Label, this);
@@ -51,33 +51,33 @@ public:
 		);
 	}
 
-	inline const char* c_str()
+	_CONSTEXPR20 const char* c_str() const
 	{
 		return m_buffer.c_str();
 	}
 
-	inline char* data()
+	_CONSTEXPR20 char* data()
 	{
 		return m_buffer.data();
 	}
 
-	inline size_t length()
+	_CONSTEXPR20 size_t length() const
 	{
 		return m_buffer.length();
 	}
 
-	inline size_t strlen()
+	_CONSTEXPR20 size_t strlen() const
 	{
 		return m_privateData.BufTextLen;
 	}
 
-	inline std::string& str()
+	_CONSTEXPR20 std::string& str()
 	{
 		return m_buffer;
 	}
 
 	// the string without trailing null bytes
-	inline std::string str_strip()
+	_CONSTEXPR20 std::string str_strip() const
 	{
 		return std::string(m_buffer.c_str(), m_privateData.BufTextLen);
 	}

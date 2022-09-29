@@ -31,13 +31,25 @@
     <Filter Include="GUI\Widgets">
       <UniqueIdentifier>{db139f84-2800-4eb3-896e-17fefcaeaa59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{5fce8086-681b-4fc9-a967-d222f16b588a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Memory">
+      <UniqueIdentifier>{975143df-4b5a-41fb-a29d-e496f4fbff95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ImGui\misc">
+      <UniqueIdentifier>{26c2b556-a133-4fdb-859a-237eb43e2a7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Resources">
+      <UniqueIdentifier>{352e2c7b-ca3e-43d1-91dd-5e5b2029106b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\PEInfo">
+      <UniqueIdentifier>{5f7135ba-4299-402e-86b5-67bee452819f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GUI\MainWindow.cpp">
-      <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="GUI\ImGui\imgui_widgets.cpp">
       <Filter>GUI\ImGui</Filter>
@@ -60,6 +72,18 @@
     <ClCompile Include="GUI\MainView.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="MainApplication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Engine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ImGui\misc\imgui_freetype.cpp">
+      <Filter>GUI\ImGui\misc</Filter>
+    </ClCompile>
+    <ClCompile Include="common_helper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
@@ -77,9 +101,6 @@
     <ClInclude Include="Serialize.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\MainWindow.h">
-      <Filter>GUI</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\Views\ViewAttachProc.hpp">
       <Filter>GUI\Views</Filter>
     </ClInclude>
@@ -96,9 +117,6 @@
       <Filter>GUI\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="GUI\ImGui\imstb_textedit.h">
-      <Filter>GUI\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\ImGui\imstb_truetype.h">
       <Filter>GUI\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="GUI\ImGui\imconfig.h">
@@ -125,11 +143,44 @@
     <ClInclude Include="GUI\Themes.hpp">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="common_helper.hpp">
+    <ClInclude Include="common_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Widgets\WTextInput.hpp">
       <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\WPopup.hpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="MainApplication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Memory\BaseMemory.hpp">
+      <Filter>Engine\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Memory\Win32Memory.hpp">
+      <Filter>Engine\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\misc\imgui_freetype.h">
+      <Filter>GUI\ImGui\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\FontAwesome.h">
+      <Filter>Header Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\FontAwesomeImpl.h">
+      <Filter>Header Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Views\ViewModules.hpp">
+      <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\PEInfo\PEParser.hpp">
+      <Filter>Engine\PEInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\EngineDef.hpp">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

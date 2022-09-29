@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GUI/MainWindow.h"
+#include "MainApplication.h"
 #include "GUI/MainView.h"
 
 void MainLoop()
@@ -34,18 +34,20 @@ void MainLoop()
 
 int main()
 {
-	auto initResult = MainWindow::Init();
+	auto initResult = MainApplication::Init();
 	if (initResult.has_error())
 	{
 		initResult.error().show(L"Cannot initialize window");
 		return 1;
 	}
 
-	MainView::Init();
 	Settings::data.Load();
 
-	MainWindow::SetRenderCallback(MainLoop);
-	MainWindow::StartLoop();
+	Engine::Init();
+	MainView::Init();
+
+	MainApplication::SetRenderCallback(MainLoop);
+	MainApplication::StartLoop();
 
 	return 0;
 }

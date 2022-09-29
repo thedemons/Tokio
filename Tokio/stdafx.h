@@ -9,6 +9,8 @@
 #include <iostream>
 #include <chrono>
 #include <cwctype>
+#include <ShlObj.h>
+#include <comdef.h>
 
 #include <Windows.h>
 #include <TlHelp32.h>
@@ -28,7 +30,12 @@
 
 #define WINAPI_FAILIFN(result, code) \
 if (!(result)) { \
-	return cpp::fail(common::err(common::errcode::code, true)); \
+	return cpp::fail(common::err(common::errcode::code, common::errtype::WinAPI, GetLastError())); \
+}
+
+#define HRESULT_FAILIFN(result, code) \
+if (result != S_OK) { \
+	return cpp::fail(common::err(common::errcode::code, common::errtype::HRESULT, result)); \
 }
 
 #define RESULT_FAILIFN(result, code) \
@@ -38,10 +45,25 @@ if (!(result)) { \
 
 #define WINAPI_FAILIFN_NM(result) \
 if (!(result)) { \
-	return cpp::fail(common::err(common::errcode::NoMessage, true)); \
+	return cpp::fail(common::err(common::errcode::NoMessage, common::errtype::WinAPI, GetLastError())); \
+}
+
+#define HRESULT_FAILIFN_NM(result) \
+if (result != S_OK) { \
+	return cpp::fail(common::err(common::errcode::NoMessage, common::errtype::HRESULT, result)); \
 }
 
 #define RESULT_FAILIFN_NM(result) \
 if (!(result)) { \
 	return cpp::fail(common::err(common::errcode::NoMessage)); \
 }
+
+#define RESULT_FAILIFN_PASS(result, error) \
+if (!(result)) { \
+	return cpp::fail(error); \
+}
+
+#define RESULT_THROW(code) return cpp::fail(common::err(common::errcode::code))
+
+
+#include "common_helper.h"

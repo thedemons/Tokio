@@ -1,14 +1,17 @@
-#pragma once
+﻿#pragma once
 #include "stdafx.h"
 #include "MainView.h"
 #include "Themes.hpp"
 
-#include "common_helper.hpp"
+#include "Resources/FontAwesomeImpl.h"
 #include "Widgets/WTable.hpp"
 #include "Widgets/WTextInput.hpp"
+#include "Widgets/WPopup.hpp"
 #include "Views/ViewScanner.hpp"
+//#include "Views/ViewTreeTable.hpp"
 #include "Views/ViewWatchList.hpp"
 #include "Views/ViewAttachProc.hpp"
+#include "Views/ViewModules.hpp"
 
 
 namespace MainView
@@ -21,10 +24,12 @@ void Init()
 	BaseView* viewScanner = new ViewScanner();
 	BaseView* viewWatchList = new ViewWatchList();
 	BaseView* viewAttachProc = new ViewAttachProc();
+	BaseView* viewModules = new ViewModules();
 
-	m_ViewList.push_back({ viewScanner, viewScanner->defaultOpenMode() });
-	m_ViewList.push_back({ viewWatchList, viewWatchList->defaultOpenMode() });
-	m_ViewList.push_back({ viewAttachProc, viewAttachProc->defaultOpenMode() });
+	m_ViewList.push_back({ viewScanner, viewScanner->isDefaultOpen() });
+	m_ViewList.push_back({ viewWatchList, viewWatchList->isDefaultOpen() });
+	m_ViewList.push_back({ viewAttachProc, viewAttachProc->isDefaultOpen() });
+	m_ViewList.push_back({ viewModules, viewModules->isDefaultOpen() });
 }
 
 void RenderMenuBar()
@@ -33,13 +38,12 @@ void RenderMenuBar()
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::Selectable("Attach Process"))
+			if (ImGui::Selectable(u8"🖥 Attach Process"))
 			{
 				auto viewAttachProc = FindViewByClass<ViewAttachProc>();
 
 				if (viewAttachProc.has_error()) viewAttachProc.error().show();
 				else viewAttachProc.value().bOpen = true;
-
 			}
 			ImGui::EndMenu();
 		}
