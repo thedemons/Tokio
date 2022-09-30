@@ -245,9 +245,11 @@
     <ClInclude Include="GUI\Views\ViewModules.hpp" />
     <ClInclude Include="GUI\Views\ViewScanner.hpp" />
     <ClInclude Include="GUI\Views\ViewWatchList.hpp" />
+    <ClInclude Include="GUI\Widgets\Widgets.hpp" />
     <ClInclude Include="GUI\Widgets\WPopup.hpp" />
     <ClInclude Include="GUI\Widgets\WTable.hpp" />
     <ClInclude Include="GUI\Widgets\WTextInput.hpp" />
+    <ClInclude Include="GUI\Widgets\WTreeTable.hpp" />
     <ClInclude Include="MainApplication.h" />
     <ClInclude Include="Resources\FontAwesome.h" />
     <ClInclude Include="Resources\FontAwesomeImpl.h" />
@@ -256,6 +258,9 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="common_err.hpp" />
     <ClInclude Include="ThirdParty\Result.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="GUI\ImGui\Notice.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

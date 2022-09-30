@@ -1646,6 +1646,17 @@ enum ImGuiCol_
     ImGuiCol_NavWindowingHighlight, // Highlight window when using CTRL+TAB
     ImGuiCol_NavWindowingDimBg,     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
     ImGuiCol_ModalWindowDimBg,      // Darken/colorize entire screen behind a modal window, when one is active
+
+    // MODIFIED COLOR
+    ImGuiCol_BorderHovered,         // Hover border for selectable, tree node, headers,...
+    ImGuiCol_TableRowHovered,       // Table row hover color
+    ImGuiCol_TableRowActive,        // Table row active color
+    ImGuiCol_TableRowClicked,       // on mouse down
+
+    ImGuiCol_TextAddress,           // Addresses display color
+    ImGuiCol_TextAddressModule,     // Addresses in modules
+    ImGuiCol_TextFunction,          // Functions/symbols
+    ImGuiCol_TextModule,            // Modules name
     ImGuiCol_COUNT
 };
 

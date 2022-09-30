@@ -4,11 +4,12 @@
 #include "Themes.hpp"
 
 #include "Resources/FontAwesomeImpl.h"
+#include "Widgets/Widgets.hpp"
 #include "Widgets/WTable.hpp"
+#include "Widgets/WTreeTable.hpp"
 #include "Widgets/WTextInput.hpp"
 #include "Widgets/WPopup.hpp"
 #include "Views/ViewScanner.hpp"
-//#include "Views/ViewTreeTable.hpp"
 #include "Views/ViewWatchList.hpp"
 #include "Views/ViewAttachProc.hpp"
 #include "Views/ViewModules.hpp"
@@ -16,35 +17,53 @@
 
 namespace MainView
 {
+void HandlerAttachProcess(std::shared_ptr<ProcessData> target);
 
 void Init()
 {
 	ThemeSettings::SetDarkVSTheme();
 
-	BaseView* viewScanner = new ViewScanner();
-	BaseView* viewWatchList = new ViewWatchList();
+	BaseView* viewScanner    = new ViewScanner();
+	BaseView* viewWatchList  = new ViewWatchList();
 	BaseView* viewAttachProc = new ViewAttachProc();
-	BaseView* viewModules = new ViewModules();
+	BaseView* viewModules    = new ViewModules();
 
-	m_ViewList.push_back({ viewScanner, viewScanner->isDefaultOpen() });
-	m_ViewList.push_back({ viewWatchList, viewWatchList->isDefaultOpen() });
+	m_ViewList.push_back({ viewScanner   , viewScanner->isDefaultOpen()    });
+	m_ViewList.push_back({ viewWatchList , viewWatchList->isDefaultOpen()  });
 	m_ViewList.push_back({ viewAttachProc, viewAttachProc->isDefaultOpen() });
-	m_ViewList.push_back({ viewModules, viewModules->isDefaultOpen() });
+	m_ViewList.push_back({ viewModules   , viewModules->isDefaultOpen()    });
+
+	Engine::OnAttachCallback(HandlerAttachProcess);
+
+	Engine::Attach(43572);
 }
 
 void RenderMenuBar()
 {
+	bool bOpenAttachProc = false;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 7.f, 7.f });
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("File"))
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 3.f);
+		if (ImGui::Button(u8"🖥")) bOpenAttachProc = true;
+		if (ImGui::IsItemHovered())
 		{
-			if (ImGui::Selectable(u8"🖥 Attach Process"))
-			{
-				auto viewAttachProc = FindViewByClass<ViewAttachProc>();
+			ImGui::BeginTooltip();
+			ImGui::Text("Attach Process");
+			ImGui::EndTooltip();
+			
+		}
 
-				if (viewAttachProc.has_error()) viewAttachProc.error().show();
-				else viewAttachProc.value().bOpen = true;
+		if (ImGui::BeginMenuEx("File", u8"123", true))
+		{
+			if (ImGui::Selectable(u8"🖥 Attach Process")) bOpenAttachProc = true;
+
+			if (ImGui::Selectable(u8"💾 Save", false))
+			{
+
 			}
+
 			ImGui::EndMenu();
 		}
 
@@ -59,6 +78,16 @@ void RenderMenuBar()
 		}
 
 		ImGui::EndMenuBar();
+	}
+	ImGui::PopStyleVar();
+
+	// find the ViewAttachProc and open it
+	if (bOpenAttachProc)
+	{
+		auto viewAttachProc = FindViewByClass<ViewAttachProc>();
+
+		if (viewAttachProc.has_error()) viewAttachProc.error().show();
+		else viewAttachProc.value().bOpen = true;
 	}
 }
 
@@ -110,5 +139,13 @@ void Render()
 }
 
 
+void HandlerAttachProcess(std::shared_ptr<ProcessData> target)
+{
+	auto find = FindMultipleViewByClass<ViewModules>();
+	for (auto& pView : find)
+	{
+		pView->Update(target->modules);
+	}
+}
 
 }

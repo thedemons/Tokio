@@ -1798,6 +1798,9 @@ void ImGui::TableEndRow(ImGuiTable* table)
                 window->DrawList->AddRectFilled(row_rect.Min, row_rect.Max, bg_col0);
             if (bg_col1 != 0 && row_rect.Min.y < row_rect.Max.y)
                 window->DrawList->AddRectFilled(row_rect.Min, row_rect.Max, bg_col1);
+
+            //Selectable("test");
+            //InvisibleButton("test", { 100});
         }
 
         // Draw cell background color

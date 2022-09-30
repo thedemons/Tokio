@@ -43,7 +43,6 @@ int main()
 
 	Settings::data.Load();
 
-	Engine::Init();
 	MainView::Init();
 
 	MainApplication::SetRenderCallback(MainLoop);

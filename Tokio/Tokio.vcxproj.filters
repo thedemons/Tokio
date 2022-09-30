@@ -182,5 +182,16 @@
     <ClInclude Include="Engine\EngineDef.hpp">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="GUI\Widgets\WTreeTable.hpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\Widgets.hpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="GUI\ImGui\Notice.md">
+      <Filter>GUI\ImGui</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -256,12 +256,29 @@ struct PE_Data
 	PE_DirectoryData dirs;
 };
 
+// Module information, including PE header info
 struct ModuleData
 {
-	POINTER baseAddress = 0;
+	POINTER address = 0;
 	std::string moduleNameA;
 	std::string modulePathA;
 	std::wstring moduleNameW;
 	std::wstring modulePathW;
 	PE_Data pe;
+};
+
+// Contains all information about the target process
+struct ProcessData
+{
+	// process id
+	DWORD pid; 
+
+	// process handle for memory operation
+	HANDLE handle;
+
+	// all loaded modules
+	std::vector<ModuleData> modules;
+
+	// the base image module
+	inline ModuleData& base() { return modules[0]; }
 };

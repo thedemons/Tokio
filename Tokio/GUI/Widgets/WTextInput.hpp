@@ -4,11 +4,17 @@ namespace Widgets
 class TextInput
 {
 public:
+
+	typedef void (*LPEDIT_CALLBACK)(TextInput* tinput, ImGuiInputTextCallbackData* data, void* UserData);
 	struct Desc
 	{
 		std::string Label;
 		std::string Hint;
 		ImGuiInputTextFlags Flags = ImGuiInputTextFlags_None;
+
+		// Call on modification of the text input content
+		LPEDIT_CALLBACK EditCallback = nullptr;
+		void* EditUserData = nullptr;
 	};
 
 private:
@@ -24,9 +30,16 @@ private:
 		{
 			pThis->m_buffer.resize(data->BufSize);
 			data->Buf = pThis->m_buffer.data();
+			pThis->m_privateData = *data;
+		}
+		else
+		{
+			pThis->m_privateData = *data;
+
+			if (pThis->m_desc.EditCallback) pThis->m_desc.EditCallback(pThis, data, pThis->m_desc.EditUserData);
 		}
 
-		pThis->m_privateData = *data;
+
 		return 0;
 	}
 

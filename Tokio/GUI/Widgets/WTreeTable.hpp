@@ -4,32 +4,91 @@
 namespace Widgets
 {
 
-class Table
+// Tree table widget
+// Copied from the Widgets::Table with some reworks
+template <typename UserNode>
+class TreeTable
 {
 public:
+	
+	// Make your tree data as UserNode and inherit this class
+	// Then pass an std::vector<UserNode>& to ::Render()
+	class NestedNode
+	{
+	public:
+		bool m_open = false;			// collapsed by default
+		bool m_NoPushOnOpen = false;	// set to true if you use ImGuiTreeNodeFlags_NoTreePushOnOpen for this node
+										// this is not so clean, i might rework it in the future
+
+		UserNode* m_parent = nullptr;	// parent of this node
+		std::vector<UserNode> m_childs;	// childrens of this node
+
+		// empty constructor
+		NestedNode() {}
+
+		// construct a child
+		NestedNode(UserNode* lpParent) : m_parent(lpParent) {}
+		NestedNode(NestedNode* lpParent) : m_parent(reinterpret_cast<UserNode*>(lpParent)) {}
+
+		// if this node has no childrens
+		inline bool HasNoChilds() const
+		{
+			return m_childs.size() == 0;
+		}
+
+		inline UserNode& AddChild()
+		{
+			return m_childs.emplace_back(this);
+		}
+	};
+
 	// return type for the Render Callback
 	// if the callback never return Execution::Stop,
-	// it will be enforced by the nMaxItem passed to Table::Render()
+	// it will be enforced by the maximum number of items
 	enum class Execution
 	{
 		Continue,	// continue rendering
 		Stop,		// stop rendering
-		Skip		// skip this item
+		Skip,		// skip this item
+		SkipNode,	// skip this node, continue on the parent node
 	};
 
-	typedef void (*LPINPUT_CALLBACK)(Table* table, INT index, void* UserData);
-	typedef Execution (*LPRENDER_CALLBACK)(Table* table, size_t index, void* UserData);
-	typedef void (*LPPOPUPRENDER_CALLBACK)(Table* table, size_t index, void* UserData);
-	typedef void (*LPSORT_CALLBACK)(Table* table, size_t column, ImGuiSortDirection direction, void* UserData);
+	// Index is the index of the node, including nested childs
+	// Level is the depth from the root node
+	// 
+	// index	node			level
+	// 0		- dir1			0
+	// 1		  . file 1		1
+	// 2		  . file 2		1
+	// 3		+ dir2			0		// 4 items in this dir are collapsed
+	// 8		- dir3			0		// index jump to 8, because we skipped 4 items in the previous node [3, (4, 5, 6, 7), 8]
+	// 9		  - dir4		1		
+	// 10		    . file 3	2
+	// 11			+ dir 5		2		// 3 items collapsed [11, (12, 13, 14), 15]
+	// 15			. file 4	2
+	//
+	typedef Execution(*LPRENDER_CALLBACK)(TreeTable* table, UserNode& node, size_t index, size_t level, void* UserData);
 
+	typedef void (*LPINPUT_CALLBACK)(TreeTable* table, INT index, void* UserData);
+	typedef void (*LPPOPUPRENDER_CALLBACK)(TreeTable* table, size_t index, void* UserData);
+	typedef void (*LPSORT_CALLBACK)(TreeTable* table, size_t column, ImGuiSortDirection direction, void* UserData);
 
-	// Table setup description
+	// Tree table setup description
 	struct Desc
 	{
 		std::string Name;
 		bool IsMultiSelection = false;
 		ImGuiTableFlags Flags = ImGuiTableFlags_None;		// Flags for the table
 		ImGuiTableFlags ExtraFlags = ImGuiTableFlags_None;	// Extra flag for row rendering
+
+		// The amount of indent, it will use ImGuiStyle.IndentSpacing
+		// by default if this is not set (<= 0.f)
+		float IndentSpacing = 0.f;
+
+		// The spacing between the actual starting x position
+		// and the item being drawn, this spacing is to fit
+		// the arrow '>' button to expand the tree
+		float ItemOffset = 10.f;
 
 		TableFlags WidgetFlags = TableFlags::None;
 
@@ -46,7 +105,7 @@ public:
 		// return	Execution::Continue to keep rendering
 		//			Execution::Stop to stop rendering
 		//			Execution::Skip to skip the row
-		LPRENDER_CALLBACK RenderCallback = nullptr;		
+		LPRENDER_CALLBACK RenderCallback = nullptr;
 
 		// Use this if you want a popup openned when
 		// the user right-clicked something
@@ -64,8 +123,8 @@ public:
 	struct ColumnData
 	{
 		size_t Index = 0;			// auto increase
-		float Width = 0.f;		// initial width
-		std::string Name;		// unique name
+		float Width = 0.f;			// initial width
+		std::string Name;			// unique name
 		ImGuiTableColumnFlags Flags = ImGuiTableColumnFlags_None;
 	};
 
@@ -83,6 +142,9 @@ public:
 
 	// current sort column index
 	size_t m_currentSortColumn = 0;
+
+	// current node offset, same as TreePush TreePop
+	float m_nodeOffset = 0.f;
 
 	// current sort direction
 	ImGuiSortDirection m_currentSortDir = ImGuiSortDirection_Ascending;
@@ -111,6 +173,11 @@ public:
 			popupDesc.RenderUserData = this;
 			m_popup.Setup(popupDesc);
 		}
+
+		if (m_desc.IndentSpacing <= 0.0f)
+		{
+			m_desc.IndentSpacing = ImGui::GetStyle().IndentSpacing;
+		}
 	}
 
 	void AddColumn(const std::string& Name, ImGuiTableColumnFlags Flags = ImGuiTableColumnFlags_None, float width = 0.f)
@@ -119,29 +186,37 @@ public:
 		column.Name = Name;
 		column.Width = width;
 		column.Flags = Flags;
-		column.Index = static_cast<size_t>(m_columns.size());
+		column.Index = m_columns.size();
 
 		m_columns.push_back(column);
 	}
 
 private:
-	void HandleRowInput(ImGuiTable* table, size_t index)
+	// return true if the row was clicked
+	bool HandleRowInput(ImGuiTable* table, size_t index)
 	{
+		// imgui_tables.cpp #2016
+		// fix for one-column tables don't call ImGuiTable::EndCell to calculate the cell height
+		auto* window = table->InnerWindow;
+		float CurPosY2 = window->DC.CursorMaxPos.y + table->CellPaddingY;
+		float RowPosY2 = (table->RowPosY2 < CurPosY2) ? CurPosY2 : table->RowPosY2;
+
 		// get the row rect
 		ImRect row_rect(
 			table->WorkRect.Min.x,
 			table->RowPosY1,
 			table->WorkRect.Max.x,
-			table->RowPosY2
+			RowPosY2
 		);
 		row_rect.ClipWith(table->BgClipRect);
 
-		if (row_rect.Min.y >= row_rect.Max.y) return;
+		if (row_rect.Min.y >= row_rect.Max.y) return false;
 
-		bool bHover = 
+		bool bHover =
 			ImGui::IsMouseHoveringRect(row_rect.Min, row_rect.Max, false) &&
 			ImGui::IsWindowFocused(ImGuiFocusedFlags_None) &&
 			!ImGui::IsAnyItemHovered();
+		auto hoveredID = ImGui::GetHoveredID();
 
 		bool bLBtnDown = ImGui::IsMouseDown(0);
 		bool bLBtnClicked = ImGui::IsMouseReleased(0);
@@ -154,11 +229,11 @@ private:
 			// TODO FIXME
 			m_currentHoverIndex = index;
 
-			if (bLBtnDown) 
+			if (bLBtnDown)
 				color = ImGui::GetColorU32(ImGuiCol_TableRowClicked);
 			else if (bItemSelected)
 				color = ImGui::GetColorU32(ImGuiCol_TableRowActive);
-			else 
+			else
 				color = ImGui::GetColorU32(ImGuiCol_TableRowHovered);
 
 			if (!bItemSelected && bLBtnClicked)
@@ -175,6 +250,8 @@ private:
 
 		// override row bg color (imgui_tables.cpp line 1771)
 		table->RowBgColor[1] = color;
+
+		return bHover && bLBtnClicked;
 	}
 
 	void HandlePopup()
@@ -199,7 +276,7 @@ private:
 			}
 
 			// open the popup
-			m_popup.Open(reinterpret_cast<void*>(index));
+			m_popup.Open(reinterpret_cast<void*>(UINT_PTR(index)));
 		}
 
 	}
@@ -213,8 +290,78 @@ private:
 
 		// forward the callback
 		// OpenUserData is the index hovered when the user right-clicked
-		size_t index = reinterpret_cast<size_t>(OpenUserData);
+		size_t index = size_t(OpenUserData);
 		pThis->m_desc.PopupRenderCallback(pThis, index, pThis->m_desc.PopupRenderUserData);
+	}
+
+	// Apply the indent spacing 
+	inline void ApplyIndent(float customOffset = 0.f)
+	{
+		ImVec2 cursorPosition = ImGui::GetCursorPos();
+		ImGui::SetCursorPos(cursorPosition + ImVec2(m_nodeOffset + m_desc.ItemOffset + customOffset, 0));
+	}
+
+	void RenderNode(ImGuiTable* table, UserNode& node, size_t& index, size_t level, Execution& state)
+	{
+		// if the last node was skipped, don't begin a new row
+		// because we have began a new row for it and haven't closed it yet
+		if (state != Execution::Skip && state != Execution::SkipNode)
+		{
+			ImGui::TableNextRow();
+			SetColumnIndex(0);
+		}
+
+		state = m_desc.RenderCallback(this, node, index, level, m_desc.RenderUserData);
+
+		// the node was skipped
+		if (state != Execution::Continue)
+		{
+			// increase the index before skipping this node
+			index += node.m_childs.size();
+			return;
+		}
+
+		ImGui::TableSetColumnIndex(static_cast<int>(m_columns.size() - 1));
+
+		if (HandleRowInput(table, index))
+		{
+			node.m_open = !node.m_open;
+		}
+
+
+		index += 1;
+		level += 1;
+
+		// if this node is open, we render its childs
+		if (node.m_open && node.m_childs.size() > 0)
+		{
+			if (!node.m_NoPushOnOpen) TreePush();
+
+			for (auto& child : node.m_childs)
+			{
+				RenderNode(table, child, index, level, state);
+				if (state == Execution::Stop) return;
+				if (state == Execution::SkipNode) break;
+			}
+
+			if (!node.m_NoPushOnOpen)
+			{
+				TreePop();
+
+				// IMPORTANT: Fix a bug in logic
+				// If the last node is skipped, it won't make begin a new row
+				// and apply indent, so the indent stuck at whatever the last
+				// node's indent was
+				if (state == Execution::Skip || state == Execution::SkipNode)
+					ApplyIndent(-m_desc.ItemOffset - m_desc.IndentSpacing);
+			}
+			
+		}
+		// if it isn't open, we add the child size the index
+		else
+		{
+			index += node.m_childs.size();
+		}
 	}
 
 public:
@@ -286,13 +433,48 @@ public:
 		return Sort();
 	}
 
-	// nMaxItem: enforce the row/item limit
-	// bypass the Execution::Continue returned from the RenderCallback
-	void Render(size_t nMaxItem, ImVec2 Size = { 0.f, 0.f })
+	// Push the tree by one indent
+	inline void TreePush()
+	{
+		m_nodeOffset += m_desc.IndentSpacing;
+	}
+
+	// Pop the tree by one indent
+	inline void TreePop()
+	{
+		m_nodeOffset -= m_desc.IndentSpacing;
+	}
+
+	// Get the item x offset
+	inline float GetItemOffset()
+	{
+		return m_nodeOffset + m_desc.ItemOffset;
+	}
+
+	// Use this instead of ImGui::TableNextColumn()
+	// to handle the indent cursor position automatically
+	inline bool NextColumn()
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiTable* table = g.CurrentTable;
+		return SetColumnIndex(table->CurrentColumn + 1);
+	}
+
+	inline bool SetColumnIndex(int index)
+	{
+		bool result = ImGui::TableSetColumnIndex(index);
+		ApplyIndent();
+		return result;
+	}
+
+	// The widget will modify the node m_open state only, userdata will be left untouched
+	void Render(std::vector<UserNode>& RootNode, ImVec2 Size = { 0.f, 0.f })
 	{
 		ImGuiContext& g = *GImGui;
 
-		if (ImGui::BeginTable(m_desc.Name.c_str(), static_cast<int>(m_columns.size()), m_desc.Flags, Size))
+		int columnCount = static_cast<int>(m_columns.size());
+
+		if (ImGui::BeginTable(m_desc.Name.c_str(), columnCount, m_desc.Flags, Size))
 		{
 			auto* table = g.CurrentTable;
 
@@ -309,53 +491,34 @@ public:
 			}
 
 			// check for sort events
-			// this code is straight up copied from the imgui_demo.cpp (why SpecsDirty?)
-			if (m_desc.Flags & ImGuiTableFlags_Sortable)
-			{
-				if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs(); sorts_specs->SpecsDirty)
-				{
-					sorts_specs->SpecsDirty = false;
-					Sort(
-						sorts_specs->Specs->ColumnIndex,
-						sorts_specs->Specs->SortDirection
-					);
-				}
-			}
+			//// this code is straight up copied from the imgui_demo.cpp (why SpecsDirty?)
+			//if (m_desc.Flags & ImGuiTableFlags_Sortable)
+			//{
+			//	if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs(); sorts_specs->SpecsDirty)
+			//	{
+			//		sorts_specs->SpecsDirty = false;
+			//		Sort(
+			//			sorts_specs->Specs->ColumnIndex,
+			//			sorts_specs->Specs->SortDirection
+			//		);
+			//	}
+			//}
 
 			// reset hover index before we rendering any rows
 			// notice that the m_currentHoverIndex of the last
 			// frame will still be available for SortCallback
 			// to use, we might use it in the future
-			m_currentHoverIndex = -1;
+			//m_currentHoverIndex = -1;
 
-			//table->Flags |= m_desc.ExtraFlags;
+			// reset node offset before we begin
+			m_nodeOffset = 0.f;
 
+			size_t index = 0;
 			Execution state = Execution::Continue;
-
-			for (size_t i = 0; state != Execution::Stop && i < nMaxItem; i++)
+			for (auto& node : RootNode)
 			{
-				if (state != Execution::Skip)
-				{
-					ImGui::TableNextRow();
-					ImGui::TableSetColumnIndex(0);
-				}
-
-				state = m_desc.RenderCallback(this, i, m_desc.RenderUserData);
-
-				if (state != Execution::Skip)
-				{
-					// if we don't jump to the last column
-					// it will fail to calculate the rect size
-					// just in case we didn't render enough
-					// columns in the user RenderCallback
-					ImGui::TableSetColumnIndex(static_cast<int>(m_columns.size()) - 1);
-
-
-					// TODO: Check for active items and
-					// ImGui::IsWindowFocused(ImGuiFocusedFlags_None) && !ImGui::IsAnyItemHovered()
-					// for not to call HandleRowInput multiple times
-					HandleRowInput(table, i);
-				}
+				RenderNode(table, node, index, 0, state);
+				if (state == Execution::Stop) break;
 			}
 
 			// it means that we begin a table row
@@ -364,7 +527,7 @@ public:
 			// i don't know if it is appropriate to do this
 			// this is EXTREMELY hacky and dirty, changing the internal
 			// of imgui, but it works fine so be it!
-			if (state == Execution::Skip)
+			if (state == Execution::Skip || state == Execution::SkipNode)
 			{
 				// ImGui::TableNextRow added the offset in imgui_tables.cpp#1691
 				// so we must subtract it, not sure what the ImMax does in #1692
@@ -388,10 +551,10 @@ public:
 			ImGui::EndTable();
 
 			// call input callback
-			if (m_desc.InputCallback)
-				m_desc.InputCallback(this, m_currentHoverIndex, m_desc.InputUserData);
+			//if (m_desc.InputCallback)
+			//	m_desc.InputCallback(this, m_currentHoverIndex, m_desc.InputUserData);
 
-			HandlePopup();
+			//HandlePopup();
 		}
 	}
 

@@ -8,67 +8,81 @@
 namespace Engine
 {
 
-Win32Memory g_MemWin32;
+// BASE MEMORY ENGINE
+std::shared_ptr<BaseMemory> g_Memory = nullptr;
 
-void Init()
+// TARGET PROCESS
+std::shared_ptr<ProcessData> g_Target = nullptr;
+
+// On process attach callback
+LPON_ATTACH_CALLBACK pAttachCallback = nullptr;
+
+_NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 {
-	g_MemoryEngine = static_cast<BaseMemory*>(&g_MemWin32);
-}
+	// detach the current target before attaching to a new proce
+	if (g_Target != nullptr) Detach();
 
-auto Attach(DWORD pid) -> SafeResult(void)
-{
-	auto result = g_MemoryEngine->Attach(pid);
-	if (result.has_error()) return result;
+	// init the memory engine
+	g_Memory = std::make_shared<Win32Memory>();
 
-	g_pid = g_MemoryEngine->GetPID();
-	g_handle = g_MemoryEngine->GetHandle();
-
-	if (auto result = g_MemoryEngine->GetModuleList(); !result.has_error())
+	auto result = g_Memory->Attach(pid);
+	if (result.has_error())
 	{
-		g_moduleList = result.value();
+		g_Memory.reset();
+		return result;
 	}
 
-	for (auto& modData : g_moduleList)
+	g_Target = result.value();
+
+	// parse PE header for each module in the target process
+	// TODO: merge this with Win32Memory
+	for (auto& modData : g_Target->modules)
 	{
 		if (auto peInfo = PEParser::GetPEInfo(modData.modulePathW); !peInfo.has_error())
 		{
 			modData.pe = peInfo.value();
 		}
+		else
+		{
+			peInfo.error().show(L"Error while parsing PE header");
+		}
+
 	}
 
-	return result;
+	if (pAttachCallback) pAttachCallback(g_Target);
+
+	return g_Target;
 }
 
-_CONSTEXPR20 void Detach()
+void Detach()
 {
-	g_MemoryEngine->Detach();
+	g_Memory->Detach();
+	g_Memory.reset();
+	g_Target.reset();
 }
 
-constexpr BaseMemory* Memory()
+_NODISCARD std::shared_ptr<ProcessData> Target()
 {
-	return g_MemoryEngine;
+	return g_Target;
 }
 
-_CONSTEXPR20 auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void)
+_NODISCARD std::shared_ptr<BaseMemory> Memory()
 {
-	return g_MemoryEngine->Read(src, dest, size);
+	return g_Memory;
 }
 
-_CONSTEXPR20 auto WriteMem(POINTER dest, const void* src, size_t size)->SafeResult(void)
+_NODISCARD auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void)
 {
-	return g_MemoryEngine->Write(dest, src, size);
+	return g_Memory->Read(src, dest, size);
 }
 
-
-_CONSTEXPR20 DWORD GetPID()
+_NODISCARD auto WriteMem(POINTER dest, const void* src, size_t size)->SafeResult(void)
 {
-	return g_pid;
+	return g_Memory->Write(dest, src, size);
 }
 
-_CONSTEXPR20 HANDLE GetHandle()
+void OnAttachCallback(LPON_ATTACH_CALLBACK callback)
 {
-	return g_handle;
+	pAttachCallback = callback;
 }
-
-
 }

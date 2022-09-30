@@ -151,14 +151,15 @@ auto GetWindowIconTexture(const HWND hwnd) -> SafeResult(ID3D11ShaderResourceVie
 
 class ViewAttachProc : public BaseView
 {
-private: // Table Callback
+private: 
+	// Table Callback
 	static Widgets::Table::Execution
-	TableRenderCallback(Widgets::Table* table, UINT index, void* UserData)
+	TableRenderCallback(Widgets::Table* table, size_t index, void* UserData)
 	{
 		ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
-		ProcessData& procData = pThis->m_processList[index];
+		ProcessListData& procData = pThis->m_processList[index];
 
-		if (pThis->IsItemFiltered(procData)) return Widgets::Table::Execution::Skip;
+		if (procData.isHidden) return Widgets::Table::Execution::Skip;
 
 		// icon
 		if (procData.icon) ImGui::Image(procData.icon, { 15, 15 });
@@ -186,9 +187,21 @@ private: // Table Callback
 			}
 			else
 			{
+
+				// make the tree node look better on hover
+				ImGuiContext& g = *GImGui;
+				float oldPaddingX = g.CurrentTable->CellPaddingX;
+				float oldPaddingY = g.CurrentTable->CellPaddingY;
+
+				g.CurrentTable->CellPaddingX = 0.f;
+				g.CurrentTable->CellPaddingY = 0.f;
+
 				// rendering image in tree node
 				// https://github.com/ocornut/imgui/issues/282
-				bool bTreeOpen = ImGui::TreeNodeEx(firstWindow.hidden_title.c_str());
+				bool bTreeOpen = ImGui::TreeNodeEx(firstWindow.hidden_title.c_str(), ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowItemOverlap);
+
+				g.CurrentTable->CellPaddingX = oldPaddingX;
+				g.CurrentTable->CellPaddingY = oldPaddingY;
 
 				ImGui::SameLine();
 
@@ -225,13 +238,12 @@ private: // Table Callback
 		ImGui::Text("%-6d | 0x%x", procData.pid, procData.pid);
 
 		// file location
-		// pid
 		ImGui::TableNextColumn();
 		ImGui::Text("%s", procData.path.c_str());
 		return Widgets::Table::Execution::Continue;
 	};
 
-	static void TableSortCallback(Widgets::Table* table, UINT column, ImGuiSortDirection direction, void* UserData)
+	static void TableSortCallback(Widgets::Table* table, size_t column, ImGuiSortDirection direction, void* UserData)
 	{
 		ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
 		bool isAscending = direction == ImGuiSortDirection_Ascending;
@@ -247,7 +259,7 @@ private: // Table Callback
 		// not really crucial here but i don't like slow things..
 
 		// sort by the process' creation time
-		auto sortByTime = [=](const ProcessData& a, const ProcessData& b) -> bool
+		auto sortByTime = [=](const ProcessListData& a, const ProcessListData& b) -> bool
 		{
 			return isAscending ?
 				a.creationTime < b.creationTime : 
@@ -255,7 +267,7 @@ private: // Table Callback
 		};
 
 		// sort by process' name
-		auto sortByProcess = [=](const ProcessData& a, const ProcessData& b) -> bool
+		auto sortByProcess = [=](const ProcessListData& a, const ProcessListData& b) -> bool
 		{
 			int cmp = std::strcmp(a.name.c_str(), b.name.c_str());
 			if (cmp == 0) return sortByTime(a, b);
@@ -265,7 +277,7 @@ private: // Table Callback
 
 		// TODO: Implement per-window table
 		// sort by process' window title
-		auto sortByWindow = [=](const ProcessData& a, const ProcessData& b) -> bool
+		auto sortByWindow = [=](const ProcessListData& a, const ProcessListData& b) -> bool
 		{
 			bool aHasWindow = a.windows.size() > 0;
 			bool bHasWindow = b.windows.size() > 0;
@@ -285,7 +297,7 @@ private: // Table Callback
 		};
 
 		// sort by process' pid
-		auto sortByPID = [=](const ProcessData& a, const ProcessData& b) -> bool
+		auto sortByPID = [=](const ProcessListData& a, const ProcessListData& b) -> bool
 		{
 			return isAscending ? a.pid < b.pid : a.pid > b.pid;
 		};
@@ -329,12 +341,13 @@ private: // Table Callback
 		}
 	}
 
-	static void TablePopupRenderCallback(Widgets::Table* table, UINT index, void* UserData)
+	static void TablePopupRenderCallback(Widgets::Table* table, size_t index, void* UserData)
 	{
+		// popup events are guaranteed to have at least one selected item
 		index = table->GetSelectedItems()[0];
 
 		ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
-		ProcessData& procData = pThis->m_processList[index];
+		ProcessListData& procData = pThis->m_processList[index];
 	
 		if (procData.icon != nullptr)
 		{
@@ -361,6 +374,26 @@ private: // Table Callback
 		}
 	}
 
+	static void FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTextCallbackData* data, void* UserData)
+	{
+		ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
+
+		// the filter contains nothing
+		if (data->BufTextLen == 0)
+		{
+			for (auto& procData : pThis->m_processList)
+				procData.isHidden = false;
+		}
+		else
+		{
+			std::string filter = std::string(data->Buf, data->BufTextLen);
+			filter = common::BhStringLower(filter);
+
+			for (auto& procData : pThis->m_processList)
+				procData.isHidden = pThis->IsItemFiltered(procData, filter);
+		}
+	}
+
 private: // members
 	struct WindowData
 	{
@@ -373,7 +406,7 @@ private: // members
 		ID3D11ShaderResourceView* icon = nullptr;	// window icon texture
 	};
 
-	struct ProcessData
+	struct ProcessListData
 	{
 		DWORD pid = 0;								// process pid
 		std::string  name;							// process name
@@ -385,16 +418,20 @@ private: // members
 		
 		std::vector<WindowData> windows;			// associated windows
 		ID3D11ShaderResourceView* icon = nullptr;	// process icon texture
+
+		bool isHidden = false;						// is this item hidden? (the filter is on)
 	};
 
 	Widgets::Table m_table;							// main table
 	Widgets::TextInput m_textFilter;				// text input for filtering processes
 
 	bool m_isOpenned = false;						// is the popup currenly openned
-	std::vector<ProcessData> m_processList;			// list of all process
+	std::vector<ProcessListData> m_processList;			// list of all process
 
 	double m_timeLastRefresh = 0.f;					// last refresh time, for refreshing the process list every x ms
-	double m_refreshInterval = 1.f;					// refresh every 1000ms
+	double m_refreshInterval = 1111.f;					// refresh every 1000ms
+
+	std::unordered_map<DWORD, ProcessListData> m_processCache;
 
 public:
 	ViewAttachProc()
@@ -437,9 +474,14 @@ public:
 		m_table.AddColumn("PID");
 		m_table.AddColumn("File Location", ImGuiTableColumnFlags_DefaultHide);
 
+
+		// setup the filter text input
 		Widgets::TextInput::Desc tiDesc;
 		tiDesc.Label = "##Filter";
-		tiDesc.Hint = "Filter";
+		tiDesc.Hint = "Search for a process, window or pid";
+		tiDesc.EditCallback = FilterEditCallback;
+		tiDesc.EditUserData = this;
+
 		m_textFilter.Setup(tiDesc);
 
 	}
@@ -452,7 +494,7 @@ public:
 
 	_CONSTEXPR20 bool isDefaultOpen()  const override
 	{
-		return true;
+		return false;
 	}
 
 	_CONSTEXPR20 bool isAllowMultipleViews()  const override
@@ -501,18 +543,17 @@ public:
 
 private:
 
-	bool IsItemFiltered(const ProcessData& data)
+	bool IsItemFiltered(const ProcessListData& data, const std::string& filter)
 	{
 		// if the filter is empty then it's pass
-		if (m_textFilter.length() == 0 || m_textFilter.data()[0] == 0) return false;
-
-		std::string filter = common::BhStringLower(m_textFilter.str_strip());
+		//if (filter.length() == 0 || filter.data()[0] == 0) return false;
 
 		// return true if the text passed the filter
 		const auto checkStr = [=](const std::string& text) -> bool
 		{
 			std::string textLower = common::BhStringLower(text);
-			return textLower.find(filter) != std::string::npos;
+			auto find = textLower.find(filter);
+			return find != std::string::npos;
 		};
 
 		// check the process name
@@ -570,7 +611,15 @@ private:
 		// push these processes into m_processList
 		for (auto& [pid, entry] : procList.value())
 		{
-			ProcessData procData;
+
+			// check if we have a cached data for this pid
+			if (auto findProc = m_processCache.find(pid); findProc != m_processCache.end())
+			{
+				m_processList.push_back(findProc->second);
+				continue;
+			}
+
+			ProcessListData& procData = m_processList.emplace_back();
 			procData.pid = pid;
 			procData.entry = entry;
 			procData.wname = entry.szExeFile;
@@ -609,7 +658,9 @@ private:
 				}
 
 			}
-			m_processList.push_back(procData);
+
+			// cache the process data
+			m_processCache[procData.pid] = procData;
 		}
 
 		// find their associated hwnd

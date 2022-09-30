@@ -7,46 +7,33 @@
 
 namespace Engine
 {
+// callback when we attach to a process
+typedef void (*LPON_ATTACH_CALLBACK)(std::shared_ptr<ProcessData>);
 
-inline BaseMemory* g_MemoryEngine = nullptr;
+// Attach to a process
+_NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>);
 
-inline DWORD g_pid = 0;
-inline HANDLE g_handle = nullptr;
+// Detach target process
+void Detach();
 
-inline std::vector<ModuleData> g_moduleList;
-
-
-void Init();
-
-// MEMORY STUFF ============================================================================
-auto Attach(DWORD pid) -> SafeResult(void);
-_CONSTEXPR20 void Detach();
-
-_CONSTEXPR20 DWORD GetPID();
-_CONSTEXPR20 HANDLE GetHandle();
+// Return a shared pointer of the target process
+_NODISCARD std::shared_ptr<ProcessData> Target();
 
 // return a pointer to the memory engine
-constexpr BaseMemory* Memory();
+_NODISCARD std::shared_ptr<BaseMemory> Memory();
 
-_CONSTEXPR20 auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void);
-_CONSTEXPR20 auto WriteMem(POINTER dest, const void* src, size_t size)->SafeResult(void);
-
-template <typename Type>
-_CONSTEXPR20 auto ReadMem(POINTER address)->SafeResult(Type)
-{
-	return Memory()->Read<Type>(address);
-}
+_NODISCARD auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void);
+_NODISCARD auto WriteMem(POINTER dest, const void* src, size_t size)->SafeResult(void);
 
 template <typename Type>
-_CONSTEXPR20 auto WriteMem(POINTER address, Type value)->SafeResult(void)
-{
-	return Memory()->Write<Type>(address, value);
-}
+_NODISCARD _CONSTEXPR20 auto ReadMem(POINTER address)->SafeResult(Type) { return Memory()->Read<Type>(address); }
 
-_CONSTEXPR20 std::vector<ModuleData>& GetModuleList()
-{
-	return g_moduleList;
-}
+template <typename Type>
+_NODISCARD _CONSTEXPR20 auto WriteMem(POINTER address, Type value)->SafeResult(void) { return Memory()->Write<Type>(address, value); }
+
+
+void OnAttachCallback(LPON_ATTACH_CALLBACK callback);
+
 }
 
 #endif // TOKIO_ENGINE_H

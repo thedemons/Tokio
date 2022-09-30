@@ -27,12 +27,12 @@ auto FindViewByClass() -> SafeResult(ViewWindowData&)
 };
 
 template <typename ViewType>
-auto FindMultipleViewByClass() -> std::vector<ViewWindowData*>
+auto FindMultipleViewByClass() -> std::vector<ViewType*>
 {
-	std::vector<ViewWindowData*> result;
+	std::vector<ViewType*> result;
 
 	for (auto& view : m_ViewList)
-		if (dynamic_cast<ViewType*>(view.pView)) result.push_back(&view);
+		if (dynamic_cast<ViewType*>(view.pView)) result.push_back(static_cast<ViewType*>(view.pView));
 
 	return result;
 };

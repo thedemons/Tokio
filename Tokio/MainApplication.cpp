@@ -14,7 +14,7 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 void CleanupDeviceD3D();
 bool CreateDeviceD3D();
-void FontMergeIcon();
+ImFont* AddFontFromFile(const char* ttf, float size);
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -64,7 +64,7 @@ auto Init() noexcept -> cpp::result<void, common::err>
     //io.ConfigDockingAlwaysTabBar = true;
     //io.ConfigDockingTransparentPayload = true;
     ImGui::StyleColorsDark();
-
+    
     ImGui_ImplWin32_Init(hWnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
     //ImGui_ImplWin32_EnableAlphaCompositing(hWnd);
@@ -72,24 +72,19 @@ auto Init() noexcept -> cpp::result<void, common::err>
 
     // Load fonts
 
-    auto fontAtlas = ImGui::GetIO().Fonts;
-    auto glyphRange = fontAtlas->GetGlyphRangesVietnamese();
 
     // TODO: Move fonts to resources
-    FontRegular = fontAtlas->AddFontFromFileTTF("Fonts\\NotoSans-Regular.ttf", 16.f, 0, glyphRange);
-    FontMergeIcon();
-
-    FontBold = fontAtlas->AddFontFromFileTTF("Fonts\\NotoSans-Bold.ttf", 16.f, 0, glyphRange);
-    FontMergeIcon();
-
-    FontMono = fontAtlas->AddFontFromFileTTF("Fonts\\DroidSansMono.ttf", 14.f, 0, glyphRange);
-    FontMergeIcon();
+    FontRegular = AddFontFromFile("Fonts\\NotoSans-Regular.ttf", 17.f);
+    FontBold = AddFontFromFile("Fonts\\NotoSans-Bold.ttf", 17.f);
+    FontMono = AddFontFromFile("Fonts\\CascadiaMonoPL-Regular.ttf", 15.f);
+    FontMonoBold = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf", 15.f);
 
     ::ShowWindow(hWnd, SW_SHOWDEFAULT);
     ::UpdateWindow(hWnd);
 
     return {};
 }
+
 
 void FontMergeIcon()
 {
@@ -111,6 +106,16 @@ void FontMergeIcon()
     configAwesome.OversampleH = configAwesome.OversampleV = 1;
     fontAtlas->AddFontFromMemoryTTF((void*)fa_solid_900, sizeof(fa_solid_900), 12.f, &configAwesome, rangesAwesome);
 
+}
+
+ImFont* AddFontFromFile(const char* ttf, float size)
+{
+    static auto fontAtlas = ImGui::GetIO().Fonts;
+    static auto glyphRange = fontAtlas->GetGlyphRangesVietnamese();
+    auto font = fontAtlas->AddFontFromFileTTF(ttf, size, 0, glyphRange);
+
+    FontMergeIcon();
+    return font;
 }
 
 bool CreateDeviceD3D()

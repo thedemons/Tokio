@@ -4,16 +4,12 @@
 class BaseMemory
 {
 protected:
-	DWORD m_pid = 0;
-	HANDLE m_handle = 0;
+	std::shared_ptr<ProcessData> m_target;
 
 public:
-	virtual auto Attach(DWORD pid) -> SafeResult(void) = 0;
-	virtual void Detach()
-	{
-		if (m_pid) m_pid = 0;
-		if (m_handle) CloseHandle(m_handle);
-	}
+
+	virtual auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>) = 0;
+	virtual void Detach() = 0;
 
 	virtual auto Read(POINTER src, void* dest, size_t size) -> SafeResult(void) = 0;
 	virtual auto Write(POINTER dest, const void* src, size_t size) -> SafeResult(void) = 0;
@@ -35,35 +31,12 @@ public:
 
 	virtual _CONSTEXPR20 DWORD GetPID()
 	{
-		return m_pid;
+		return m_target->pid;
 	}
 
 	virtual _CONSTEXPR20 HANDLE GetHandle()
 	{
-		return m_handle;
+		return m_target->handle;
 	}
 
-	virtual auto GetModuleList()->SafeResult(std::vector<ModuleData>) = 0;
-
-	// Resolve module symbols
-	virtual auto LoadSymbols(std::vector<ModuleData>& moduleList)->SafeResult(void)
-	{
-		//for (auto& modData : moduleList)
-		//{
-
-		//	HMODULE lib = LoadLibraryExA(filepath, NULL, DONT_RESOLVE_DLL_REFERENCES);
-		//	//assert(((PIMAGE_DOS_HEADER)lib)->e_magic == IMAGE_DOS_SIGNATURE);
-		//	PIMAGE_NT_HEADERS header = (PIMAGE_NT_HEADERS)((BYTE*)lib + ((PIMAGE_DOS_HEADER)lib)->e_lfanew);
-		//	//assert(header->Signature == IMAGE_NT_SIGNATURE);
-		//	//assert(header->OptionalHeader.NumberOfRvaAndSizes > 0);
-		//	PIMAGE_EXPORT_DIRECTORY exports = (PIMAGE_EXPORT_DIRECTORY)((BYTE*)lib + header->
-		//		OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
-		//	//assert(exports->AddressOfNames != 0);
-		//	BYTE** names = (BYTE**)((int)lib + exports->AddressOfNames);
-		//	for (int i = 0; i < exports->NumberOfNames; i++)
-		//		printf("Export: %s\n", (BYTE*)lib + (int)names[i]);
-
-		//}
-		return {};
-	}
 };

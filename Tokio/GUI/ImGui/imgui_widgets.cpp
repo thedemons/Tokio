@@ -6379,7 +6379,16 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     if (hovered || selected)
     {
         const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
-        RenderFrame(bb.Min, bb.Max, col, false, 0.0f);
+        if (hovered)
+        {
+            PushStyleColor(ImGuiCol_Border, GetColorU32(ImGuiCol_BorderHovered));
+            RenderFrame(bb.Min, bb.Max, col, true, 0.0f);
+            PopStyleColor();
+        }
+        else
+        {
+            RenderFrame(bb.Min, bb.Max, col, false, 0.0f);
+        }
     }
     RenderNavHighlight(bb, id, ImGuiNavHighlightFlags_TypeThin | ImGuiNavHighlightFlags_NoRounding);
 
