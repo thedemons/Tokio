@@ -47,21 +47,4 @@ auto FindMultipleViewByClass() -> std::vector<ViewType*>
 
 }
 
-namespace GUIUtils
-{
-// Get ImGui unique name from a string and a pointer
-// The pointer is usually a class that handles the widget
-// Or it could be anything... as long as it is unique
-_CONSTEXPR20 std::string GetUniqueName(const std::string& name, void* ptr)
-{
-	return name + "##" + std::to_string(reinterpret_cast<ULONG_PTR>(ptr));
-}
-
-template <typename T>
-_CONSTEXPR20 ImGuiID GetUniqueID(T uint64_ptr)
-{
-	return ImHashData(&uint64_ptr, sizeof(T), 0);
-}
-
-}
 #endif // TOKIO_MAIN_VIEW_H

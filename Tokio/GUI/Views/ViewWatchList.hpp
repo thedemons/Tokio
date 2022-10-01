@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "GUI/Widgets/Widgets.hpp"
 
 class ViewWatchList : public BaseView
 {

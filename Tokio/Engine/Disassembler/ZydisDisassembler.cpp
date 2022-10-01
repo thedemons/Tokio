@@ -11,7 +11,8 @@ namespace Engine
 
 ZydisDisassembler::ZydisDisassembler()
 {
-    ZydisDecoderInit(&m_decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
+    m_decoder = new ZydisDecoder;
+    ZydisDecoderInit(m_decoder, ZYDIS_MACHINE_MODE_LONG_64, ZYDIS_STACK_WIDTH_64);
 }
 
 _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size)->SafeResult(std::vector<DisasmData>)
@@ -39,7 +40,7 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
     ZyanU64 end_address = runtime_address + size;
     while (runtime_address < end_address)
     {
-        bool isok = ZYAN_SUCCESS(ZydisDecoderDecodeFull(&m_decoder, pOpCodes, size, &instruction, operands,
+        bool isok = ZYAN_SUCCESS(ZydisDecoderDecodeFull(m_decoder, pOpCodes, size, &instruction, operands,
             ZYDIS_MAX_OPERAND_COUNT_VISIBLE, ZYDIS_DFLAG_VISIBLE_OPERANDS_ONLY));
 
         if (!isok)

@@ -1,6 +1,7 @@
 #include "Engine/EngineDef.hpp"
 #include "Engine/Disassembler/BaseDisassembler.hpp"
-#include <Zydis/Decoder.h>
+
+typedef struct ZydisDecoder_ ZydisDecoder;
 
 
 namespace Engine
@@ -9,7 +10,7 @@ namespace Engine
 class ZydisDisassembler : public BaseDisassembler
 {
 private:
-	ZydisDecoder m_decoder;
+	ZydisDecoder* m_decoder = nullptr;
 public:
 
 	ZydisDisassembler();

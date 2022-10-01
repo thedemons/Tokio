@@ -1,5 +1,6 @@
 #pragma once
-#include "WPopup.hpp"
+#include "Widgets.hpp"
+#include "WPopup.h"
 
 namespace Widgets
 {
@@ -179,7 +180,7 @@ public:
 		assert(bool(desc.Flags & ImGuiTableFlags_Sortable) == bool(desc.SortCallback));
 
 		m_desc = desc;
-		m_desc.Name = GUIUtils::GetUniqueName(m_desc.Name, this);
+		m_desc.Name = GetUniqueName(m_desc.Name, this);
 
 		if (m_desc.PopupRenderCallback != nullptr)
 		{

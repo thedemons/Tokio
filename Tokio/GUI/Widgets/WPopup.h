@@ -1,4 +1,9 @@
 #pragma once
+#ifndef TOKIO_GUI_WIDGETS_POPUP
+#define TOKIO_GUI_WIDGETS_POPUP
+
+#include "imgui.hpp"
+
 namespace Widgets
 {
 class Popup
@@ -40,33 +45,9 @@ private:
 	bool m_closePopupQueue = false;
 
 public:
-	void Setup(const Desc& desc)
-	{
-		// must set the render callback
-		assert(desc.RenderCallback != nullptr);
+	void Setup(const Desc& desc);
 
-		m_desc = desc;
-		if (m_desc.id == 0) m_desc.id = GUIUtils::GetUniqueID(this);
-	}
-
-	void Render()
-	{
-		m_isOpen = ImGui::BeginPopupEx(m_desc.id, m_desc.Flags);
-
-		if (m_isOpen)
-		{
-			m_desc.RenderCallback(this, m_desc.OpenUserData, m_desc.RenderUserData);
-
-			if (m_closePopupQueue)
-			{
-				ImGui::CloseCurrentPopup();
-				m_closePopupQueue = false;
-			}
-			ImGui::EndPopup();
-		}
-
-		m_closePopupQueue = false;
-	}
+	void Render();
 
 	_CONSTEXPR20 void Open(void* OpenUserData = nullptr)
 	{
@@ -91,3 +72,5 @@ public:
 
 };
 }
+
+#endif // !TOKIO_GUI_WIDGETS_POPUP

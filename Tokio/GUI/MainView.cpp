@@ -6,15 +6,10 @@
 #include "Engine/Engine.h"
 
 #include "Resources/FontAwesomeImpl.h"
-#include "Widgets/Widgets.hpp"
-#include "Widgets/WTable.hpp"
-#include "Widgets/WTreeTable.hpp"
-#include "Widgets/WTextInput.hpp"
-#include "Widgets/WPopup.hpp"
 #include "Views/ViewMemoryScan.hpp"
 #include "Views/ViewWatchList.hpp"
-#include "Views/ViewAttachProc.hpp"
-#include "Views/ViewSymbolList.hpp"
+#include "Views/ViewAttachProc.h"
+#include "Views/ViewSymbolList.h"
 #include "Views/ViewDisassembler.hpp"
 
 
@@ -40,7 +35,7 @@ void Init()
 
 	Engine::OnAttachCallback(HandlerAttachProcess);
 
-	Engine::Attach(43572);
+	if (auto result = Engine::Attach(43572); result.has_error()) result.error().show();
 }
 
 void RenderMenuBar()

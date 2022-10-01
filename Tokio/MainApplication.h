@@ -2,17 +2,8 @@
 #ifndef TOKIO_MAINWINDOW_H
 #define TOKIO_MAINWINDOW_H
 
-
-#ifndef IMGUI_API
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include "GUI/ImGui/imgui.h"
-#include "GUI/ImGui/imgui_internal.h"
-#include "GUI/ImGui/Impl/imgui_impl_dx11.h"
-#include "GUI/ImGui/Impl/imgui_impl_win32.h"
-#endif // IMGUI_API
-
+#include "imgui.hpp"
 #include <d3d11.h>
-//#include <d3dx11.h>
 
 #ifdef _DEBUG
 #define DX11_ENABLE_DEBUG_LAYER

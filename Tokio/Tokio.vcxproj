@@ -221,6 +221,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="GUI\MainView.cpp" />
+    <ClCompile Include="GUI\Views\ViewAttachProc.cpp" />
+    <ClCompile Include="GUI\Views\ViewSymbolList.cpp" />
+    <ClCompile Include="GUI\Widgets\WPopup.cpp" />
+    <ClCompile Include="GUI\Widgets\WTable.cpp" />
+    <ClCompile Include="GUI\Widgets\WTextInput.cpp" />
     <ClCompile Include="MainApplication.cpp" />
     <ClCompile Include="Tokio.cpp" />
   </ItemGroup>
@@ -244,16 +249,18 @@
     <ClInclude Include="GUI\MainView.h" />
     <ClInclude Include="GUI\Themes.hpp" />
     <ClInclude Include="GUI\Views\BaseView.hpp" />
-    <ClInclude Include="GUI\Views\ViewAttachProc.hpp" />
+    <ClInclude Include="GUI\Views\ViewAttachProc.h" />
     <ClInclude Include="GUI\Views\ViewDisassembler.hpp" />
-    <ClInclude Include="GUI\Views\ViewSymbolList.hpp" />
+    <ClInclude Include="GUI\Views\ViewSymbolList.h" />
     <ClInclude Include="GUI\Views\ViewMemoryScan.hpp" />
     <ClInclude Include="GUI\Views\ViewWatchList.hpp" />
     <ClInclude Include="GUI\Widgets\Widgets.hpp" />
-    <ClInclude Include="GUI\Widgets\WPopup.hpp" />
-    <ClInclude Include="GUI\Widgets\WTable.hpp" />
-    <ClInclude Include="GUI\Widgets\WTextInput.hpp" />
+    <ClInclude Include="GUI\Widgets\WidgetsFlags.hpp" />
+    <ClInclude Include="GUI\Widgets\WPopup.h" />
+    <ClInclude Include="GUI\Widgets\WTable.h" />
+    <ClInclude Include="GUI\Widgets\WTextInput.h" />
     <ClInclude Include="GUI\Widgets\WTreeTable.hpp" />
+    <ClInclude Include="imgui.hpp" />
     <ClInclude Include="MainApplication.h" />
     <ClInclude Include="Resources\FontAwesome.h" />
     <ClInclude Include="Resources\FontAwesomeImpl.h" />

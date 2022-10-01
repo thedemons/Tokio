@@ -90,6 +90,21 @@
     <ClCompile Include="Engine\Disassembler\ZydisDisassembler.cpp">
       <Filter>Engine\Disassembler</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\Views\ViewSymbolList.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Views\ViewAttachProc.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\WTable.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\WPopup.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\WTextInput.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
@@ -107,7 +122,7 @@
     <ClInclude Include="Serialize.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Views\ViewAttachProc.hpp">
+    <ClInclude Include="GUI\Views\ViewAttachProc.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Views\ViewMemoryScan.hpp">
@@ -143,7 +158,7 @@
     <ClInclude Include="GUI\MainView.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Widgets\WTable.hpp">
+    <ClInclude Include="GUI\Widgets\WTable.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Themes.hpp">
@@ -152,10 +167,10 @@
     <ClInclude Include="common_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Widgets\WTextInput.hpp">
+    <ClInclude Include="GUI\Widgets\WTextInput.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Widgets\WPopup.hpp">
+    <ClInclude Include="GUI\Widgets\WPopup.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Engine.h">
@@ -179,7 +194,7 @@
     <ClInclude Include="Resources\FontAwesomeImpl.h">
       <Filter>Header Resources</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Views\ViewSymbolList.hpp">
+    <ClInclude Include="GUI\Views\ViewSymbolList.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="Engine\PEInfo\PEParser.hpp">
@@ -202,6 +217,12 @@
     </ClInclude>
     <ClInclude Include="GUI\Views\ViewDisassembler.hpp">
       <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\WidgetsFlags.hpp">
+      <Filter>GUI\Widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,9 @@
 #pragma once
+#ifndef TOKIO_GUI_WIDGETS_TEXT_INPUT_H
+#define TOKIO_GUI_WIDGETS_TEXT_INPUT_H
+
+#include "imgui.hpp"
+
 namespace Widgets
 {
 class TextInput
@@ -22,47 +27,12 @@ private:
 	std::string m_buffer;
 	ImGuiInputTextCallbackData m_privateData;
 
-	static int ResizeCallback(ImGuiInputTextCallbackData* data)
-	{
-		TextInput* pThis = static_cast<TextInput*>(data->UserData);
-
-		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-		{
-			pThis->m_buffer.resize(data->BufSize);
-			data->Buf = pThis->m_buffer.data();
-			pThis->m_privateData = *data;
-		}
-		else
-		{
-			pThis->m_privateData = *data;
-
-			if (pThis->m_desc.EditCallback) pThis->m_desc.EditCallback(pThis, data, pThis->m_desc.EditUserData);
-		}
-
-
-		return 0;
-	}
+	static int ResizeCallback(ImGuiInputTextCallbackData* data);
 
 public:
-	void Setup(const Desc& desc)
-	{
-		m_desc = desc;
-		m_desc.Label = GUIUtils::GetUniqueName(m_desc.Label, this);
-	}
+	void Setup(const Desc& desc);
 
-	bool Render(const ImVec2& size = {0.f, 0.f})
-	{
-		return ImGui::InputTextEx(
-			m_desc.Label.c_str(),
-			m_desc.Hint.c_str(),
-			m_buffer.data(),
-			static_cast<int>(m_buffer.size()),
-			size,
-			m_desc.Flags | ImGuiInputTextFlags_CallbackResize | ImGuiInputTextFlags_CallbackEdit,
-			ResizeCallback,
-			this
-		);
-	}
+	bool Render(const ImVec2& size = { 0.f, 0.f });
 
 	_CONSTEXPR20 const char* c_str() const
 	{
@@ -96,3 +66,5 @@ public:
 	}
 };
 }
+
+#endif // !TOKIO_GUI_WIDGETS_TEXT_INPUT_H

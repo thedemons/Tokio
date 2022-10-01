@@ -1,20 +1,18 @@
 ﻿#pragma once
+#ifndef TOKIO_GUI_WIDGETS_HPP
+#define TOKIO_GUI_WIDGETS_HPP
 
-namespace Widgets
-{
-#define WIDGET_ENUM_OPERATORS(EnumType) \
-DEFINE_ENUM_FLAG_OPERATORS(TableFlags) \
-inline bool operator!(TableFlags a) { return !static_cast<bool>(a); } \
-inline bool operator==(TableFlags a, UINT b) { return static_cast<UINT>(a) == b; }
+//#include <string>
+//#include <vector>
+//
+//#include "imgui.hpp"
 
-enum class TableFlags : UINT
-{
-	None		= 0,
-	NoHeader	= 1 << 0,
+#include "WidgetsFlags.hpp"
+//#include "WTable.h"
+//#include "WTreeTable.hpp"
+//#include "WTextInput.hpp"
+//#include "WPopup.h"
 
-}; WIDGET_ENUM_OPERATORS(TableFlags)
-
-}
 
 #define ICON_ATTACH_PROC  u8"🖥"
 #define ICON_MEMORY_SCAN  u8"🔍"
@@ -42,4 +40,26 @@ enum class TableFlags : UINT
 #define ICON_PIN          u8"📌"
 #define ICON_RULER        u8"📐"
 #define ICON_FIRE         u8"🔥"
+
+
+namespace Widgets
+{
+
+// Get ImGui unique name from a string and a pointer
+// The pointer is usually a class that handles the widget
+// Or it could be anything... as long as it is unique
+_CONSTEXPR20 std::string GetUniqueName(const std::string& name, void* ptr)
+{
+	return name + "##" + std::to_string(reinterpret_cast<ULONG_PTR>(ptr));
+}
+
+template <typename T>
+_CONSTEXPR20 ImGuiID GetUniqueID(T uint64_ptr)
+{
+	return ImHashData(&uint64_ptr, sizeof(T), 0);
+}
+
+}
+
+#endif
 
