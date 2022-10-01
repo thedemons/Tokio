@@ -169,7 +169,7 @@ std::wstring BhPathGetTrail(const std::wstring& path, int level)
 
 // Get a list of all running process
 // TODO: Use another type, not PROCESSENTRY32W
-[[nodiscard]] auto BhGetAllProcess() -> SafeResult(std::map<DWORD, PROCESSENTRY32W>)
+_NODISCARD auto BhGetAllProcess() -> SafeResult(std::map<DWORD, PROCESSENTRY32W>)
 {
 	std::map<DWORD, PROCESSENTRY32W> result;
 
@@ -192,7 +192,7 @@ std::wstring BhPathGetTrail(const std::wstring& path, int level)
 	return result;
 }
 
-[[nodiscard]] auto common::BhGetProcessData(DWORD pid)->SafeResult(PROCESSENTRY32W)
+_NODISCARD auto common::BhGetProcessData(DWORD pid)->SafeResult(PROCESSENTRY32W)
 {
 	auto procList = BhGetAllProcess();
 	RESULT_FAILIFN_PASS(procList.has_value(), procList.error());
@@ -204,7 +204,7 @@ std::wstring BhPathGetTrail(const std::wstring& path, int level)
 }
 
 // Get a list of windows, includes their titles, classname and pid
-[[nodiscard]] auto BhGetAllWindows() -> SafeResult(std::vector<WindowData>)
+_NODISCARD auto BhGetAllWindows() -> SafeResult(std::vector<WindowData>)
 {
 	static auto enumProc = [](HWND hwnd, LPARAM lParam) -> BOOL
 	{
@@ -232,21 +232,19 @@ std::wstring BhPathGetTrail(const std::wstring& path, int level)
 	return results;
 }
 
-[[nodiscard]] auto BhOpenFileInExplorer(const std::wstring& filePath) -> SafeResult(void)
+_NODISCARD auto BhOpenFileInExplorer(const std::wstring& filePath) -> SafeResult(void)
 {
-	ITEMIDLIST* pidl = ILCreateFromPathW(filePath.c_str());
+	LPITEMIDLIST pidl = ILCreateFromPathW(filePath.c_str());
 	WINAPI_FAILIFN_NM(pidl);
 
 	HRESULT hr = SHOpenFolderAndSelectItems(pidl, 0u, nullptr, 0ul);
 	HRESULT_FAILIFN_NM(hr);
 
 	ILFree(pidl);
-
-
 	return {};
 }
 
-[[nodiscard]] auto BhClipboardCopy(const std::wstring& text)->SafeResult(void)
+_NODISCARD auto BhClipboardCopy(const std::wstring& text)->SafeResult(void)
 {
 	WINAPI_FAILIFN_NM(OpenClipboard(0));
 	WINAPI_FAILIFN_NM(EmptyClipboard());
@@ -271,8 +269,15 @@ std::wstring BhPathGetTrail(const std::wstring& path, int level)
 	return {};
 }
 
-[[nodiscard]] auto BhClipboardCopy(const std::string& text)->SafeResult(void)
+_NODISCARD auto BhClipboardCopy(const std::string& text)->SafeResult(void)
 {
 	return BhClipboardCopy(BhString(text));
+}
+auto BhClipboardCopy(unsigned long long number, bool isHex)->SafeResult(void)
+{
+	wchar_t text[64];
+	swprintf_s(text, isHex ? L"%llx" : L"%lld", number);
+
+	return BhClipboardCopy(text);
 }
 }

@@ -43,4 +43,4 @@ void OnAttachCallback(LPON_ATTACH_CALLBACK callback);
 
 }
 
-#endif // TOKIO_ENGINE_H
+#endif // !TOKIO_ENGINE_H

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef TOKIO_COMMON_HELPER_HPP
-#define TOKIO_COMMON_HELPER_HPP
+#ifndef TOKIO_COMMON_HELPER_H
+#define TOKIO_COMMON_HELPER_H
 
 #define BHMAX_PATH 4096
 
@@ -42,15 +42,16 @@ std::string  BhPathGetTrail    (const std::string& path , int level = 1);
 
 // Get a list of all running process
 // TODO: Use another type, not PROCESSENTRY32W
-[[nodiscard]] auto BhGetAllProcess()                                 ->SafeResult(std::map<DWORD, PROCESSENTRY32W>);
-[[nodiscard]] auto BhGetProcessData(DWORD pid)                       ->SafeResult(PROCESSENTRY32W);
+_NODISCARD auto BhGetAllProcess()                                 ->SafeResult(std::map<DWORD, PROCESSENTRY32W>);
+_NODISCARD auto BhGetProcessData(DWORD pid)                       ->SafeResult(PROCESSENTRY32W);
 
 // Get a list of windows, includes their titles, classname and pid
-[[nodiscard]] auto BhGetAllWindows()                                 ->SafeResult(std::vector<WindowData>);
-[[nodiscard]] auto BhOpenFileInExplorer(const std::wstring& filePath)->SafeResult(void);
+_NODISCARD auto BhGetAllWindows()                                 ->SafeResult(std::vector<WindowData>);
+_NODISCARD auto BhOpenFileInExplorer(const std::wstring& filePath)->SafeResult(void);
 
 // clipboard
-[[nodiscard]] auto BhClipboardCopy(const std::wstring& text)         ->SafeResult(void);
-[[nodiscard]] auto BhClipboardCopy(const std::string& text)          ->SafeResult(void);
+_NODISCARD auto BhClipboardCopy(const std::wstring& text)         ->SafeResult(void);
+_NODISCARD auto BhClipboardCopy(const std::string& text)          ->SafeResult(void);
+_NODISCARD auto BhClipboardCopy(unsigned long long number, bool isHex = true)        ->SafeResult(void);
 }
-#endif
+#endif // !TOKIO_COMMON_HELPER_H

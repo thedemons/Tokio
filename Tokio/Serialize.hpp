@@ -51,7 +51,7 @@ private:
 
 
 public:
-	SerializeStream(std::vector<BYTE>& data)
+	SerializeStream(const std::vector<BYTE>& data)
 	{
 		m_data = data;
 	}
@@ -358,4 +358,4 @@ public:
 		return true;
 	}
 };
-#endif // !__SERIALIZE__H__
+#endif // !TOKIO_SERIALIZE_HPP

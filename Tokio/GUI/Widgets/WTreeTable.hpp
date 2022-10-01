@@ -16,20 +16,34 @@ public:
 	// Then pass an std::vector<UserNode>& to ::Render()
 	class NestedNode
 	{
+		template<typename> friend class TreeTable;
+	private:
+		size_t m_totalChilds = 0;		// total number of this child
+		size_t m_level       = 0;       // the depth level from the root
+
+		UserNode* m_parent   = nullptr;	// parent of this node
+		std::vector<UserNode> m_childs;	// childrens of this node
+
 	public:
 		bool m_open = false;			// collapsed by default
 		bool m_NoPushOnOpen = false;	// set to true if you use ImGuiTreeNodeFlags_NoTreePushOnOpen for this node
 										// this is not so clean, i might rework it in the future
 
-		UserNode* m_parent = nullptr;	// parent of this node
-		std::vector<UserNode> m_childs;	// childrens of this node
-
 		// empty constructor
 		NestedNode() {}
 
 		// construct a child
-		NestedNode(UserNode* lpParent) : m_parent(lpParent) {}
-		NestedNode(NestedNode* lpParent) : m_parent(reinterpret_cast<UserNode*>(lpParent)) {}
+		NestedNode(UserNode* lpParent) :
+			m_parent(lpParent), m_level(lpParent->m_level + 1)
+		{
+			lpParent->m_totalChilds++;
+		}
+
+		NestedNode(NestedNode* lpParent) : 
+			m_parent(reinterpret_cast<UserNode*>(lpParent)), m_level(lpParent->m_level + 1) 
+		{
+			lpParent->m_totalChilds++;
+		}
 
 		// if this node has no childrens
 		inline bool HasNoChilds() const
@@ -40,6 +54,34 @@ public:
 		inline UserNode& AddChild()
 		{
 			return m_childs.emplace_back(this);
+		}
+
+		_NODISCARD inline bool RemoveChild(UserNode* child)
+		{
+			for (auto it = m_childs.begin(); it != m_childs.end(); it++)
+			{
+				if (it._Ptr == child)
+				{
+					m_totalChilds--;
+					m_childs.erase(it);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		_NODISCARD inline bool RemoveChildAt(size_t index)
+		{
+			if (index >= m_childs.size()) return false;
+
+			m_totalChilds--;
+			m_childs.erase(m_childs.begin() + index);
+			return true;
+		}
+
+		inline std::vector<UserNode>& Childs()
+		{
+			return m_childs;
 		}
 	};
 
@@ -292,6 +334,8 @@ private:
 			m_popupIndex = m_hoveredIndex;
 			m_popupNode = m_hoveredNode;
 
+			UserNode* openedNode = GetNodeAtIndex(m_popupIndex);
+
 			// open the popup
 			m_popup.Open(reinterpret_cast<void*>(m_hoveredIndex));
 		}
@@ -347,7 +391,7 @@ private:
 		if (state != Execution::Continue)
 		{
 			// increase the index before skipping this node
-			index += node.m_childs.size();
+			index += node.m_totalChilds + 1;
 			return;
 		}
 
@@ -389,7 +433,7 @@ private:
 		// if it isn't open, we add the child size the index
 		else
 		{
-			index += node.m_childs.size();
+			index += node.m_totalChilds;
 		}
 	}
 

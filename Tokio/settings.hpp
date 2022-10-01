@@ -68,4 +68,4 @@ inline SettingData data;
 
 
 }
-#endif
+#endif // !TOKIO_SETTINGS_HPP

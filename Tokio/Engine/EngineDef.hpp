@@ -8,32 +8,32 @@ typedef unsigned __int64 POINTER;
 // &PE_NT_HEADER->OptionalHeader + PE_NT_HEADER->FileHeader.SizeOfOptionalHeader
 struct PE_SECTION_HEADER
 {
-	BYTE		Name[IMAGE_SIZEOF_SHORT_NAME];
+	BYTE		Name[IMAGE_SIZEOF_SHORT_NAME]{0};
 	union
 	{
 		DWORD   PhysicalAddress;
 		DWORD   VirtualSize;
-	} Misc;
-	DWORD		VirtualAddress;
-	DWORD		SizeOfRawData;
-	DWORD		PointerToRawData;
-	DWORD		PointerToRelocations;
-	DWORD		PointerToLinenumbers;
-	WORD		NumberOfRelocations;
-	WORD		NumberOfLinenumbers;
-	DWORD		Characteristics;
+	} Misc                                   {0};
+	DWORD		VirtualAddress               {0};
+	DWORD		SizeOfRawData                {0};
+	DWORD		PointerToRawData             {0};
+	DWORD		PointerToRelocations         {0};
+	DWORD		PointerToLinenumbers         {0};
+	WORD		NumberOfRelocations          {0};
+	WORD		NumberOfLinenumbers          {0};
+	DWORD		Characteristics              {0};
 };
 
 // PE_FILE_HEADER = PE_NT_HEADER->FileHeader
 struct PE_FILE_HEADER
 {
-	WORD		Machine;
-	WORD		NumberOfSections;
-	DWORD		TimeDateStamp;
-	DWORD		PointerToSymbolTable;
-	DWORD		NumberOfSymbols;
-	WORD		SizeOfOptionalHeader;
-	WORD		Characteristics;
+	WORD		Machine{0};
+	WORD		NumberOfSections{0};
+	DWORD		TimeDateStamp{0};
+	DWORD		PointerToSymbolTable{0};
+	DWORD		NumberOfSymbols{0};
+	WORD		SizeOfOptionalHeader{0};
+	WORD		Characteristics{0};
 
 	inline bool Is64() const
 	{
@@ -53,42 +53,42 @@ struct PE_FILE_HEADER
 
 struct PE_DATA_DIRECTORY
 {
-	DWORD   VirtualAddress;
-	DWORD   Size;
+	DWORD   VirtualAddress{0};
+	DWORD   Size{0};
 };
 
 // PE_OPTIONAL_HEADER_64 = PE_NT_HEADER_64->OptionalHeader
 struct PE_OPTIONAL_HEADER_64
 {
-	WORD		Magic;
-	BYTE		MajorLinkerVersion;
-	BYTE		MinorLinkerVersion;
-	DWORD		SizeOfCode;
-	DWORD		SizeOfInitializedData;
-	DWORD		SizeOfUninitializedData;
-	DWORD		AddressOfEntryPoint;
-	DWORD		BaseOfCode;
-	ULONGLONG	ImageBase;
-	DWORD		SectionAlignment;
-	DWORD		FileAlignment;
-	WORD		MajorOperatingSystemVersion;
-	WORD		MinorOperatingSystemVersion;
-	WORD		MajorImageVersion;
-	WORD		MinorImageVersion;
-	WORD		MajorSubsystemVersion;
-	WORD		MinorSubsystemVersion;
-	DWORD		Win32VersionValue;
-	DWORD		SizeOfImage;
-	DWORD		SizeOfHeaders;
-	DWORD		CheckSum;
-	WORD		Subsystem;
-	WORD		DllCharacteristics;
-	ULONGLONG	SizeOfStackReserve;
-	ULONGLONG	SizeOfStackCommit;
-	ULONGLONG	SizeOfHeapReserve;
-	ULONGLONG	SizeOfHeapCommit;
-	DWORD		LoaderFlags;
-	DWORD		NumberOfRvaAndSizes;
+	WORD		Magic                      {0};
+	BYTE		MajorLinkerVersion         {0};
+	BYTE		MinorLinkerVersion         {0};
+	DWORD		SizeOfCode                 {0};
+	DWORD		SizeOfInitializedData      {0};
+	DWORD		SizeOfUninitializedData    {0};
+	DWORD		AddressOfEntryPoint        {0};
+	DWORD		BaseOfCode                 {0};
+	ULONGLONG	ImageBase                  {0};
+	DWORD		SectionAlignment           {0};
+	DWORD		FileAlignment              {0};
+	WORD		MajorOperatingSystemVersion{0};
+	WORD		MinorOperatingSystemVersion{0};
+	WORD		MajorImageVersion          {0};
+	WORD		MinorImageVersion          {0};
+	WORD		MajorSubsystemVersion      {0};
+	WORD		MinorSubsystemVersion      {0};
+	DWORD		Win32VersionValue          {0};
+	DWORD		SizeOfImage                {0};
+	DWORD		SizeOfHeaders              {0};
+	DWORD		CheckSum                   {0};
+	WORD		Subsystem                  {0};
+	WORD		DllCharacteristics         {0};
+	ULONGLONG	SizeOfStackReserve         {0};
+	ULONGLONG	SizeOfStackCommit          {0};
+	ULONGLONG	SizeOfHeapReserve          {0};
+	ULONGLONG	SizeOfHeapCommit           {0};
+	DWORD		LoaderFlags                {0};
+	DWORD		NumberOfRvaAndSizes        {0};
 	PE_DATA_DIRECTORY	DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
 };
 
@@ -99,41 +99,41 @@ struct PE_OPTIONAL_HEADER_32
 	// Standard fields.
 	//
 
-	WORD		Magic;
-	BYTE    	MajorLinkerVersion;
-	BYTE    	MinorLinkerVersion;
-	DWORD   	SizeOfCode;
-	DWORD   	SizeOfInitializedData;
-	DWORD   	SizeOfUninitializedData;
-	DWORD   	AddressOfEntryPoint;
-	DWORD   	BaseOfCode;
-	DWORD   	BaseOfData;
+	WORD		Magic                      {0};
+	BYTE    	MajorLinkerVersion         {0};
+	BYTE    	MinorLinkerVersion         {0};
+	DWORD   	SizeOfCode                 {0};
+	DWORD   	SizeOfInitializedData      {0};
+	DWORD   	SizeOfUninitializedData    {0};
+	DWORD   	AddressOfEntryPoint        {0};
+	DWORD   	BaseOfCode                 {0};
+	DWORD   	BaseOfData                 {0};
 
 	//
 	// NT additional fields.
 	//
 
-	DWORD   	ImageBase;
-	DWORD   	SectionAlignment;
-	DWORD   	FileAlignment;
-	WORD    	MajorOperatingSystemVersion;
-	WORD    	MinorOperatingSystemVersion;
-	WORD    	MajorImageVersion;
-	WORD    	MinorImageVersion;
-	WORD    	MajorSubsystemVersion;
-	WORD    	MinorSubsystemVersion;
-	DWORD   	Win32VersionValue;
-	DWORD   	SizeOfImage;
-	DWORD   	SizeOfHeaders;
-	DWORD   	CheckSum;
-	WORD    	Subsystem;
-	WORD    	DllCharacteristics;
-	DWORD   	SizeOfStackReserve;
-	DWORD   	SizeOfStackCommit;
-	DWORD   	SizeOfHeapReserve;
-	DWORD   	SizeOfHeapCommit;
-	DWORD   	LoaderFlags;
-	DWORD   	NumberOfRvaAndSizes;
+	DWORD   	ImageBase                  {0};
+	DWORD   	SectionAlignment           {0};
+	DWORD   	FileAlignment              {0};
+	WORD    	MajorOperatingSystemVersion{0};
+	WORD    	MinorOperatingSystemVersion{0};
+	WORD    	MajorImageVersion          {0};
+	WORD    	MinorImageVersion          {0};
+	WORD    	MajorSubsystemVersion      {0};
+	WORD    	MinorSubsystemVersion      {0};
+	DWORD   	Win32VersionValue          {0};
+	DWORD   	SizeOfImage                {0};
+	DWORD   	SizeOfHeaders              {0};
+	DWORD   	CheckSum                   {0};
+	WORD    	Subsystem                  {0};
+	WORD    	DllCharacteristics         {0};
+	DWORD   	SizeOfStackReserve         {0};
+	DWORD   	SizeOfStackCommit          {0};
+	DWORD   	SizeOfHeapReserve          {0};
+	DWORD   	SizeOfHeapCommit           {0};
+	DWORD   	LoaderFlags                {0};
+	DWORD   	NumberOfRvaAndSizes        {0};
 	PE_DATA_DIRECTORY	DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
 };
 
@@ -142,9 +142,9 @@ struct PE_OPTIONAL_HEADER_32
 // https://learn.microsoft.com/vi-vn/windows/win32/api/winnt/ns-winnt-image_optional_header32
 struct PE_NT_HEADER_MAGIC
 {
-	DWORD				Signature;
-	PE_FILE_HEADER		FileHeader;
-	WORD				Magic;
+	DWORD				Signature{0};
+	PE_FILE_HEADER		FileHeader{0};
+	WORD				Magic{0};
 
 	// IMAGE_NT_OPTIONAL_HDR32_MAGIC (0x10B)		x86 Image
 	// IMAGE_NT_OPTIONAL_HDR64_MAGIC (0x20B)		x64 Image
@@ -168,9 +168,9 @@ struct PE_NT_HEADER_MAGIC
 
 struct PE_NT_HEADER_64
 {
-	DWORD					Signature;
-	PE_FILE_HEADER			FileHeader;
-	PE_OPTIONAL_HEADER_64	OptionalHeader;
+	DWORD					Signature{0};
+	PE_FILE_HEADER			FileHeader{0};
+	PE_OPTIONAL_HEADER_64	OptionalHeader{0};
 
 	inline PE_SECTION_HEADER* GetFirstSectionHeader()
 	{
@@ -180,9 +180,9 @@ struct PE_NT_HEADER_64
 
 struct PE_NT_HEADER_32
 {
-	DWORD					Signature;
-	PE_FILE_HEADER			FileHeader;
-	PE_OPTIONAL_HEADER_32	OptionalHeader;
+	DWORD					Signature{0};
+	PE_FILE_HEADER			FileHeader{0};
+	PE_OPTIONAL_HEADER_32	OptionalHeader{0};
 
 	inline PE_SECTION_HEADER* GetFirstSectionHeader()
 	{
@@ -193,50 +193,50 @@ struct PE_NT_HEADER_32
 // PE_DOS_HEADER* = base;
 struct PE_DOS_HEADER
 {      
-	WORD	e_magic;                     // Magic number
-	WORD	e_cblp;                      // Bytes on last page of file
-	WORD	e_cp;                        // Pages in file
-	WORD	e_crlc;                      // Relocations
-	WORD	e_cparhdr;                   // Size of header in paragraphs
-	WORD	e_minalloc;                  // Minimum extra paragraphs needed
-	WORD	e_maxalloc;                  // Maximum extra paragraphs needed
-	WORD	e_ss;                        // Initial (relative) SS value
-	WORD	e_sp;                        // Initial SP value
-	WORD	e_csum;                      // Checksum
-	WORD	e_ip;                        // Initial IP value
-	WORD	e_cs;                        // Initial (relative) CS value
-	WORD	e_lfarlc;                    // File address of relocation table
-	WORD	e_ovno;                      // Overlay number
-	WORD	e_res[4];                    // Reserved words
-	WORD	e_oemid;                     // OEM identifier (for e_oeminfo)
-	WORD	e_oeminfo;                   // OEM information; e_oemid specific
-	WORD	e_res2[10];                  // Reserved words
-	LONG	e_lfanew;                    // File address of new exe header
+	WORD	e_magic   {0};                        // Magic number
+	WORD	e_cblp    {0};                        // Bytes on last page of file
+	WORD	e_cp      {0};                        // Pages in file
+	WORD	e_crlc    {0};                        // Relocations
+	WORD	e_cparhdr {0};                        // Size of header in paragraphs
+	WORD	e_minalloc{0};                        // Minimum extra paragraphs needed
+	WORD	e_maxalloc{0};                        // Maximum extra paragraphs needed
+	WORD	e_ss      {0};                        // Initial (relative) SS value
+	WORD	e_sp      {0};                        // Initial SP value
+	WORD	e_csum    {0};                        // Checksum
+	WORD	e_ip      {0};                        // Initial IP value
+	WORD	e_cs      {0};                        // Initial (relative) CS value
+	WORD	e_lfarlc  {0};                        // File address of relocation table
+	WORD	e_ovno    {0};                        // Overlay number
+	WORD	e_res[4]  {0};                        // Reserved words
+	WORD	e_oemid   {0};                        // OEM identifier (for e_oeminfo)
+	WORD	e_oeminfo {0};                        // OEM information; e_oemid specific
+	WORD	e_res2[10]{0};                        // Reserved words
+	LONG	e_lfanew  {0};                        // File address of new exe header
 };
 
 
 // PE_EXPORT_DIRECTORY* = _RVA_ PE_OPTIONAL_HEADER->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
 struct PE_EXPORT_DIRECTORY
 {
-	DWORD   Characteristics;
-	DWORD   TimeDateStamp;
-	WORD    MajorVersion;
-	WORD    MinorVersion;
-	DWORD   Name;
-	DWORD   Base;
-	DWORD   NumberOfFunctions;
-	DWORD   NumberOfNames;
-	DWORD   AddressOfFunctions;			// RVA from base of image
-	DWORD   AddressOfNames;				// RVA from base of image
-	DWORD   AddressOfNameOrdinals;		// RVA from base of image
+	DWORD   Characteristics      {0};
+	DWORD   TimeDateStamp        {0};
+	WORD    MajorVersion         {0};
+	WORD    MinorVersion         {0};
+	DWORD   Name                 {0};
+	DWORD   Base                 {0};
+	DWORD   NumberOfFunctions    {0};
+	DWORD   NumberOfNames        {0};
+	DWORD   AddressOfFunctions   {0};			    // RVA from base of image
+	DWORD   AddressOfNames       {0};				// RVA from base of image
+	DWORD   AddressOfNameOrdinals{0};		        // RVA from base of image
 };
 
 
 struct PE_ExportData
 {
-	UINT ordinal;		// ordinal index
-	POINTER offset;		// offset from the base
-	std::string name;	// function name
+	UINT ordinal  {0};		// ordinal index
+	POINTER offset{0};		// offset from the base
+	std::string name;	    // function name
 };
 
 struct PE_ImportData
@@ -252,7 +252,7 @@ struct PE_DirectoryData
 
 struct PE_Data
 {
-	IMAGE_DOS_HEADER DOS;
+	PE_DOS_HEADER DOS{0};
 	PE_DirectoryData dirs;
 };
 
@@ -271,10 +271,10 @@ struct ModuleData
 struct ProcessData
 {
 	// process id
-	DWORD pid; 
+	DWORD pid{0}; 
 
 	// process handle for memory operation
-	HANDLE handle;
+	HANDLE handle{0};
 
 	// all loaded modules
 	std::vector<ModuleData> modules;

@@ -1,20 +1,19 @@
 #pragma once
 #include "stdafx.h"
 #include "ViewSymbolList.h"
-#include "MainApplication.h"
+#include "ViewDisassembler.h"
 
 
-
-Widgets::TreeTable<ViewSymbolList::ModuleNode>::Execution
-	ViewSymbolList::TableRenderCallback(
-		Widgets::TreeTable<ViewSymbolList::ModuleNode>* table,
-		ModuleNode& node,
-		size_t index,
-		size_t level,
-		void* UserData
-	)
+ViewSymbolList::SymbolTable::Execution
+ViewSymbolList::TableRenderCallback(
+	SymbolTable* table,
+	ModuleNode& node,
+	size_t index,
+	size_t level,
+	void* UserData
+)
 {
-	if (node.isHidden) return Widgets::TreeTable<ViewSymbolList::ModuleNode>::Execution::Skip;
+	if (node.isHidden) return SymbolTable::Execution::Skip;
 
 	auto pThis = static_cast<ViewSymbolList*>(UserData);
 
@@ -39,30 +38,25 @@ Widgets::TreeTable<ViewSymbolList::ModuleNode>::Execution
 		table->NextColumn();
 		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextFunction), "%s", node.functionName.c_str());
 
-		ImGui::SameLine();
-		ImGui::PushFont(MainApplication::FontMonoItalicThin);
-		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextDecimal), " @%d", node.ordinal);
-
-		ImGui::PopFont();
 		ImGui::PopFont();
 	}
 
 
-	return Widgets::TreeTable<ViewSymbolList::ModuleNode>::Execution::Continue;
+	return SymbolTable::Execution::Continue;
 }
 
-void ViewSymbolList::TableInputCallback(Widgets::TreeTable<ViewSymbolList::ModuleNode>* table, ModuleNode* node, size_t index, void* UserData)
+void ViewSymbolList::TableInputCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData)
 {
 	//printf("%d\n", index);
 }
 
-void ViewSymbolList::TableSortCallback(Widgets::TreeTable<ViewSymbolList::ModuleNode>* table, size_t column, ImGuiSortDirection direction, void* UserData)
+void ViewSymbolList::TableSortCallback(SymbolTable* table, size_t column, ImGuiSortDirection direction, void* UserData)
 {
 
 	//printf("%d\n", column);
 }
 
-void ViewSymbolList::TablePopupRenderCallback(Widgets::TreeTable<ViewSymbolList::ModuleNode>* table, ModuleNode* node, size_t index, void* UserData)
+void ViewSymbolList::TablePopupRenderCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData)
 {
 	if (node != nullptr)
 	{
@@ -93,11 +87,11 @@ void ViewSymbolList::TablePopupRenderCallback(Widgets::TreeTable<ViewSymbolList:
 
 		if (ImGui::MenuItem(ICON_DISASSEMBLER    u8" Open in Disassembler"))
 		{
-			//auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
-			//if (disasmView.has_value())
-			//{
-			//	disasmView.value().pView->GoToAddress(node->address);
-			//}
+			auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
+			if (disasmView.has_value())
+			{
+				disasmView.value().pView->GoToAddress(node->address);
+			}
 		}
 
 		ImGui::MenuItem(ICON_MEMORY_VIEW     u8" Open in Memory View", "Ctrl+B");
@@ -117,7 +111,7 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 			modData.m_open = modData.m_lastOpen;
 			modData.isHidden = false;
 
-			for (auto& symbolData : modData.m_childs)
+			for (auto& symbolData : modData.Childs())
 			{
 				symbolData.isHidden = false;
 			}
@@ -145,7 +139,7 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 			if (!modData.isHidden)
 			{
 				modData.m_open = true;
-				for (auto& symbolData : modData.m_childs)
+				for (auto& symbolData : modData.Childs())
 					symbolData.isHidden = false;
 
 				continue;
@@ -153,7 +147,7 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 
 			bool isAnyChildVisible = false;
 
-			for (auto& symbolData : modData.m_childs)
+			for (auto& symbolData : modData.Childs())
 			{
 				std::string lowerName = common::BhStringLower(symbolData.functionName);
 
@@ -181,7 +175,7 @@ ViewSymbolList::ViewSymbolList()
 	if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
 
 
-	Widgets::TreeTable<ViewSymbolList::ModuleNode>::Desc desc;
+	SymbolTable::Desc desc;
 	desc.Name = "##TableModuleList";
 
 	desc.SortUserData = this;

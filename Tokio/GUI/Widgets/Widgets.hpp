@@ -2,6 +2,9 @@
 #ifndef TOKIO_GUI_WIDGETS_HPP
 #define TOKIO_GUI_WIDGETS_HPP
 
+// TODO: FIX THE STRUCTURE OF THIS FILE
+
+
 //#include <string>
 //#include <vector>
 //
@@ -61,5 +64,4 @@ _CONSTEXPR20 ImGuiID GetUniqueID(T uint64_ptr)
 
 }
 
-#endif
-
+#endif // !TOKIO_GUI_WIDGETS_HPP

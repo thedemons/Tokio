@@ -5,12 +5,11 @@
 
 #include "Engine/Engine.h"
 
-#include "Resources/FontAwesomeImpl.h"
-#include "Views/ViewMemoryScan.hpp"
-#include "Views/ViewWatchList.hpp"
+#include "Views/ViewWatchList.h"
 #include "Views/ViewAttachProc.h"
 #include "Views/ViewSymbolList.h"
-#include "Views/ViewDisassembler.hpp"
+#include "Views/ViewDisassembler.h"
+#include "Views/ViewMemoryScan.h"
 
 
 namespace MainView
@@ -25,7 +24,7 @@ void Init()
 	BaseView* viewWatchList  = new ViewWatchList();
 	BaseView* viewAttachProc = new ViewAttachProc();
 	BaseView* viewModules    = new ViewSymbolList();
-	BaseView* viewDisasm    = new ViewDisassembler();
+	BaseView* viewDisasm     = new ViewDisassembler();
 
 	m_ViewList.push_back({ viewScanner   , viewScanner->isDefaultOpen()    });
 	m_ViewList.push_back({ viewWatchList , viewWatchList->isDefaultOpen()  });

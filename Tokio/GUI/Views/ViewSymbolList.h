@@ -1,12 +1,12 @@
 ﻿#pragma once
-#ifndef TOKIO_GUI_VIEW_SYMBOLIST_H
-#define TOKIO_GUI_VIEW_SYMBOLIST_H
+#ifndef TOKIO_GUI_VIEWS_SYMBOLIST_H
+#define TOKIO_GUI_VIEWS_SYMBOLIST_H
 
-#include "ViewSymbolList.h"
 #include "../MainView.h"
 #include "../Widgets/Widgets.hpp"
 #include "../Widgets/WTextInput.h"
 #include "../Widgets/WTreeTable.hpp"
+
 
 class ViewSymbolList : public BaseView
 {
@@ -35,25 +35,26 @@ private:
 
 	};
 
+	using SymbolTable = Widgets::TreeTable<ModuleNode>;
 
-	Widgets::TreeTable<ModuleNode> m_table;			// main table
+	SymbolTable m_table;			// main table
 	Widgets::TextInput m_textFilter;				// text input for filtering modules
 	std::vector<ModuleNode> m_moduleList;
 
-	static Widgets::TreeTable<ModuleNode>::Execution
+	static SymbolTable::Execution
 		TableRenderCallback(
-			Widgets::TreeTable<ModuleNode>* table,
+			SymbolTable* table,
 			ModuleNode& node,
 			size_t index,
 			size_t level,
 			void* UserData
 		);
 
-	static void TableInputCallback(Widgets::TreeTable<ModuleNode>* table, ModuleNode* node, size_t index, void* UserData);
+	static void TableInputCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData);
 
-	static void TableSortCallback(Widgets::TreeTable<ModuleNode>* table, size_t column, ImGuiSortDirection direction, void* UserData);
+	static void TableSortCallback(SymbolTable* table, size_t column, ImGuiSortDirection direction, void* UserData);
 
-	static void TablePopupRenderCallback(Widgets::TreeTable<ModuleNode>* table, ModuleNode* node, size_t index, void* UserData);
+	static void TablePopupRenderCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData);
 	static void FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTextCallbackData* data, void* UserData);
 
 public:
@@ -65,4 +66,4 @@ public:
 	void Update(const std::shared_ptr<ProcessData>& targetProcess) override;
 };
 
-#endif
+#endif // !TOKIO_GUI_VIEWS_SYMBOLIST_H

@@ -1,6 +1,6 @@
 ﻿#pragma once
-#ifndef TOKIO_GUI_VIEW_ATTACH_PROC_H
-#define TOKIO_GUI_VIEW_ATTACH_PROC_H
+#ifndef TOKIO_GUI_VIEWS_ATTACH_PROC_H
+#define TOKIO_GUI_VIEWS_ATTACH_PROC_H
 
 #include "GUI/MainView.h"
 #include "GUI/Widgets/WTable.h"
@@ -88,4 +88,4 @@ private:
 	void GetProcessList();
 };
 
-#endif
+#endif // !TOKIO_GUI_VIEWS_ATTACH_PROC_H

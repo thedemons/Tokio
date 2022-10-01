@@ -105,6 +105,15 @@
     <ClCompile Include="GUI\Widgets\WTextInput.cpp">
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\Views\ViewMemoryScan.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Views\ViewWatchList.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Views\ViewDisassembler.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
@@ -125,10 +134,10 @@
     <ClInclude Include="GUI\Views\ViewAttachProc.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Views\ViewMemoryScan.hpp">
+    <ClInclude Include="GUI\Views\ViewMemoryScan.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Views\ViewWatchList.hpp">
+    <ClInclude Include="GUI\Views\ViewWatchList.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Views\BaseView.hpp">
@@ -215,7 +224,7 @@
     <ClInclude Include="Engine\Disassembler\ZydisDisassembler.h">
       <Filter>Engine\Disassembler</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Views\ViewDisassembler.hpp">
+    <ClInclude Include="GUI\Views\ViewDisassembler.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="imgui.hpp">

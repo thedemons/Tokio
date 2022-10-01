@@ -93,7 +93,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <DisableSpecificWarnings>26812;4005;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,7 +139,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <DisableSpecificWarnings>26812;4005;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
-      <TreatWarningAsError>false</TreatWarningAsError>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -222,7 +222,9 @@
     </ClCompile>
     <ClCompile Include="GUI\MainView.cpp" />
     <ClCompile Include="GUI\Views\ViewAttachProc.cpp" />
+    <ClCompile Include="GUI\Views\ViewDisassembler.cpp" />
     <ClCompile Include="GUI\Views\ViewSymbolList.cpp" />
+    <ClCompile Include="GUI\Views\ViewWatchList.cpp" />
     <ClCompile Include="GUI\Widgets\WPopup.cpp" />
     <ClCompile Include="GUI\Widgets\WTable.cpp" />
     <ClCompile Include="GUI\Widgets\WTextInput.cpp" />
@@ -250,10 +252,11 @@
     <ClInclude Include="GUI\Themes.hpp" />
     <ClInclude Include="GUI\Views\BaseView.hpp" />
     <ClInclude Include="GUI\Views\ViewAttachProc.h" />
-    <ClInclude Include="GUI\Views\ViewDisassembler.hpp" />
+    <ClInclude Include="GUI\Views\ViewDisassembler.h" />
+    <ClCompile Include="GUI\Views\ViewMemoryScan.cpp" />
     <ClInclude Include="GUI\Views\ViewSymbolList.h" />
-    <ClInclude Include="GUI\Views\ViewMemoryScan.hpp" />
-    <ClInclude Include="GUI\Views\ViewWatchList.hpp" />
+    <ClInclude Include="GUI\Views\ViewMemoryScan.h" />
+    <ClInclude Include="GUI\Views\ViewWatchList.h" />
     <ClInclude Include="GUI\Widgets\Widgets.hpp" />
     <ClInclude Include="GUI\Widgets\WidgetsFlags.hpp" />
     <ClInclude Include="GUI\Widgets\WPopup.h" />
