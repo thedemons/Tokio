@@ -26,4 +26,6 @@ public:
 	}
 
 	virtual void Render(bool& bOpen) = 0;
+
+	virtual void Update(const std::shared_ptr<ProcessData>& targetProcess){}
 };

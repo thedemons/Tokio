@@ -2,7 +2,6 @@
 #ifndef TOKIO_MAINWINDOW_H
 #define TOKIO_MAINWINDOW_H
 
-#include "Engine/Engine.h"
 
 #ifndef IMGUI_API
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -59,11 +58,21 @@ inline IDXGISwapChain* g_pSwapChain = nullptr;
 inline ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
 inline ID3D11RenderTargetView* g_pMainRenderTargetView = nullptr;
 
-inline ImFont* FontRegular = nullptr;
-inline ImFont* FontBold = nullptr;
+inline ImFont* FontThin              = nullptr;
+inline ImFont* FontRegular           = nullptr;
+inline ImFont* FontBold              = nullptr;
 
-inline ImFont* FontMono = nullptr;
-inline ImFont* FontMonoBold = nullptr;
+inline ImFont* FontItalicThin        = nullptr;
+inline ImFont* FontItalicRegular     = nullptr;
+inline ImFont* FontItalicBold        = nullptr;
+
+inline ImFont* FontMonoThin          = nullptr;
+inline ImFont* FontMonoRegular       = nullptr;
+inline ImFont* FontMonoBold          = nullptr;
+
+inline ImFont* FontMonoItalicThin    = nullptr;
+inline ImFont* FontMonoItalicRegular = nullptr;
+inline ImFont* FontMonoItalicBold    = nullptr;
 
 auto Init() noexcept -> cpp::result<void, common::err>;
 void SetRenderCallback(PRenderCallBack callback);

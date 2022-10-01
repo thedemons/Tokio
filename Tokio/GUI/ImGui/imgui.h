@@ -1657,6 +1657,9 @@ enum ImGuiCol_
     ImGuiCol_TextAddressModule,     // Addresses in modules
     ImGuiCol_TextFunction,          // Functions/symbols
     ImGuiCol_TextModule,            // Modules name
+    ImGuiCol_TextBinary,            // Binary number
+    ImGuiCol_TextDecimal,           // Decimal number
+    ImGuiCol_TextHex,               // Hexadecimal number
     ImGuiCol_COUNT
 };
 

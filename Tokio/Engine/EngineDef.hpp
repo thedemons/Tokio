@@ -279,6 +279,26 @@ struct ProcessData
 	// all loaded modules
 	std::vector<ModuleData> modules;
 
+	// is the process x86 or x64
+	BOOL is32bit = false;
+
 	// the base image module
 	inline ModuleData& base() { return modules[0]; }
+};
+
+
+// The type of address, is it belong to a module, a function, or unknown?
+enum class AddressType
+{
+	Unknown,
+	Module,
+	Function,
+};
+
+struct DisasmData
+{
+	POINTER address = 0;
+	AddressType addressType = AddressType::Unknown;
+	std::string addressFormat;
+	std::string instruction;
 };

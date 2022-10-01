@@ -18,7 +18,9 @@
 
 #ifdef _DEBUG
 #define DPRINT(...) printf(__VA_ARGS__)
+#define THROW_CPP_ERROR __debugbreak();
 #else
+#define THROW_CPP_ERROR 
 #define DPRINT(...) // __VA_ARGS__
 #endif // _DEBUG
 
@@ -30,16 +32,19 @@
 
 #define WINAPI_FAILIFN(result, code) \
 if (!(result)) { \
+	THROW_CPP_ERROR \
 	return cpp::fail(common::err(common::errcode::code, common::errtype::WinAPI, GetLastError())); \
 }
 
 #define HRESULT_FAILIFN(result, code) \
 if (result != S_OK) { \
+	THROW_CPP_ERROR \
 	return cpp::fail(common::err(common::errcode::code, common::errtype::HRESULT, result)); \
 }
 
 #define RESULT_FAILIFN(result, code) \
 if (!(result)) { \
+	THROW_CPP_ERROR \
 	return cpp::fail(common::err(common::errcode::code)); \
 }
 
@@ -64,6 +69,14 @@ if (!(result)) { \
 }
 
 #define RESULT_THROW(code) return cpp::fail(common::err(common::errcode::code))
+#define WINAPI_THROW(code) return cpp::fail(common::err(common::errcode::code, common::errtype::WinAPI))
+#define HRESULT_THROW(code) return cpp::fail(common::err(common::errcode::code, common::errtype::HRESULT))
 
+
+#ifdef _WIN64
+constexpr auto UPTR_UNDEFINED = ~0ull;
+#else
+constexpr auto UPTR_UNDEFINED ~0ul
+#endif
 
 #include "common_helper.h"

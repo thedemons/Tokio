@@ -53,6 +53,7 @@ public:
 		SkipNode,	// skip this node, continue on the parent node
 	};
 
+	// LPRENDER_CALLBACK
 	// Index is the index of the node, including nested childs
 	// Level is the depth from the root node
 	// 
@@ -66,12 +67,10 @@ public:
 	// 10		    . file 3	2
 	// 11			+ dir 5		2		// 3 items collapsed [11, (12, 13, 14), 15]
 	// 15			. file 4	2
-	//
-	typedef Execution(*LPRENDER_CALLBACK)(TreeTable* table, UserNode& node, size_t index, size_t level, void* UserData);
-
-	typedef void (*LPINPUT_CALLBACK)(TreeTable* table, INT index, void* UserData);
-	typedef void (*LPPOPUPRENDER_CALLBACK)(TreeTable* table, size_t index, void* UserData);
-	typedef void (*LPSORT_CALLBACK)(TreeTable* table, size_t column, ImGuiSortDirection direction, void* UserData);
+	typedef Execution(*LPRENDER_CALLBACK)     (TreeTable* table, UserNode& node, size_t index, size_t level, void* UserData);
+	typedef void     (*LPINPUT_CALLBACK)      (TreeTable* table, UserNode* node, size_t index, void* UserData);
+	typedef void     (*LPPOPUPRENDER_CALLBACK)(TreeTable* table, UserNode* node, size_t index, void* UserData);
+	typedef void     (*LPSORT_CALLBACK)       (TreeTable* table, size_t column, ImGuiSortDirection direction, void* UserData);
 
 	// Tree table setup description
 	struct Desc
@@ -101,10 +100,11 @@ public:
 		// if it is -1 then no items is being hovered
 		LPINPUT_CALLBACK InputCallback = nullptr;
 
-		// MUST HAVE!! Callback to render your rows
+		// MUST HAVE!! Callback to render your nodes
 		// return	Execution::Continue to keep rendering
 		//			Execution::Stop to stop rendering
-		//			Execution::Skip to skip the row
+		//			Execution::Skip to skip the node
+		//			Execution::SkipNode to skip the node and continue rendering the parent node
 		LPRENDER_CALLBACK RenderCallback = nullptr;
 
 		// Use this if you want a popup openned when
@@ -113,19 +113,19 @@ public:
 		// Render the popup in this callback
 		LPPOPUPRENDER_CALLBACK PopupRenderCallback = nullptr;
 
-		void* SortUserData = nullptr;
-		void* InputUserData = nullptr;
-		void* RenderUserData = nullptr;
+		void* SortUserData        = nullptr;
+		void* InputUserData       = nullptr;
+		void* RenderUserData      = nullptr;
 		void* PopupRenderUserData = nullptr;
 	};
 
-public:
+private:
 	struct ColumnData
 	{
-		size_t Index = 0;			// auto increase
-		float Width = 0.f;			// initial width
-		std::string Name;			// unique name
-		ImGuiTableColumnFlags Flags = ImGuiTableColumnFlags_None;
+		std::string Name;							              // unique name
+		size_t Index                = 0;			              // auto increase
+		float Width                 = 0.f;			              // initial width
+		ImGuiTableColumnFlags Flags = ImGuiTableColumnFlags_None; // ImGui Flags
 	};
 
 	// table description
@@ -137,11 +137,26 @@ public:
 	// column data, add a column using ::AddColumn
 	std::vector<ColumnData> m_columns;
 
-	// -1 means no index is hovered
-	INT m_currentHoverIndex = 0;
+	// UPTR_UNDEFINE means no index is hovered
+	size_t m_hoveredIndex      = UPTR_UNDEFINED;
+
+	// UPTR_UNDEFINED means no column is hovered
+	size_t m_hoveredColumn     = UPTR_UNDEFINED;
+
+	// Don't know if i should experiment using a "null" reference here
+	UserNode* m_hoveredNode    = nullptr;
+
+	// Cache the node & index on popup open
+	size_t m_popupIndex        = UPTR_UNDEFINED;
+	UserNode* m_popupNode      = nullptr;
+
 
 	// current sort column index
 	size_t m_currentSortColumn = 0;
+
+	// current node list, this pointer is only valid when Render() begin
+	// and become nullptr after the Render() ended
+	std::vector<UserNode>* m_currentNodeList = nullptr;
 
 	// current node offset, same as TreePush TreePop
 	float m_nodeOffset = 0.f;
@@ -193,7 +208,7 @@ public:
 
 private:
 	// return true if the row was clicked
-	bool HandleRowInput(ImGuiTable* table, size_t index)
+	bool HandleRowInput(ImGuiTable* table, UserNode& node, size_t index)
 	{
 		// imgui_tables.cpp #2016
 		// fix for one-column tables don't call ImGuiTable::EndCell to calculate the cell height
@@ -226,8 +241,8 @@ private:
 
 		if (bHover)
 		{
-			// TODO FIXME
-			m_currentHoverIndex = index;
+			m_hoveredIndex = index;
+			m_hoveredNode = &node;
 
 			if (bLBtnDown)
 				color = ImGui::GetColorU32(ImGuiCol_TableRowClicked);
@@ -256,34 +271,48 @@ private:
 
 	void HandlePopup()
 	{
-		if (m_desc.PopupRenderCallback == nullptr) return;
-
 		m_popup.Render();
 
-		if (m_currentHoverIndex < 0) return;
+		if (m_hoveredIndex == UPTR_UNDEFINED || m_hoveredNode == nullptr) return;
 
 		// if the user right clicked a row
 		if (ImGui::IsMouseReleased(1))
 		{
-			size_t index = static_cast<size_t>(m_currentHoverIndex);
 
 			// the user clicked outside of any selected item
-			if (!IsItemSelected(index))
+			if (!IsItemSelected(m_hoveredIndex))
 			{
 				// we clear the selected items, then set the current item to be selected
 				ClearSelectedItems();
-				AddSelectedItem(index);
+				AddSelectedItem(m_hoveredIndex);
 			}
 
-			// open the popup
-			m_popup.Open(reinterpret_cast<void*>(UINT_PTR(index)));
-		}
+			// cache the index and node pointer
+			m_popupIndex = m_hoveredIndex;
+			m_popupNode = m_hoveredNode;
 
+			// open the popup
+			m_popup.Open(reinterpret_cast<void*>(m_hoveredIndex));
+		}
 	}
 
 	static void PopupRenderCallback(Popup* popup, void* OpenUserData, void* UserData)
 	{
-		Table* pThis = static_cast<Table*>(UserData);
+		TreeTable<UserNode>* pThis = static_cast<TreeTable<UserNode>*>(UserData);
+
+		// check if the cached node pointer is still at the same index
+		// e.g. the node list has been changed, if so we will close
+		// the popup to avoid any conflicts, this behavior might change
+		// in the future
+		
+		UserNode* openedNode = pThis->GetNodeAtIndex(pThis->m_popupIndex);
+		if (openedNode == nullptr || openedNode != pThis->m_popupNode)
+		{
+			pThis->m_popupIndex = UPTR_UNDEFINED;
+			pThis->m_popupNode = nullptr;
+			pThis->m_popup.Close();
+			return;
+		}
 
 		// why don't we have a popup render callback?
 		assert(pThis->m_desc.PopupRenderCallback != nullptr);
@@ -291,7 +320,7 @@ private:
 		// forward the callback
 		// OpenUserData is the index hovered when the user right-clicked
 		size_t index = size_t(OpenUserData);
-		pThis->m_desc.PopupRenderCallback(pThis, index, pThis->m_desc.PopupRenderUserData);
+		pThis->m_desc.PopupRenderCallback(pThis, pThis->m_popupNode, pThis->m_popupIndex, pThis->m_desc.PopupRenderUserData);
 	}
 
 	// Apply the indent spacing 
@@ -323,11 +352,11 @@ private:
 
 		ImGui::TableSetColumnIndex(static_cast<int>(m_columns.size() - 1));
 
-		if (HandleRowInput(table, index))
+		// HandleRowInput() return true if the node was clicked
+		if (HandleRowInput(table, node, index))
 		{
 			node.m_open = !node.m_open;
 		}
-
 
 		index += 1;
 		level += 1;
@@ -355,7 +384,6 @@ private:
 				if (state == Execution::Skip || state == Execution::SkipNode)
 					ApplyIndent(-m_desc.ItemOffset - m_desc.IndentSpacing);
 			}
-			
 		}
 		// if it isn't open, we add the child size the index
 		else
@@ -400,16 +428,21 @@ public:
 		}
 	}
 
+	_CONSTEXPR20 size_t GetHoveredColumn() const
+	{
+		return m_hoveredColumn;
+	}
+
 	// Get the popup to interact with it
 	// becareful not to break anything
-	constexpr Popup& GetPopup()
+	_CONSTEXPR20 Popup& GetPopup()
 	{
 		return m_popup;
 	}
 
 	// Manually trigger the sort callback
 	// User must specify the m_desc.SortCallback beforehand
-	constexpr void Sort()
+	_CONSTEXPR20 void Sort()
 	{
 		if (!m_desc.SortCallback) return;
 
@@ -423,7 +456,7 @@ public:
 
 	// Manually trigger the sort callback
 	// User must specify the m_desc.SortCallback beforehand
-	constexpr void Sort(size_t column, ImGuiSortDirection direction)
+	_CONSTEXPR20 void Sort(size_t column, ImGuiSortDirection direction)
 	{
 		if (!m_desc.SortCallback) return;
 
@@ -434,42 +467,70 @@ public:
 	}
 
 	// Push the tree by one indent
-	inline void TreePush()
+	_CONSTEXPR20 void TreePush()
 	{
 		m_nodeOffset += m_desc.IndentSpacing;
 	}
 
 	// Pop the tree by one indent
-	inline void TreePop()
+	_CONSTEXPR20 void TreePop()
 	{
 		m_nodeOffset -= m_desc.IndentSpacing;
 	}
 
 	// Get the item x offset
-	inline float GetItemOffset()
+	_CONSTEXPR20 float GetItemOffset()
 	{
 		return m_nodeOffset + m_desc.ItemOffset;
 	}
 
 	// Use this instead of ImGui::TableNextColumn()
 	// to handle the indent cursor position automatically
-	inline bool NextColumn()
+	_CONSTEXPR20 bool NextColumn()
 	{
 		ImGuiContext& g = *GImGui;
 		ImGuiTable* table = g.CurrentTable;
 		return SetColumnIndex(table->CurrentColumn + 1);
 	}
 
-	inline bool SetColumnIndex(int index)
+	_CONSTEXPR20 bool SetColumnIndex(int index)
 	{
 		bool result = ImGui::TableSetColumnIndex(index);
 		ApplyIndent();
 		return result;
 	}
 
-	// The widget will modify the node m_open state only, userdata will be left untouched
-	void Render(std::vector<UserNode>& RootNode, ImVec2 Size = { 0.f, 0.f })
+	_CONSTEXPR20 UserNode* GetNodeAtIndex(size_t index)
 	{
+		if (m_currentNodeList == nullptr) return nullptr;
+
+		auto GetNodeRecursive =
+		[](auto&& GetNodeRecursive, UserNode* node, size_t& recursiveIndex, size_t indexToFind) -> UserNode*
+		{
+			if (recursiveIndex++ == indexToFind) return node;
+			for (auto& child : node->m_childs)
+			{
+				UserNode* result = GetNodeRecursive(GetNodeRecursive, &child, recursiveIndex, indexToFind);
+				if (result != nullptr) return result;
+			}
+			return nullptr;
+		};
+
+		size_t recursiveIndex = 0;
+		for (auto it = m_currentNodeList->begin(); it != m_currentNodeList->end(); it++)
+		{
+			auto result = GetNodeRecursive(GetNodeRecursive, it._Ptr, recursiveIndex, index);
+			if (result != nullptr) return result;
+		}
+		return nullptr;
+	}
+
+
+	// The widget will modify the node m_open state only, userdata will be left untouched
+	void Render(std::vector<UserNode>& NodeList, ImVec2 Size = { 0.f, 0.f })
+	{
+		m_currentNodeList = &NodeList;
+
 		ImGuiContext& g = *GImGui;
 
 		int columnCount = static_cast<int>(m_columns.size());
@@ -491,31 +552,32 @@ public:
 			}
 
 			// check for sort events
-			//// this code is straight up copied from the imgui_demo.cpp (why SpecsDirty?)
-			//if (m_desc.Flags & ImGuiTableFlags_Sortable)
-			//{
-			//	if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs(); sorts_specs->SpecsDirty)
-			//	{
-			//		sorts_specs->SpecsDirty = false;
-			//		Sort(
-			//			sorts_specs->Specs->ColumnIndex,
-			//			sorts_specs->Specs->SortDirection
-			//		);
-			//	}
-			//}
+			// this code is straight up copied from the imgui_demo.cpp (why SpecsDirty?)
+			if (m_desc.Flags & ImGuiTableFlags_Sortable)
+			{
+				if (ImGuiTableSortSpecs* sorts_specs = ImGui::TableGetSortSpecs(); sorts_specs->SpecsDirty)
+				{
+					sorts_specs->SpecsDirty = false;
+					Sort(
+						sorts_specs->Specs->ColumnIndex,
+						sorts_specs->Specs->SortDirection
+					);
+				}
+			}
 
 			// reset hover index before we rendering any rows
-			// notice that the m_currentHoverIndex of the last
+			// notice that the m_hoveredIndex of the last
 			// frame will still be available for SortCallback
 			// to use, we might use it in the future
-			//m_currentHoverIndex = -1;
+			m_hoveredIndex = UPTR_UNDEFINED;
+			m_hoveredNode = nullptr;
 
 			// reset node offset before we begin
 			m_nodeOffset = 0.f;
 
 			size_t index = 0;
 			Execution state = Execution::Continue;
-			for (auto& node : RootNode)
+			for (auto& node : NodeList)
 			{
 				RenderNode(table, node, index, 0, state);
 				if (state == Execution::Stop) break;
@@ -548,14 +610,28 @@ public:
 				table->IsInsideRow = false;
 			}
 
+			// check if any columns is hovered
+			m_hoveredColumn = UPTR_UNDEFINED;
+			for (auto& column : table->Columns)
+			{
+				if (column.Flags & ImGuiTableColumnFlags_IsHovered)
+				{
+					m_hoveredColumn = static_cast<size_t>(&column - &table->Columns[0]);
+					break;
+				}
+			}
+
 			ImGui::EndTable();
 
 			// call input callback
-			//if (m_desc.InputCallback)
-			//	m_desc.InputCallback(this, m_currentHoverIndex, m_desc.InputUserData);
+			if (m_desc.InputCallback)
+				m_desc.InputCallback(this, m_hoveredNode, m_hoveredIndex, m_desc.InputUserData);
 
-			//HandlePopup();
+			// render the popup if we have one
+			if (m_desc.PopupRenderCallback) HandlePopup();
 		}
+
+		m_currentNodeList = nullptr;
 	}
 
 };

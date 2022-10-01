@@ -46,6 +46,9 @@
     <Filter Include="Engine\PEInfo">
       <UniqueIdentifier>{5f7135ba-4299-402e-86b5-67bee452819f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Disassembler">
+      <UniqueIdentifier>{d7f0ad9f-cb2e-447b-8cec-11d3858b0993}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -84,6 +87,9 @@
     <ClCompile Include="common_helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Disassembler\ZydisDisassembler.cpp">
+      <Filter>Engine\Disassembler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
@@ -104,7 +110,7 @@
     <ClInclude Include="GUI\Views\ViewAttachProc.hpp">
       <Filter>GUI\Views</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Views\ViewScanner.hpp">
+    <ClInclude Include="GUI\Views\ViewMemoryScan.hpp">
       <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Views\ViewWatchList.hpp">
@@ -173,7 +179,7 @@
     <ClInclude Include="Resources\FontAwesomeImpl.h">
       <Filter>Header Resources</Filter>
     </ClInclude>
-    <ClInclude Include="GUI\Views\ViewModules.hpp">
+    <ClInclude Include="GUI\Views\ViewSymbolList.hpp">
       <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="Engine\PEInfo\PEParser.hpp">
@@ -187,6 +193,15 @@
     </ClInclude>
     <ClInclude Include="GUI\Widgets\Widgets.hpp">
       <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Disassembler\BaseDisassembler.hpp">
+      <Filter>Engine\Disassembler</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Disassembler\ZydisDisassembler.h">
+      <Filter>Engine\Disassembler</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Views\ViewDisassembler.hpp">
+      <Filter>GUI\Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

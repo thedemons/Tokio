@@ -1,15 +1,15 @@
 ﻿#pragma once
 
 
-class ViewScanner : public BaseView
+class ViewMemoryScan : public BaseView
 {
 
 public:
-	ViewScanner()
+	ViewMemoryScan()
 	{
-		m_title = u8"🔍 Memory Scan";
+		m_title = ICON_MEMORY_SCAN u8" Memory Scan";
 
-		auto viewList = MainView::FindMultipleViewByClass<ViewScanner>();
+		auto viewList = MainView::FindMultipleViewByClass<ViewMemoryScan>();
 		if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
 	}
 

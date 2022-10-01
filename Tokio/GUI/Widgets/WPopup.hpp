@@ -37,6 +37,7 @@ private:
 	// popup description
 	Desc m_desc;
 	bool m_isOpen = false;
+	bool m_closePopupQueue = false;
 
 public:
 	void Setup(const Desc& desc)
@@ -55,22 +56,35 @@ public:
 		if (m_isOpen)
 		{
 			m_desc.RenderCallback(this, m_desc.OpenUserData, m_desc.RenderUserData);
+
+			if (m_closePopupQueue)
+			{
+				ImGui::CloseCurrentPopup();
+				m_closePopupQueue = false;
+			}
 			ImGui::EndPopup();
 		}
+
+		m_closePopupQueue = false;
 	}
 
-	void Open(void* OpenUserData = nullptr)
+	_CONSTEXPR20 void Open(void* OpenUserData = nullptr)
 	{
 		SetOpenUserData(OpenUserData);
 		ImGui::OpenPopupEx(m_desc.id, m_desc.OpenFlags);
 	}
 
-	constexpr void SetOpenUserData(void* OpenUserData)
+	_CONSTEXPR20 void Close()
+	{
+		m_closePopupQueue = true;
+	}
+
+	_CONSTEXPR20 void SetOpenUserData(void* OpenUserData)
 	{
 		m_desc.OpenUserData = OpenUserData;
 	}
 
-	constexpr bool IsOpen() const
+	_CONSTEXPR20 bool IsOpen() const
 	{
 		return m_isOpen;
 	}

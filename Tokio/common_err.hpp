@@ -23,7 +23,8 @@ enum class errcode
 	EnumProcesSymbolsFailed,
 
 	TheImageFileFormatIsNotSupported,
-	CannotParseImagePEHeader
+	CannotParseImagePEHeader,
+	CannotGetTargetProcesArchitecture
 };
 
 enum class errtype
@@ -34,20 +35,21 @@ enum class errtype
 };
 
 inline std::unordered_map<errcode, std::wstring> rcErrorMessages = {
-	{errcode::NoMessage, L"No message"},
-	{errcode::RegisterWndClassFailed, L"Failed to register window class"},
-	{errcode::CreateWindowFailed, L"Failed to create the window"},
-	{errcode::CreateD3DDeviceFailed, L"Failed to create D3D Device"},
-	{errcode::CannotFindTheViewWindow, L"Cannot find the view window"},
-	{errcode::AttachProcessFailed, L"Failed to attach to the target process"},
-	{errcode::ReadProcessMemoryFailed, L"Failed to read from the process memory"},
-	{errcode::ReadProcessMemoryNotEnoughByte, L"ReadProcessMemory didn't read enough bytes"},
-	{errcode::WriteProcessMemoryFailed, L"Failed to write to the process memory"},
-	{errcode::WriteProcessMemoryNotEnoughByte, L"WriteProcessMemory didn't write enough bytes"},
-	{errcode::EnumProcessModulesFailed, L"Failed to enumerate the process' modules"},
-	{errcode::EnumProcesSymbolsFailed, L"Failed to enumerate the process' symbols"},
-	{errcode::TheImageFileFormatIsNotSupported, L"The image file format is not supported"},
-	{errcode::CannotParseImagePEHeader, L"Cannot parse the image PE Header"},
+	{errcode::NoMessage                        , L"No message"},
+	{errcode::RegisterWndClassFailed           , L"Failed to register window class"},
+	{errcode::CreateWindowFailed               , L"Failed to create the window"},
+	{errcode::CreateD3DDeviceFailed            , L"Failed to create D3D Device"},
+	{errcode::CannotFindTheViewWindow          , L"Cannot find the view window"},
+	{errcode::AttachProcessFailed              , L"Failed to attach to the target process"},
+	{errcode::ReadProcessMemoryFailed          , L"Failed to read from the process memory"},
+	{errcode::ReadProcessMemoryNotEnoughByte   , L"ReadProcessMemory didn't read enough bytes"},
+	{errcode::WriteProcessMemoryFailed         , L"Failed to write to the process memory"},
+	{errcode::WriteProcessMemoryNotEnoughByte  , L"WriteProcessMemory didn't write enough bytes"},
+	{errcode::EnumProcessModulesFailed         , L"Failed to enumerate the process' modules"},
+	{errcode::EnumProcesSymbolsFailed          , L"Failed to enumerate the process' symbols"},
+	{errcode::TheImageFileFormatIsNotSupported , L"The image file format is not supported"},
+	{errcode::CannotParseImagePEHeader         , L"Cannot parse the image PE Header"},
+	{errcode::CannotGetTargetProcesArchitecture, L"Cannot get the target proces architecture (x86 or x64), please try again"},
 };
 
 

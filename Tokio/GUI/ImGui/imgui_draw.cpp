@@ -3602,6 +3602,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
     unsigned int vtx_current_idx = draw_list->_VtxCurrentIdx;
 
     const ImU32 col_untinted = col | ~IM_COL32_A_MASK;
+    //ImVector<ImRect> vrect;
 
     while (s < text_end)
     {
@@ -3663,6 +3664,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
             continue;
 
         float char_width = glyph->AdvanceX * scale;
+        //vrect.push_back({ x, y, x + char_width, y + line_height });
         if (glyph->Visible)
         {
             // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
@@ -3670,6 +3672,7 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
             float x2 = x + glyph->X1 * scale;
             float y1 = y + glyph->Y0 * scale;
             float y2 = y + glyph->Y1 * scale;
+
             if (x1 <= clip_rect.z && x2 >= clip_rect.x)
             {
                 // Render a character
@@ -3708,9 +3711,9 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
                     }
                 }
 
+
                 // Support for untinted glyphs
                 ImU32 glyph_col = glyph->Colored ? col_untinted : col;
-
                 // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug builds. Inlined here:
                 {
                     idx_write[0] = (ImDrawIdx)(vtx_current_idx); idx_write[1] = (ImDrawIdx)(vtx_current_idx+1); idx_write[2] = (ImDrawIdx)(vtx_current_idx+2);
@@ -3735,6 +3738,12 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
     draw_list->_VtxWritePtr = vtx_write;
     draw_list->_IdxWritePtr = idx_write;
     draw_list->_VtxCurrentIdx = vtx_current_idx;
+
+    //auto color = ImGui::GetColorU32(ImGuiCol_TextSelectedBg);
+    //for (auto& rc : vrect)
+    //{
+    //    draw_list->AddRectFilled(rc.Min, rc.Max, color);
+    //}
 }
 
 //-----------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-class ViewModules : public BaseView
+class ViewSymbolList : public BaseView
 {
 private:
 	class ModuleNode : public Widgets::TreeTable<ModuleNode>::NestedNode
@@ -44,7 +44,7 @@ private:
 	{
 		if (node.isHidden) return Widgets::TreeTable<ModuleNode>::Execution::Skip;
 
-		auto pThis = static_cast<ViewModules*>(UserData);
+		auto pThis = static_cast<ViewSymbolList*>(UserData);
 
 
 		// Render the node as module
@@ -61,11 +61,17 @@ private:
 		// Render it as symbol
 		else
 		{
-			ImGui::PushFont(MainApplication::FontMono);
+			ImGui::PushFont(MainApplication::FontMonoRegular);
 			ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node.address);
 
 			table->NextColumn();
 			ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextFunction), "%s", node.functionName.c_str());
+
+			ImGui::SameLine();
+			ImGui::PushFont(MainApplication::FontMonoItalicThin);
+			ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextDecimal), " @%d", node.ordinal);
+
+			ImGui::PopFont();
 			ImGui::PopFont();
 		}
 
@@ -73,22 +79,63 @@ private:
 		return Widgets::TreeTable<ModuleNode>::Execution::Continue;
 	}
 
-	static void TableInputCallback(Widgets::TreeTable<ModuleNode>* table, INT index, void* UserData)
+	static void TableInputCallback(Widgets::TreeTable<ModuleNode>* table, ModuleNode* node, size_t index, void* UserData)
 	{
-
+		//printf("%d\n", index);
 	}
+
 	static void TableSortCallback(Widgets::TreeTable<ModuleNode>* table, size_t column, ImGuiSortDirection direction, void* UserData)
 	{
 
+		//printf("%d\n", column);
 	}
-	static void TablePopupRenderCallback(Widgets::TreeTable<ModuleNode>* table, size_t index, void* UserData)
-	{
 
+	static void TablePopupRenderCallback(Widgets::TreeTable<ModuleNode>* table, ModuleNode* node, size_t index, void* UserData)
+	{
+		if (node != nullptr)
+		{
+			if (node->isModule)
+			{
+
+				ImGui::PushFont(MainApplication::FontMonoBold);
+				ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node->address);
+
+				ImGui::SameLine();
+				ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextModule), "%s", node->moduleNameA.c_str());
+				ImGui::PopFont();
+			}
+			// Render it as symbol
+			else
+			{
+				ImGui::PushFont(MainApplication::FontMonoRegular);
+				ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node->address);
+
+				ImGui::SameLine();
+				ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextFunction), "%s", node->functionName.c_str());
+
+				ImGui::PopFont();
+			}
+
+			ImGui::Separator();
+			ImGui::MenuItem(ICON_WATCH_LIST      u8" Add to Watch List");
+			
+			if (ImGui::MenuItem(ICON_DISASSEMBLER    u8" Open in Disassembler"))
+			{
+				auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
+				if (disasmView.has_value())
+				{
+					disasmView.value().pView->GoToAddress(node->address);
+				}
+			}
+
+			ImGui::MenuItem(ICON_MEMORY_VIEW     u8" Open in Memory View", "Ctrl+B");
+			ImGui::MenuItem(ICON_PE_VIEW         u8" Open in PE View");
+		}
 	}
 
 	static void FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTextCallbackData* data, void* UserData)
 	{
-		ViewModules* pThis = static_cast<ViewModules*>(UserData);
+		ViewSymbolList* pThis = static_cast<ViewSymbolList*>(UserData);
 
 		// the filter contains nothing
 		if (data->BufTextLen == 0)
@@ -119,6 +166,19 @@ private:
 
 			for (auto& modData : pThis->m_moduleList)
 			{
+				// check if the module pass the filter, if it does, show all its symbols
+				std::string lowerName = common::BhStringLower(modData.moduleNameA);
+				modData.isHidden = (lowerName.find(filter) == std::string::npos);
+
+				if (!modData.isHidden)
+				{
+					modData.m_open = true;
+					for (auto& symbolData : modData.m_childs)
+						symbolData.isHidden = false;
+
+					continue;
+				}
+
 				bool isAnyChildVisible = false;
 
 				for (auto& symbolData : modData.m_childs)
@@ -137,21 +197,16 @@ private:
 					modData.isHidden = false;
 					if (!modData.m_open) modData.m_open = true;
 				}
-				else
-				{
-					std::string lowerName = common::BhStringLower(modData.moduleNameA);
-					modData.isHidden = (lowerName.find(filter) == std::string::npos);
-				}
 			}
 		}
 	}
 
 public:
-	ViewModules()
+	ViewSymbolList()
 	{
-		m_title = u8"🕹 Symbol List";
+		m_title = ICON_SYMBOL_LIST u8" Symbol List";
 
-		auto viewList = MainView::FindMultipleViewByClass<ViewScanner>();
+		auto viewList = MainView::FindMultipleViewByClass<ViewMemoryScan>();
 		if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
 
 
@@ -224,12 +279,12 @@ public:
 	}
 
 	// update the module data
-	void Update(const std::vector<ModuleData>& modules)
+	void Update(const std::shared_ptr<ProcessData>& targetProcess) override
 	{
 		m_moduleList.clear();
-		m_moduleList.reserve(modules.size());
+		m_moduleList.reserve(targetProcess->modules.size());
 
-		for (auto& modData : modules)
+		for (auto& modData : targetProcess->modules)
 		{
 			ModuleNode& nodeModule = m_moduleList.emplace_back();
 

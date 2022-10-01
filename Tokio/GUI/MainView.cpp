@@ -3,16 +3,19 @@
 #include "MainView.h"
 #include "Themes.hpp"
 
+#include "Engine/Engine.h"
+
 #include "Resources/FontAwesomeImpl.h"
 #include "Widgets/Widgets.hpp"
 #include "Widgets/WTable.hpp"
 #include "Widgets/WTreeTable.hpp"
 #include "Widgets/WTextInput.hpp"
 #include "Widgets/WPopup.hpp"
-#include "Views/ViewScanner.hpp"
+#include "Views/ViewMemoryScan.hpp"
 #include "Views/ViewWatchList.hpp"
 #include "Views/ViewAttachProc.hpp"
-#include "Views/ViewModules.hpp"
+#include "Views/ViewSymbolList.hpp"
+#include "Views/ViewDisassembler.hpp"
 
 
 namespace MainView
@@ -23,15 +26,17 @@ void Init()
 {
 	ThemeSettings::SetDarkVSTheme();
 
-	BaseView* viewScanner    = new ViewScanner();
+	BaseView* viewScanner    = new ViewMemoryScan();
 	BaseView* viewWatchList  = new ViewWatchList();
 	BaseView* viewAttachProc = new ViewAttachProc();
-	BaseView* viewModules    = new ViewModules();
+	BaseView* viewModules    = new ViewSymbolList();
+	BaseView* viewDisasm    = new ViewDisassembler();
 
 	m_ViewList.push_back({ viewScanner   , viewScanner->isDefaultOpen()    });
 	m_ViewList.push_back({ viewWatchList , viewWatchList->isDefaultOpen()  });
 	m_ViewList.push_back({ viewAttachProc, viewAttachProc->isDefaultOpen() });
 	m_ViewList.push_back({ viewModules   , viewModules->isDefaultOpen()    });
+	m_ViewList.push_back({ viewDisasm    , viewDisasm->isDefaultOpen()     });
 
 	Engine::OnAttachCallback(HandlerAttachProcess);
 
@@ -141,10 +146,9 @@ void Render()
 
 void HandlerAttachProcess(std::shared_ptr<ProcessData> target)
 {
-	auto find = FindMultipleViewByClass<ViewModules>();
-	for (auto& pView : find)
+	for (auto& view : m_ViewList)
 	{
-		pView->Update(target->modules);
+		view.pView->Update(target);
 	}
 }
 

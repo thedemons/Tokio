@@ -1,5 +1,8 @@
 #pragma once
 
+namespace Engine
+{
+
 class Win32Memory : public BaseMemory
 {
 private:
@@ -13,7 +16,7 @@ public:
 		Detach();
 	}
 
-	auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>) override
+	_NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>) override
 	{
 		HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
 		WINAPI_FAILIFN(hProc, AttachProcessFailed);
@@ -21,6 +24,13 @@ public:
 		m_target = std::make_shared<ProcessData>();
 		m_target->handle = hProc;
 		m_target->pid = pid;
+
+		BOOL getArchResult = IsWow64Process(m_target->handle, &m_target->is32bit);
+		if (!getArchResult)
+		{
+			Detach();
+			WINAPI_THROW(CannotGetTargetProcesArchitecture);
+		}
 
 		if (auto result = RetrieveModuleList(); result.has_error())
 		{
@@ -40,7 +50,7 @@ public:
 		m_target.reset();
 	}
 
-	auto Read(POINTER src, void* dest, size_t size) -> SafeResult(void) override
+	_NODISCARD auto Read(POINTER src, void* dest, size_t size) -> SafeResult(void) override
 	{
 		SIZE_T bytesRead = 0;
 		BOOL readResult = ReadProcessMemory(m_target->handle, reinterpret_cast<LPCVOID>(src), dest, size, &bytesRead);
@@ -51,7 +61,7 @@ public:
 		return {};
 	}
 
-	auto Write(POINTER dest, const void* src, size_t size) -> SafeResult(void) override
+	_NODISCARD auto Write(POINTER dest, const void* src, size_t size) -> SafeResult(void) override
 	{
 		SIZE_T bytesWritten = 0;
 		BOOL writeResult = WriteProcessMemory(m_target->handle, reinterpret_cast<LPVOID>(dest), src, size, &bytesWritten);
@@ -62,7 +72,7 @@ public:
 		return {};
 	}
 
-	auto RetrieveModuleList() -> SafeResult(void)
+	_NODISCARD auto RetrieveModuleList() -> SafeResult(void)
 	{
 		// init 256 module, if it wasn't enough we will allocate more
 		if (m_bufferModule.size() == 0) m_bufferModule.resize(256);
@@ -149,3 +159,4 @@ public:
 	}
 
 };
+}

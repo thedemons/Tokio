@@ -315,16 +315,13 @@ private:
 		if (oldSelectedPID != 0) pThis->SelectProcessByPid(oldSelectedPID);
 	}
 
-	static void TableInputCallback(Widgets::Table* table, INT index, void* UserData)
+	static void TableInputCallback(Widgets::Table* table, size_t index, void* UserData)
 	{
 		ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
 
 		// if any row is hovered
-		if (index >= 0)
+		if (index != UPTR_UNDEFINED)
 		{
-			if (ImGui::IsMouseReleased(1))
-				table->m_popup.Open();
-
 			if (ImGui::IsMouseDoubleClicked(0))
 			{
 				DWORD pid = pThis->m_processList[index].pid;
@@ -358,17 +355,20 @@ private:
 		ImGui::Text("%s", procData.name.c_str());
 		ImGui::Separator();
 
-		if (ImGui::Selectable("Open file location"))
+		if (ImGui::Selectable(ICON_FILEFOLDER u8" Open file location"))
 		{
-			common::BhOpenFileInExplorer(procData.wpath);
+			if (auto result = common::BhOpenFileInExplorer(procData.wpath); result.has_error())
+			{
+				result.error().show();
+			}
 		}
 
-		if (ImGui::Selectable("Kill process"))
+		if (ImGui::Selectable(ICON_KILL u8" Kill process"))
 		{
 
 		}
 
-		if (ImGui::Selectable("Suspend process"))
+		if (ImGui::Selectable(ICON_SUSPEND u8" Suspend process"))
 		{
 
 		}
@@ -436,7 +436,7 @@ private: // members
 public:
 	ViewAttachProc()
 	{
-		m_title = u8"🖥 Attach Process";
+		m_title = ICON_ATTACH_PROC u8" Attach Process";
 
 		Widgets::Table::Desc desc;
 		desc.Name = "##TableAttachProc";
@@ -530,7 +530,7 @@ public:
 			ImGui::SetNextItemWidth(-1);
 			m_textFilter.Render();
 
-			m_table.Render(static_cast<UINT>(m_processList.size()));
+			m_table.Render(m_processList.size());
 
 			ImGui::EndPopup();
 		}
@@ -581,7 +581,7 @@ private:
 		{
 			if (procData.pid == pid)
 			{
-				UINT index = static_cast<UINT>(&procData - &m_processList[0]);
+				size_t index = static_cast<size_t>(&procData - &m_processList[0]);
 				m_table.AddSelectedItem(index);
 				break;
 			}

@@ -34,6 +34,7 @@ void MainLoop()
 
 int main()
 {
+
 	auto initResult = MainApplication::Init();
 	if (initResult.has_error())
 	{

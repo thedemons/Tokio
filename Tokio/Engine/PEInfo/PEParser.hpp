@@ -1,4 +1,5 @@
 
+
 namespace PEParser
 {
 
@@ -54,16 +55,16 @@ auto ParseNtHeader(void* pBase) -> SafeResult(PE_DirectoryData)
 	return result;
 }
 
-auto GetPEInfo(const std::wstring& filePath) -> SafeResult(PE_Data)
+auto GetPEInfo(ModuleData& modData) -> SafeResult(void)
 {
 	// open the file
 	HANDLE hSrcFile = CreateFileW(
-		filePath.c_str(),
+		modData.modulePathW.c_str(),
 		GENERIC_READ, FILE_SHARE_READ,
 		nullptr, OPEN_EXISTING, 0, nullptr
 	);
 
-	WINAPI_FAILIFN(hSrcFile, CannotParseImagePEHeader);
+	WINAPI_FAILIFN(hSrcFile != INVALID_HANDLE_VALUE, CannotParseImagePEHeader);
 
 	// map the file into memory
 	HANDLE hMapSrcFile = CreateFileMappingW(hSrcFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
@@ -84,21 +85,23 @@ auto GetPEInfo(const std::wstring& filePath) -> SafeResult(PE_Data)
 		RESULT_THROW(TheImageFileFormatIsNotSupported);
 	}
 
-	PE_Data result;
-
 	if (pNtHeaderMagic->Is32())
 	{
+		// strip 4 bytes of the address if the module is 32-bit
+		modData.address &= 0xFFFFFFFFull;
+
 		auto parseResult = ParseNtHeader<PE_NT_HEADER_32>(pVoidBase);
-		if (parseResult.has_value()) result.dirs = parseResult.value();
+		if (parseResult.has_value()) modData.pe.dirs = parseResult.value();
 	}
 	else
 	{
 		auto parseResult = ParseNtHeader<PE_NT_HEADER_64>(pVoidBase);
-		if (parseResult.has_value()) result.dirs = parseResult.value();
+		if (parseResult.has_value()) modData.pe.dirs = parseResult.value();
 	}
 
 	UnmapViewOfFile(pVoidBase);
-	return result;
+
+	return {};
 }
 
 }

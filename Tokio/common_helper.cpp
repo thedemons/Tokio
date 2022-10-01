@@ -129,9 +129,9 @@ std::wstring BhPathAppend(std::wstring path, std::vector<std::wstring> trails)
 	return path;
 }
 
-std::wstring BhGetFileExtension(std::wstring fileName)
+std::wstring BhGetFileExtension(const std::wstring& fileName)
 {
-	for (int i = fileName.size() - 1; i > 0; i--)
+	for (size_t i = fileName.size() - 1; i > 0; i--)
 	{
 		if (fileName[i] == L'\\') break;
 		else if (fileName[i] == L'.')
@@ -142,9 +142,9 @@ std::wstring BhGetFileExtension(std::wstring fileName)
 	return L"";
 }
 
-std::string BhGetFileExtension(std::string fileName)
+std::string BhGetFileExtension(const std::string& fileName)
 {
-	for (int i = fileName.size() - 1; i > 0; i--)
+	for (size_t i = fileName.size() - 1; i > 0; i--)
 	{
 		if (fileName[i] == '\\') break;
 		else if (fileName[i] == '.')
@@ -155,13 +155,13 @@ std::string BhGetFileExtension(std::string fileName)
 	return "";
 }
 
-std::string BhPathGetTrail(std::string path, int level)
+std::string BhPathGetTrail(const std::string& path, int level)
 {
 	std::string tempPath = BhPathParent(path, level);
 	return path.substr(tempPath.size() + 1);
 }
 
-std::wstring BhPathGetTrail(std::wstring path, int level)
+std::wstring BhPathGetTrail(const std::wstring& path, int level)
 {
 	std::wstring tempPath = BhPathParent(path, level);
 	return path.substr(tempPath.size() + 1);
@@ -169,7 +169,7 @@ std::wstring BhPathGetTrail(std::wstring path, int level)
 
 // Get a list of all running process
 // TODO: Use another type, not PROCESSENTRY32W
-auto BhGetAllProcess() -> SafeResult(std::map<DWORD, PROCESSENTRY32W>)
+[[nodiscard]] auto BhGetAllProcess() -> SafeResult(std::map<DWORD, PROCESSENTRY32W>)
 {
 	std::map<DWORD, PROCESSENTRY32W> result;
 
@@ -192,7 +192,7 @@ auto BhGetAllProcess() -> SafeResult(std::map<DWORD, PROCESSENTRY32W>)
 	return result;
 }
 
-auto common::BhGetProcessData(DWORD pid)->SafeResult(PROCESSENTRY32W)
+[[nodiscard]] auto common::BhGetProcessData(DWORD pid)->SafeResult(PROCESSENTRY32W)
 {
 	auto procList = BhGetAllProcess();
 	RESULT_FAILIFN_PASS(procList.has_value(), procList.error());
@@ -204,7 +204,7 @@ auto common::BhGetProcessData(DWORD pid)->SafeResult(PROCESSENTRY32W)
 }
 
 // Get a list of windows, includes their titles, classname and pid
-auto BhGetAllWindows() -> SafeResult(std::vector<WindowData>)
+[[nodiscard]] auto BhGetAllWindows() -> SafeResult(std::vector<WindowData>)
 {
 	static auto enumProc = [](HWND hwnd, LPARAM lParam) -> BOOL
 	{
@@ -232,7 +232,7 @@ auto BhGetAllWindows() -> SafeResult(std::vector<WindowData>)
 	return results;
 }
 
-auto BhOpenFileInExplorer(const std::wstring& filePath) -> SafeResult(void)
+[[nodiscard]] auto BhOpenFileInExplorer(const std::wstring& filePath) -> SafeResult(void)
 {
 	ITEMIDLIST* pidl = ILCreateFromPathW(filePath.c_str());
 	WINAPI_FAILIFN_NM(pidl);
@@ -244,5 +244,35 @@ auto BhOpenFileInExplorer(const std::wstring& filePath) -> SafeResult(void)
 
 
 	return {};
+}
+
+[[nodiscard]] auto BhClipboardCopy(const std::wstring& text)->SafeResult(void)
+{
+	WINAPI_FAILIFN_NM(OpenClipboard(0));
+	WINAPI_FAILIFN_NM(EmptyClipboard());
+
+	HANDLE hClipboardData = GlobalAlloc(GMEM_DDESHARE, sizeof(wchar_t) * (text.size() + 1));
+	WINAPI_FAILIFN_NM(hClipboardData);
+
+	void* pchData = GlobalLock(hClipboardData);
+	WINAPI_FAILIFN_NM(pchData);
+
+	memcpy(pchData, text.c_str(), text.size() * sizeof(wchar_t));
+
+	GlobalUnlock(hClipboardData);
+	WINAPI_FAILIFN_NM(pchData);
+
+	SetClipboardData(CF_UNICODETEXT, hClipboardData);
+	WINAPI_FAILIFN_NM(pchData);
+
+	CloseClipboard();
+	WINAPI_FAILIFN_NM(pchData);
+
+	return {};
+}
+
+[[nodiscard]] auto BhClipboardCopy(const std::string& text)->SafeResult(void)
+{
+	return BhClipboardCopy(BhString(text));
 }
 }

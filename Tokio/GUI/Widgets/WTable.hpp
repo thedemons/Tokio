@@ -17,10 +17,10 @@ public:
 		Skip		// skip this item
 	};
 
-	typedef void (*LPINPUT_CALLBACK)(Table* table, INT index, void* UserData);
-	typedef Execution (*LPRENDER_CALLBACK)(Table* table, size_t index, void* UserData);
-	typedef void (*LPPOPUPRENDER_CALLBACK)(Table* table, size_t index, void* UserData);
-	typedef void (*LPSORT_CALLBACK)(Table* table, size_t column, ImGuiSortDirection direction, void* UserData);
+	typedef void      (*LPINPUT_CALLBACK)      (Table* table, size_t index, void* UserData);
+	typedef Execution (*LPRENDER_CALLBACK)     (Table* table, size_t index, void* UserData);
+	typedef void      (*LPPOPUPRENDER_CALLBACK)(Table* table, size_t index, void* UserData);
+	typedef void      (*LPSORT_CALLBACK)       (Table* table, size_t column, ImGuiSortDirection direction, void* UserData);
 
 
 	// Table setup description
@@ -60,7 +60,7 @@ public:
 		void* PopupRenderUserData = nullptr;
 	};
 
-public:
+private:
 	struct ColumnData
 	{
 		size_t Index = 0;			// auto increase
@@ -78,8 +78,11 @@ public:
 	// column data, add a column using ::AddColumn
 	std::vector<ColumnData> m_columns;
 
-	// -1 means no index is hovered
-	INT m_currentHoverIndex = 0;
+	// UPTR_UNDEFINED means no index is hovered
+	size_t m_hoveredIndex = UPTR_UNDEFINED;
+
+	// UPTR_UNDEFINED means no column is hovered
+	size_t m_hoveredColumn = UPTR_UNDEFINED;
 
 	// current sort column index
 	size_t m_currentSortColumn = 0;
@@ -151,8 +154,7 @@ private:
 
 		if (bHover)
 		{
-			// TODO FIXME
-			m_currentHoverIndex = index;
+			m_hoveredIndex = index;
 
 			if (bLBtnDown) 
 				color = ImGui::GetColorU32(ImGuiCol_TableRowClicked);
@@ -183,12 +185,12 @@ private:
 
 		m_popup.Render();
 
-		if (m_currentHoverIndex < 0) return;
+		if (m_hoveredIndex == UPTR_UNDEFINED) return;
 
 		// if the user right clicked a row
 		if (ImGui::IsMouseReleased(1))
 		{
-			size_t index = static_cast<size_t>(m_currentHoverIndex);
+			size_t index = static_cast<size_t>(m_hoveredIndex);
 
 			// the user clicked outside of any selected item
 			if (!IsItemSelected(index))
@@ -253,16 +255,21 @@ public:
 		}
 	}
 
+	_CONSTEXPR20 size_t GetHoveredColumn() const
+	{
+		return m_hoveredColumn;
+	}
+
 	// Get the popup to interact with it
 	// becareful not to break anything
-	constexpr Popup& GetPopup()
+	_CONSTEXPR20 Popup& GetPopup()
 	{
 		return m_popup;
 	}
 
 	// Manually trigger the sort callback
 	// User must specify the m_desc.SortCallback beforehand
-	constexpr void Sort()
+	_CONSTEXPR20 void Sort()
 	{
 		if (!m_desc.SortCallback) return;
 
@@ -276,7 +283,7 @@ public:
 
 	// Manually trigger the sort callback
 	// User must specify the m_desc.SortCallback beforehand
-	constexpr void Sort(size_t column, ImGuiSortDirection direction)
+	_CONSTEXPR20 void Sort(size_t column, ImGuiSortDirection direction)
 	{
 		if (!m_desc.SortCallback) return;
 
@@ -284,6 +291,18 @@ public:
 		m_currentSortDir = direction;
 
 		return Sort();
+	}
+
+	_CONSTEXPR20 bool NextColumn()
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiTable* table = g.CurrentTable;
+		return SetColumnIndex(table->CurrentColumn + 1);
+	}
+
+	_CONSTEXPR20 bool SetColumnIndex(int index)
+	{
+		return ImGui::TableSetColumnIndex(index);
 	}
 
 	// nMaxItem: enforce the row/item limit
@@ -326,7 +345,7 @@ public:
 			// notice that the m_currentHoverIndex of the last
 			// frame will still be available for SortCallback
 			// to use, we might use it in the future
-			m_currentHoverIndex = -1;
+			m_hoveredIndex = UPTR_UNDEFINED;
 
 			//table->Flags |= m_desc.ExtraFlags;
 
@@ -385,11 +404,22 @@ public:
 				table->IsInsideRow = false;
 			}
 
+			// check if any columns is hovered
+			m_hoveredColumn = UPTR_UNDEFINED;
+			for (auto& column : table->Columns)
+			{
+				if (column.Flags & ImGuiTableColumnFlags_IsHovered)
+				{
+					m_hoveredColumn = static_cast<size_t>(&column - &table->Columns[0]);
+					break;
+				}
+			}
+
 			ImGui::EndTable();
 
 			// call input callback
 			if (m_desc.InputCallback)
-				m_desc.InputCallback(this, m_currentHoverIndex, m_desc.InputUserData);
+				m_desc.InputCallback(this, m_hoveredIndex, m_desc.InputUserData);
 
 			HandlePopup();
 		}

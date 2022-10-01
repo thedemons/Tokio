@@ -61,6 +61,7 @@ auto Init() noexcept -> cpp::result<void, common::err>
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
     //io.ConfigDockingAlwaysTabBar = true;
     //io.ConfigDockingTransparentPayload = true;
     ImGui::StyleColorsDark();
@@ -70,14 +71,23 @@ auto Init() noexcept -> cpp::result<void, common::err>
     //ImGui_ImplWin32_EnableAlphaCompositing(hWnd);
 
 
-    // Load fonts
-
-
     // TODO: Move fonts to resources
-    FontRegular = AddFontFromFile("Fonts\\NotoSans-Regular.ttf", 17.f);
-    FontBold = AddFontFromFile("Fonts\\NotoSans-Bold.ttf", 17.f);
-    FontMono = AddFontFromFile("Fonts\\CascadiaMonoPL-Regular.ttf", 15.f);
-    FontMonoBold = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf", 15.f);
+    FontRegular           = AddFontFromFile("Fonts\\NotoSans-Regular.ttf"          , 17.f);
+    //FontThin              = AddFontFromFile("Fonts\\NotoSans-Light.ttf"            , 17.f);
+    FontBold              = AddFontFromFile("Fonts\\NotoSans-Bold.ttf"             , 17.f);
+
+    //FontItalicThin        = AddFontFromFile("Fonts\\NotoSans-LightItalic.ttf"      , 17.f);
+    //FontItalicBold        = AddFontFromFile("Fonts\\NotoSans-BoldItalic.ttf"       , 17.f);
+    //FontItalicRegular     = AddFontFromFile("Fonts\\NotoSans-Italic.ttf"           , 17.f);
+
+    //FontMonoThin          = AddFontFromFile("Fonts\\CascadiaMonoPL-Light.ttf"      , 15.f);
+    FontMonoBold          = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf"       , 15.f);
+    FontMonoRegular       = AddFontFromFile("Fonts\\CascadiaMonoPL-Regular.ttf"    , 15.f);
+
+    FontMonoItalicThin    = AddFontFromFile("Fonts\\CascadiaMonoPL-LightItalic.ttf", 15.f);
+    //FontMonoItalicBold    = AddFontFromFile("Fonts\\CascadiaMonoPL-BoldItalic.ttf" , 15.f);
+    //FontMonoItalicRegular = AddFontFromFile("Fonts\\CascadiaMonoPL-Italic.ttf"     , 15.f);
+
 
     ::ShowWindow(hWnd, SW_SHOWDEFAULT);
     ::UpdateWindow(hWnd);
