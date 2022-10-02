@@ -60,6 +60,7 @@ inline ImFont* FontItalicBold        = nullptr;
 inline ImFont* FontMonoThin          = nullptr;
 inline ImFont* FontMonoRegular       = nullptr;
 inline ImFont* FontMonoBold          = nullptr;
+inline ImFont* FontMonoBigBold          = nullptr;
 
 inline ImFont* FontMonoItalicThin    = nullptr;
 inline ImFont* FontMonoItalicRegular = nullptr;

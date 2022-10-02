@@ -1,5 +1,6 @@
 #pragma once
-
+#ifndef TOKIO_ENGINE_BASEMEMORY_HPP
+#define TOKIO_ENGINE_BASEMEMORY_HPP
 
 
 namespace Engine
@@ -22,8 +23,9 @@ public:
 	{
 		Type value;
 		auto result = Read(address, &value, static_cast<size_t>(sizeof(Type)));
+		if (result.has_error()) RESULT_FORWARD(result);
 
-		return result.has_error() ? result.error() : value;
+		return value;
 	}
 
 	template <typename Type>
@@ -44,3 +46,5 @@ public:
 
 };
 }
+
+#endif // !TOKIO_ENGINE_BASEMEMORY_HPP

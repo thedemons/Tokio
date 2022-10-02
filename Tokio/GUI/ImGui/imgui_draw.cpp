@@ -3369,10 +3369,32 @@ const char* ImFont::CalcWordWrapPositionA(float scale, const char* text, const c
     {
         unsigned int c = (unsigned int)*s;
         const char* next_s;
+    #ifdef IMGUI_CUSTOM_FONT_RENDERING
+        if (c < 0x80)
+        {
+            next_s = s + 1;
+        }
+        else if ((c & 0xff) == IMGUI_CUSTOM_FONT_START_COLOR)
+        {
+            // 1 byte for the magic byte, 4 byte for the color
+            s += 5;
+            continue;
+        }
+        else if ((c & 0xff) == IMGUI_CUSTOM_FONT_END_COLOR)
+        {
+            s += 1;
+            continue;
+        }
+        else
+        {
+            next_s = s + ImTextCharFromUtf8(&c, s, text_end);
+        }
+    #else
         if (c < 0x80)
             next_s = s + 1;
         else
             next_s = s + ImTextCharFromUtf8(&c, s, text_end);
+    #endif
         if (c == 0)
             break;
 
@@ -3489,6 +3511,19 @@ ImVec2 ImFont::CalcTextSizeA(float size, float max_width, float wrap_width, cons
         {
             s += 1;
         }
+    #ifdef IMGUI_CUSTOM_FONT_RENDERING
+        else if ((c & 0xff) == IMGUI_CUSTOM_FONT_START_COLOR)
+        {
+            // 1 byte for the magic byte, 4 byte for the color
+            s += 5;
+            continue;
+        }
+        else if ((c & 0xff) == IMGUI_CUSTOM_FONT_END_COLOR)
+        {
+            s += 1;
+            continue;
+        }
+    #endif // IMGUI_CUSTOM_FONT_RENDERING
         else
         {
             s += ImTextCharFromUtf8(&c, s, text_end);
@@ -3602,7 +3637,15 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
     unsigned int vtx_current_idx = draw_list->_VtxCurrentIdx;
 
     const ImU32 col_untinted = col | ~IM_COL32_A_MASK;
-    //ImVector<ImRect> vrect;
+
+#ifdef IMGUI_CUSTOM_FONT_RENDERING
+    static ImVector<ImU32> col_stack;
+    col_stack.reserve(30);
+
+    // "clear" the stack without actually clearing it
+    col_stack.Size = 0;
+    col_stack.push_back(col);
+#endif
 
     while (s < text_end)
     {
@@ -3638,6 +3681,22 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
         {
             s += 1;
         }
+    #ifdef IMGUI_CUSTOM_FONT_RENDERING
+        else if ((c & 0xff) == IMGUI_CUSTOM_FONT_START_COLOR)
+        {
+            // 1 byte for the magic byte, 4 byte for the color
+            s += 1;
+            col_stack.push_back(*(ImU32*)s);
+            s += 4;
+            continue;
+        }
+        else if ((c & 0xff) == IMGUI_CUSTOM_FONT_END_COLOR)
+        {
+            s += 1;
+            col_stack.pop_back();
+            continue;
+        }
+    #endif // IMGUI_CUSTOM_FONT_RENDERING
         else
         {
             s += ImTextCharFromUtf8(&c, s, text_end);
@@ -3712,8 +3771,12 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
                 }
 
 
+            #ifdef IMGUI_CUSTOM_FONT_RENDERING
+                ImU32 glyph_col = glyph->Colored ? col_untinted : col_stack.back();
+            #else
                 // Support for untinted glyphs
                 ImU32 glyph_col = glyph->Colored ? col_untinted : col;
+            #endif
                 // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug builds. Inlined here:
                 {
                     idx_write[0] = (ImDrawIdx)(vtx_current_idx); idx_write[1] = (ImDrawIdx)(vtx_current_idx+1); idx_write[2] = (ImDrawIdx)(vtx_current_idx+2);

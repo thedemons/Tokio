@@ -178,6 +178,7 @@
     <ClCompile Include="common_helper.cpp" />
     <ClCompile Include="Engine\Disassembler\ZydisDisassembler.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Engine\Symbol\Win32Symbol.cpp" />
     <ClCompile Include="GUI\ImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -223,6 +224,7 @@
     <ClCompile Include="GUI\MainView.cpp" />
     <ClCompile Include="GUI\Views\ViewAttachProc.cpp" />
     <ClCompile Include="GUI\Views\ViewDisassembler.cpp" />
+    <ClCompile Include="GUI\Views\ViewSettings.cpp" />
     <ClCompile Include="GUI\Views\ViewSymbolList.cpp" />
     <ClCompile Include="GUI\Views\ViewWatchList.cpp" />
     <ClCompile Include="GUI\Widgets\WPopup.cpp" />
@@ -239,7 +241,8 @@
     <ClInclude Include="Engine\EngineDef.hpp" />
     <ClInclude Include="Engine\Memory\BaseMemory.hpp" />
     <ClInclude Include="Engine\Memory\Win32Memory.hpp" />
-    <ClInclude Include="Engine\PEInfo\PEParser.hpp" />
+    <ClInclude Include="Engine\Symbol\BaseSymbol.hpp" />
+    <ClInclude Include="Engine\Symbol\Win32Symbol.h" />
     <ClInclude Include="GUI\ImGui\imconfig.h" />
     <ClInclude Include="GUI\ImGui\imgui.h" />
     <ClInclude Include="GUI\ImGui\imgui_internal.h" />
@@ -254,6 +257,7 @@
     <ClInclude Include="GUI\Views\ViewAttachProc.h" />
     <ClInclude Include="GUI\Views\ViewDisassembler.h" />
     <ClCompile Include="GUI\Views\ViewMemoryScan.cpp" />
+    <ClInclude Include="GUI\Views\ViewSettings.h" />
     <ClInclude Include="GUI\Views\ViewSymbolList.h" />
     <ClInclude Include="GUI\Views\ViewMemoryScan.h" />
     <ClInclude Include="GUI\Views\ViewWatchList.h" />
@@ -264,6 +268,7 @@
     <ClInclude Include="GUI\Widgets\WTextInput.h" />
     <ClInclude Include="GUI\Widgets\WTreeTable.hpp" />
     <ClInclude Include="imgui.hpp" />
+    <ClInclude Include="imgui_custom.hpp" />
     <ClInclude Include="MainApplication.h" />
     <ClInclude Include="Resources\FontAwesome.h" />
     <ClInclude Include="Resources\FontAwesomeImpl.h" />

@@ -35,7 +35,7 @@ void TextInput::Setup(const Desc& desc)
 
 bool TextInput::Render(const ImVec2& size)
 {
-	return ImGui::InputTextEx(
+	bool result = ImGui::InputTextEx(
 		m_desc.Label.c_str(),
 		m_desc.Hint.c_str(),
 		m_buffer.data(),
@@ -45,5 +45,14 @@ bool TextInput::Render(const ImVec2& size)
 		ResizeCallback,
 		this
 	);
+
+	if (m_nextFocus)
+	{
+		ImGui::SetKeyboardFocusHere(-1);
+		//ImGui::ActivateItem(ImGui::GetItemID());
+		//ImGui::SetFocusID(ImGui::GetItemID(), ImGui::GetCurrentWindow());
+		m_nextFocus = false;
+	}
+	return result;
 }
 }

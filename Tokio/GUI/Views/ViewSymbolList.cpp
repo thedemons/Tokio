@@ -27,6 +27,8 @@ ViewSymbolList::TableRenderCallback(
 
 		table->NextColumn();
 		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextModule), "%s", node.moduleNameA.c_str());
+		ImGui::SameLine();
+		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextModule), "%s", node.modulePathA.c_str());
 		ImGui::PopFont();
 	}
 	// Render it as symbol
@@ -190,13 +192,13 @@ ViewSymbolList::ViewSymbolList()
 
 	//desc.WidgetFlags = Widgets::TableFlags::NoHeader;
 
-	desc.Flags = ImGuiTableFlags_RowBg | // two background mode
-		ImGuiTableFlags_BordersOuter | // row borders
-		ImGuiTableFlags_ScrollY | // enable vertical scrool
-		ImGuiTableFlags_Hideable | // hide the columns
-		ImGuiTableFlags_Sortable | // enable sorting
-		ImGuiTableFlags_Resizable | // not sure what this does
-		ImGuiTableFlags_Reorderable; // re-order the coulmns
+	desc.Flags = ImGuiTableFlags_RowBg        | // two background mode
+		         ImGuiTableFlags_BordersOuter | // row borders
+		         ImGuiTableFlags_ScrollY      | // enable vertical scrool
+		         ImGuiTableFlags_Hideable     | // hide the columns
+		         ImGuiTableFlags_Sortable     | // enable sorting
+		         ImGuiTableFlags_Resizable    | // not sure what this does
+		         ImGuiTableFlags_Reorderable  ; // re-order the coulmns
 
 // need this for the tree node to span the full row
 //desc.ExtraFlags = ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX;
@@ -207,7 +209,7 @@ ViewSymbolList::ViewSymbolList()
 	auto colFlags = ImGuiTableColumnFlags_DefaultSort | // default sort by address
 		ImGuiTableColumnFlags_PreferSortAscending;
 
-	m_table.AddColumn("Address");
+	m_table.AddColumn("Address", ImGuiTableColumnFlags_WidthFixed, 140.f);
 	m_table.AddColumn("Symbol");
 
 	Widgets::TextInput::Desc tiDesc;
@@ -254,13 +256,13 @@ void ViewSymbolList::Update(const std::shared_ptr<ProcessData>& targetProcess)
 		ModuleNode& nodeModule = m_moduleList.emplace_back();
 
 		nodeModule.isModule = true;
-		nodeModule.address = modData.address;
+		nodeModule.address = modData.base;
 		nodeModule.moduleNameA = modData.moduleNameA;
 		nodeModule.moduleNameW = modData.moduleNameW;
 		nodeModule.modulePathA = modData.modulePathA;
 		nodeModule.modulePathW = modData.modulePathW;
 
-		for (auto& exportData : modData.pe.dirs.exports)
+		for (auto& exportData : modData.exports)
 		{
 			ModuleNode& nodeSymbol = nodeModule.AddChild();
 

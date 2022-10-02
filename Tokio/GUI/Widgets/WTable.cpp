@@ -53,7 +53,7 @@ void Table::HandleRowInput(ImGuiTable* table, size_t index)
 
 	bool bHover =
 		ImGui::IsMouseHoveringRect(row_rect.Min, row_rect.Max, false) &&
-		ImGui::IsWindowFocused(ImGuiFocusedFlags_None) &&
+		ImGui::IsWindowHovered(ImGuiHoveredFlags_None) &&
 		!ImGui::IsAnyItemHovered();
 
 	bool bLBtnDown = ImGui::IsMouseDown(0);
@@ -151,6 +151,13 @@ void Table::Render(size_t nMaxItem, ImVec2 Size)
 
 	if (ImGui::BeginTable(m_desc.Name.c_str(), static_cast<int>(m_columns.size()), m_desc.Flags, Size))
 	{
+		if (m_setScrollY >= 0.f)
+		{
+			ImGui::SetScrollY(m_setScrollY);
+			m_setScrollY = -1.f;
+		}
+
+
 		auto* table = g.CurrentTable;
 
 		for (auto& column : m_columns)

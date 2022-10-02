@@ -3,6 +3,7 @@
 #define TOKIO_GUI_WIDGETS_POPUP
 
 #include "imgui.hpp"
+#include "WidgetsFlags.hpp" 
 
 namespace Widgets
 {
@@ -14,7 +15,10 @@ public:
 
 	struct Desc
 	{
-		ImGuiID	id = 0u; // if no id were specify, an id will be generated automatically
+		ImGuiID	id = 0u;		// if no id were specify, an id will be generated automatically
+		std::string name;		// used for modal popups
+
+		ImVec2 initialSize = { 0.f, 0.f };  // initial size on first open
 
 		// popup window flags
 		ImGuiWindowFlags Flags = 
@@ -26,6 +30,8 @@ public:
 		ImGuiPopupFlags OpenFlags =
 			ImGuiPopupFlags_None;
 
+		// Flags of this widget
+		PopupFlags WidgetFlags = PopupFlags::None;
 
 		// UserData is set when setting up the description
 		// OpenUserData is whatever passed to ::Open() or ::SetOpenUserData()
@@ -52,7 +58,15 @@ public:
 	_CONSTEXPR20 void Open(void* OpenUserData = nullptr)
 	{
 		SetOpenUserData(OpenUserData);
-		ImGui::OpenPopupEx(m_desc.id, m_desc.OpenFlags);
+		if ((m_desc.WidgetFlags & PopupFlags::PopupModal) == PopupFlags::PopupModal)
+		{
+		
+			ImGui::OpenPopup(m_desc.name.c_str(), m_desc.OpenFlags);
+		}
+		else
+		{
+			ImGui::OpenPopupEx(m_desc.id, m_desc.OpenFlags);
+		}
 	}
 
 	_CONSTEXPR20 void Close()

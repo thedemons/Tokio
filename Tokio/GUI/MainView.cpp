@@ -4,12 +4,14 @@
 #include "Themes.hpp"
 
 #include "Engine/Engine.h"
+#include "Widgets/Widgets.hpp"
 
 #include "Views/ViewWatchList.h"
 #include "Views/ViewAttachProc.h"
 #include "Views/ViewSymbolList.h"
 #include "Views/ViewDisassembler.h"
 #include "Views/ViewMemoryScan.h"
+#include "Views/ViewSettings.h"
 
 
 namespace MainView
@@ -25,12 +27,14 @@ void Init()
 	BaseView* viewAttachProc = new ViewAttachProc();
 	BaseView* viewModules    = new ViewSymbolList();
 	BaseView* viewDisasm     = new ViewDisassembler();
+	BaseView* viewSettings   = new ViewSettings();
 
 	m_ViewList.push_back({ viewScanner   , viewScanner->isDefaultOpen()    });
 	m_ViewList.push_back({ viewWatchList , viewWatchList->isDefaultOpen()  });
 	m_ViewList.push_back({ viewAttachProc, viewAttachProc->isDefaultOpen() });
 	m_ViewList.push_back({ viewModules   , viewModules->isDefaultOpen()    });
 	m_ViewList.push_back({ viewDisasm    , viewDisasm->isDefaultOpen()     });
+	m_ViewList.push_back({ viewSettings  , viewSettings->isDefaultOpen()   });
 
 	Engine::OnAttachCallback(HandlerAttachProcess);
 
@@ -40,12 +44,16 @@ void Init()
 void RenderMenuBar()
 {
 	bool bOpenAttachProc = false;
+	bool bOpenSettings = false;
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, { 7.f, 7.f });
 	if (ImGui::BeginMenuBar())
 	{
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 3.f);
-		if (ImGui::Button(u8"🖥")) bOpenAttachProc = true;
+
+		bOpenAttachProc |= ImGui::Button(u8"🖥");
+		bOpenSettings   |= ImGui::Button(ICON_SETTING);
+
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::BeginTooltip();
@@ -56,7 +64,7 @@ void RenderMenuBar()
 
 		if (ImGui::BeginMenuEx("File", u8"123", true))
 		{
-			if (ImGui::Selectable(u8"🖥 Attach Process")) bOpenAttachProc = true;
+			bOpenAttachProc |= ImGui::Selectable(u8"🖥 Attach Process");
 
 			if (ImGui::Selectable(u8"💾 Save", false))
 			{
@@ -76,6 +84,7 @@ void RenderMenuBar()
 			ImGui::EndMenu();
 		}
 
+
 		ImGui::EndMenuBar();
 	}
 	ImGui::PopStyleVar();
@@ -87,6 +96,14 @@ void RenderMenuBar()
 
 		if (viewAttachProc.has_error()) viewAttachProc.error().show();
 		else viewAttachProc.value().bOpen = true;
+	}
+
+	if (bOpenSettings)
+	{
+		auto viewSettings = FindViewByClass<ViewSettings>();
+
+		if (viewSettings.has_error()) viewSettings.error().show();
+		else viewSettings.value().bOpen = true;
 	}
 }
 

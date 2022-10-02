@@ -64,6 +64,10 @@ auto Init() noexcept -> cpp::result<void, common::err>
     io.ConfigWindowsMoveFromTitleBarOnly = true;
     //io.ConfigDockingAlwaysTabBar = true;
     //io.ConfigDockingTransparentPayload = true;
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowMinSize = { 100.f, 50.f };
+
     ImGui::StyleColorsDark();
     
     ImGui_ImplWin32_Init(hWnd);
@@ -81,10 +85,11 @@ auto Init() noexcept -> cpp::result<void, common::err>
     //FontItalicRegular     = AddFontFromFile("Fonts\\NotoSans-Italic.ttf"           , 17.f);
 
     //FontMonoThin          = AddFontFromFile("Fonts\\CascadiaMonoPL-Light.ttf"      , 15.f);
-    FontMonoBold          = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf"       , 15.f);
-    FontMonoRegular       = AddFontFromFile("Fonts\\CascadiaMonoPL-Regular.ttf"    , 15.f);
+    FontMonoBold          = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf"       , 14.f);
+    FontMonoBigBold          = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf"    , 15.f);
+    FontMonoRegular       = AddFontFromFile("Fonts\\CascadiaMonoPL-Regular.ttf"    , 14.f);
 
-    FontMonoItalicThin    = AddFontFromFile("Fonts\\CascadiaMonoPL-LightItalic.ttf", 15.f);
+    FontMonoItalicThin    = AddFontFromFile("Fonts\\CascadiaMonoPL-LightItalic.ttf", 14.f);
     //FontMonoItalicBold    = AddFontFromFile("Fonts\\CascadiaMonoPL-BoldItalic.ttf" , 15.f);
     //FontMonoItalicRegular = AddFontFromFile("Fonts\\CascadiaMonoPL-Italic.ttf"     , 15.f);
 
@@ -320,23 +325,23 @@ void StartLoop()
 #ifdef DX11_ENABLE_DEBUG_LAYER
 void D3DDebugPrintMsg()
 {
-    static std::unordered_map<D3D11_MESSAGE_CATEGORY, const char*> fmtCategory = {
-        {D3D11_MESSAGE_CATEGORY_APPLICATION_DEFINED,    "APPLICATION_DEFINED"},
-        {D3D11_MESSAGE_CATEGORY_MISCELLANEOUS,          "MISCELLANEOUS"},
-        {D3D11_MESSAGE_CATEGORY_INITIALIZATION,         "INITIALIZATION"},
-        {D3D11_MESSAGE_CATEGORY_CLEANUP,                "CLEANUP"},
-        {D3D11_MESSAGE_CATEGORY_COMPILATION,            "COMPILATION"},
-        {D3D11_MESSAGE_CATEGORY_STATE_CREATION,         "STATE_CREATION"},
-        {D3D11_MESSAGE_CATEGORY_STATE_SETTING,          "STATE_SETTING"},
-        {D3D11_MESSAGE_CATEGORY_STATE_GETTING,          "STATE_GETTING"},
+    static std::map<D3D11_MESSAGE_CATEGORY, const char*> fmtCategory = {
+        {D3D11_MESSAGE_CATEGORY_APPLICATION_DEFINED,    "APPLICATION_DEFINED"  },
+        {D3D11_MESSAGE_CATEGORY_MISCELLANEOUS,          "MISCELLANEOUS"        },
+        {D3D11_MESSAGE_CATEGORY_INITIALIZATION,         "INITIALIZATION"       },
+        {D3D11_MESSAGE_CATEGORY_CLEANUP,                "CLEANUP"              },
+        {D3D11_MESSAGE_CATEGORY_COMPILATION,            "COMPILATION"          },
+        {D3D11_MESSAGE_CATEGORY_STATE_CREATION,         "STATE_CREATION"       },
+        {D3D11_MESSAGE_CATEGORY_STATE_SETTING,          "STATE_SETTING"        },
+        {D3D11_MESSAGE_CATEGORY_STATE_GETTING,          "STATE_GETTING"        },
         {D3D11_MESSAGE_CATEGORY_RESOURCE_MANIPULATION,  "RESOURCE_MANIPULATION"},
-        {D3D11_MESSAGE_CATEGORY_EXECUTION,              "EXECUTION"},
-    };
-    static std::unordered_map<D3D11_MESSAGE_SEVERITY, const char*> fmtSeverity = {
-        {D3D11_MESSAGE_SEVERITY_CORRUPTION, "CORRUPTION"},
-        {D3D11_MESSAGE_SEVERITY_ERROR,      "ERROR"},
-        {D3D11_MESSAGE_SEVERITY_WARNING,    "WARNING"},
-        {D3D11_MESSAGE_SEVERITY_INFO,       "INFO"},
+        {D3D11_MESSAGE_CATEGORY_EXECUTION,              "EXECUTION"            },
+                                                                               };
+    static std::map<D3D11_MESSAGE_SEVERITY, const char*> fmtSeverity = {
+        {D3D11_MESSAGE_SEVERITY_CORRUPTION,             "CORRUPTION"           },
+        {D3D11_MESSAGE_SEVERITY_ERROR,                  "ERROR"                },
+        {D3D11_MESSAGE_SEVERITY_WARNING,                "WARNING"              },
+        {D3D11_MESSAGE_SEVERITY_INFO,                   "INFO"                 },
     };
 
     // Thanks to the author of the code

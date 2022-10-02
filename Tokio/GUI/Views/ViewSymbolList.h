@@ -24,7 +24,7 @@ private:
 		std::string modulePathA;
 		std::wstring moduleNameW;
 		std::wstring modulePathW;
-		PE_Data pe;
+		std::vector<ModuleSymbol> exports;
 
 		// for symbols
 		UINT ordinal = 0;

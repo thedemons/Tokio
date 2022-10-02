@@ -26,6 +26,7 @@ private:
 	Desc m_desc;
 	std::string m_buffer;
 	ImGuiInputTextCallbackData m_privateData;
+	bool m_nextFocus = false;
 
 	static int ResizeCallback(ImGuiInputTextCallbackData* data);
 
@@ -63,6 +64,22 @@ public:
 	_CONSTEXPR20 std::string str_strip() const
 	{
 		return std::string(m_buffer.c_str(), m_privateData.BufTextLen);
+	}
+
+	_CONSTEXPR20 void Focus()
+	{
+		m_nextFocus = true;
+	}
+
+	// set the text buffer to something else
+	_CONSTEXPR20 void SetText(const std::string& text)
+	{
+		m_buffer = text;
+	}
+	// clear the text buffer
+	_CONSTEXPR20 void Clear()
+	{
+		m_buffer.clear();
 	}
 };
 }

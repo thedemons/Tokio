@@ -43,11 +43,11 @@
     <Filter Include="Header Resources">
       <UniqueIdentifier>{352e2c7b-ca3e-43d1-91dd-5e5b2029106b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\PEInfo">
-      <UniqueIdentifier>{5f7135ba-4299-402e-86b5-67bee452819f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\Disassembler">
       <UniqueIdentifier>{d7f0ad9f-cb2e-447b-8cec-11d3858b0993}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Symbol">
+      <UniqueIdentifier>{4f696f9a-80cf-44c9-a5d0-4711988eb290}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +112,12 @@
       <Filter>GUI\Views</Filter>
     </ClCompile>
     <ClCompile Include="GUI\Views\ViewDisassembler.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Symbol\Win32Symbol.cpp">
+      <Filter>Engine\Symbol</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Views\ViewSettings.cpp">
       <Filter>GUI\Views</Filter>
     </ClCompile>
   </ItemGroup>
@@ -206,9 +212,6 @@
     <ClInclude Include="GUI\Views\ViewSymbolList.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\PEInfo\PEParser.hpp">
-      <Filter>Engine\PEInfo</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\EngineDef.hpp">
       <Filter>Engine</Filter>
     </ClInclude>
@@ -232,6 +235,18 @@
     </ClInclude>
     <ClInclude Include="GUI\Widgets\WidgetsFlags.hpp">
       <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_custom.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Symbol\BaseSymbol.hpp">
+      <Filter>Engine\Symbol</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Symbol\Win32Symbol.h">
+      <Filter>Engine\Symbol</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Views\ViewSettings.h">
+      <Filter>GUI\Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

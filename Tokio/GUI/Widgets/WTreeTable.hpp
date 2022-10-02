@@ -272,7 +272,7 @@ private:
 
 		bool bHover =
 			ImGui::IsMouseHoveringRect(row_rect.Min, row_rect.Max, false) &&
-			ImGui::IsWindowFocused(ImGuiFocusedFlags_None) &&
+			ImGui::IsWindowHovered(ImGuiHoveredFlags_None) &&
 			!ImGui::IsAnyItemHovered();
 		auto hoveredID = ImGui::GetHoveredID();
 

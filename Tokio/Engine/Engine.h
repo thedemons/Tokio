@@ -3,11 +3,30 @@
 
 #include "EngineDef.hpp"
 #include "Memory/BaseMemory.hpp"
+#include "Symbol/BaseSymbol.hpp"
 #include "Disassembler/BaseDisassembler.hpp"
 
 
 namespace Engine
 {
+// WARNING: These global variable is here only for
+// the purpose of inlining functions, don't modify
+// any of these directly, make a copy of the std::shared_ptr
+// by invoking the method Target(), Memory() and Disassembler()
+
+// TARGET PROCESS
+inline std::shared_ptr<ProcessData> g_Target = nullptr;
+
+// MEMORY ENGINE
+inline std::shared_ptr<BaseMemory> g_Memory = nullptr;
+
+// SYMBOL ENGINE
+inline std::shared_ptr<BaseSymbol> g_Symbol = nullptr;
+
+// DISASSEMBLE ENGINE
+inline std::shared_ptr<BaseDisassembler> g_Disassembler = nullptr;
+
+
 // callback when we attach to a process
 typedef void (*LPON_ATTACH_CALLBACK)(std::shared_ptr<ProcessData>);
 
@@ -21,13 +40,28 @@ void Detach();
 bool IsAttached();
 
 // Return a shared pointer of the target process
-_NODISCARD std::shared_ptr<ProcessData> Target();
+_NODISCARD _CONSTEXPR20 std::shared_ptr<ProcessData> Target()
+{
+	return g_Target;
+}
 
 // return a shared pointer to the memory engine
-_NODISCARD std::shared_ptr<BaseMemory> Memory();
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseMemory> Memory()
+{
+	return g_Memory;
+}
 
-// return a shared pointer to the disassembler
-_NODISCARD std::shared_ptr<BaseDisassembler> Disassembler();
+// return a shared pointer to the disassembler engine
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDisassembler> Disassembler()
+{
+	return g_Disassembler;
+}
+
+// return a shared pointer to the disassembler engine
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseSymbol> Symbol()
+{
+	return g_Symbol;
+}
 
 _NODISCARD auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void);
 _NODISCARD auto WriteMem(POINTER dest, const void* src, size_t size)->SafeResult(void);

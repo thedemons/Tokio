@@ -24,7 +24,9 @@ enum class errcode
 
 	TheImageFileFormatIsNotSupported,
 	CannotParseImagePEHeader,
-	CannotGetTargetProcesArchitecture
+	CannotGetTargetProcesArchitecture,
+
+	SymbolEngineFailedToFindRelativeVirtualAddress,
 };
 
 enum class errtype
@@ -34,7 +36,7 @@ enum class errtype
 	HRESULT,
 };
 
-inline std::unordered_map<errcode, std::wstring> rcErrorMessages = {
+inline std::map<errcode, std::wstring> rcErrorMessages = {
 	{errcode::NoMessage                        , L"No message"},
 	{errcode::RegisterWndClassFailed           , L"Failed to register window class"},
 	{errcode::CreateWindowFailed               , L"Failed to create the window"},
@@ -50,6 +52,7 @@ inline std::unordered_map<errcode, std::wstring> rcErrorMessages = {
 	{errcode::TheImageFileFormatIsNotSupported , L"The image file format is not supported"},
 	{errcode::CannotParseImagePEHeader         , L"Cannot parse the image PE Header"},
 	{errcode::CannotGetTargetProcesArchitecture, L"Cannot get the target proces architecture (x86 or x64), please try again"},
+	{errcode::SymbolEngineFailedToFindRelativeVirtualAddress, L"Symbol engine failed to find relative virtual address"},
 };
 
 

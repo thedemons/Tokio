@@ -102,6 +102,9 @@ private:
 	// popup widget for right click handling
 	Popup m_popup;
 
+	// use by SetScroll()
+	float m_setScrollY = -1.f;
+
 
 public:
 	void Setup(const Desc& desc);
@@ -189,6 +192,11 @@ public:
 	_CONSTEXPR20 bool SetColumnIndex(int index)
 	{
 		return ImGui::TableSetColumnIndex(index);
+	}
+
+	_CONSTEXPR20 void SetScroll(float Y)
+	{
+		m_setScrollY = Y;
 	}
 
 	// nMaxItem: enforce the row/item limit

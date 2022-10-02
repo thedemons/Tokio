@@ -16,6 +16,42 @@
 #define IMGUI_ENABLE_FREETYPE
 #define IMGUI_USE_WCHAR32
 
+// !!! ABOUT CUSTOM COLOR TEXT RENDERING !!!!
+// 
+// Custom font rendering used for Tokio
+// We need this to speed up the color rendering process
+// and make it easier to embed color into the default text
+// renderer of ImGui.
+// 
+// There are two magic byte:
+// 0xC0 - Push a color, defined as IMGUI_CUSTOM_FONT_START_COLOR
+// 0xC1 - Pop a color, defined as IMGUI_CUSTOM_FONT_END_COLOR
+// 
+// These two bytes were chosen because they are invalid in
+// UTF-8, as well as 0xF5 to 0xFF, we might use those later
+// for more customization
+//
+// The next 4 bytes after a 0xC0 will determine the color
+// which will be push onto the "stack".
+// 
+// Example: "\xC0\0x01\xFF\0x01\xFFHello\xC1 World!"
+// Will be rendered as a green "Hello" and a normal color " World!"
+// You can imagine it is a "html" type of formating: "[#ff01ff01]Hello[/] World!"
+// 
+// IMPORTANT: It is important that we must sanitize the color
+// before passing it to ImGui, the color must not have any null byte
+// because of various reasons. If we made ImGui handles null bytes
+// on every frame, that will be a disaster for optimization purposes.
+// Therefore, you must handle it in your own way.
+//
+// IMPORTANT: This only works with non-utf8 strings!
+// This won't work: u8"\xC0\0x01\xFF\0x01\xFFHello\xC1 World!", and will display garbages
+// Maybe i'll find a way to work around in the future.
+//
+#define IMGUI_CUSTOM_FONT_RENDERING
+#define IMGUI_CUSTOM_FONT_START_COLOR 0xC0ul
+#define IMGUI_CUSTOM_FONT_END_COLOR 0xC1ul
+
 //---- Define assertion handler. Defaults to calling assert().
 // If your macro uses multiple statements, make sure is enclosed in a 'do { .. } while (0)' block so it can be used as a single statement.
 //#define IM_ASSERT(_EXPR)  MyAssert(_EXPR)

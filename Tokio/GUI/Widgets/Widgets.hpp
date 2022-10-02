@@ -20,7 +20,7 @@
 #define ICON_ATTACH_PROC  u8"🖥"
 #define ICON_MEMORY_SCAN  u8"🔍"
 #define ICON_SYMBOL_LIST  u8"🕹"
-#define ICON_DISASSEMBLER u8"🖥"
+#define ICON_DISASSEMBLER u8"♨"
 #define ICON_PE_VIEW      u8"👓"
 #define ICON_MEMORY_VIEW  u8"💽"
 #define ICON_WATCH_LIST   u8"👁"

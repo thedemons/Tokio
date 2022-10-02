@@ -2,6 +2,8 @@
 #ifndef TOKIO_GUI_WIDGETS_FLAGS_HPP
 #define TOKIO_GUI_WIDGETS_FLAGS_HPP
 
+// TODO: FLAGS NEED SERIOUS REWORK
+
 namespace Widgets
 {
 #define WIDGET_ENUM_OPERATORS(EnumType) \
@@ -15,6 +17,14 @@ enum class TableFlags : UINT
 	NoHeader = 1 << 0,
 
 }; WIDGET_ENUM_OPERATORS(TableFlags)
+
+enum class PopupFlags : UINT
+{
+	None = 0,
+	PopupModal = 1 << 0,		// modal popup
+	CloseOnEscape = 1 << 1, // close on ESCAPE key pressed
+
+}; WIDGET_ENUM_OPERATORS(PopupFlags)
 
 }
 #endif // !TOKIO_GUI_WIDGETS_FLAGS_HPP

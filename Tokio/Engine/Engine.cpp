@@ -2,21 +2,12 @@
 #include "stdafx.h"
 #include "Engine.h"
 #include "Memory/Win32Memory.hpp"
-#include "PEInfo/PEParser.hpp"
+#include "Symbol/Win32Symbol.h"
 #include "Disassembler/ZydisDisassembler.h"
 
 
 namespace Engine
 {
-// BASE MEMORY ENGINE
-std::shared_ptr<BaseMemory> g_Memory = nullptr;
-
-// TARGET PROCESS
-std::shared_ptr<ProcessData> g_Target = nullptr;
-
-// Disassemble ENGINE
-std::shared_ptr<BaseDisassembler> g_Disassembler = nullptr;
-
 // On process attach callback
 LPON_ATTACH_CALLBACK pAttachCallback = nullptr;
 
@@ -28,29 +19,25 @@ _NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 	// init the memory engine
 	g_Memory = std::make_shared<Win32Memory>();
 
-	auto result = g_Memory->Attach(pid);
-	if (result.has_error())
+	if (auto result = g_Memory->Attach(pid); result.has_error())
 	{
-		g_Memory.reset();
+		Detach();
 		return result;
 	}
-
-	g_Target = result.value();
-
-	// init the disassembler
-	g_Disassembler = std::make_shared<ZydisDisassembler>();
-
-	// parse PE header for each module in the target process
-	// TODO: merge this with Win32Memory
-	for (auto& modData : g_Target->modules)
+	else
 	{
-		auto peInfo = PEParser::GetPEInfo(modData);
+		g_Target = result.value();
+	}
 
-		if (peInfo.has_error())
-		{
-			peInfo.error().show(L"Error while parsing PE header");
-		}
 
+	// init the symbol and disassembler engine
+	g_Symbol = std::make_shared<Win32Symbol>(g_Target);
+	g_Disassembler = std::make_shared<ZydisDisassembler>(g_Target);
+
+	if (auto result = g_Symbol->Update(); result.has_error())
+	{
+		Detach();
+		RESULT_FORWARD(result);
 	}
 
 	if (pAttachCallback) pAttachCallback(g_Target);
@@ -60,10 +47,16 @@ _NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 
 void Detach()
 {
-	g_Memory->Detach();
-	g_Memory.reset();
-	g_Target.reset();
-	g_Disassembler.reset();
+	if (g_Disassembler != nullptr) g_Disassembler.reset();
+	if (g_Symbol       != nullptr) g_Symbol.reset();
+	if (g_Target       != nullptr) g_Target.reset();
+
+	if (g_Memory != nullptr)
+	{
+		g_Memory->Detach();
+		g_Memory.reset();
+	}
+	
 }
 
 bool IsAttached()
@@ -71,20 +64,6 @@ bool IsAttached()
 	return g_Target != nullptr;
 }
 
-_NODISCARD std::shared_ptr<ProcessData> Target()
-{
-	return g_Target;
-}
-
-_NODISCARD std::shared_ptr<BaseMemory> Memory()
-{
-	return g_Memory;
-}
-
-_NODISCARD std::shared_ptr<BaseDisassembler> Disassembler()
-{
-	return g_Disassembler;
-}
 
 _NODISCARD auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void)
 {

@@ -2,269 +2,42 @@
 
 typedef unsigned __int64 POINTER;
 
-// PE Header structs ===================================================
+struct ProcessModule;
 
-// PE_SECTION_HEADER* pFirstSectionHeader = 
-// &PE_NT_HEADER->OptionalHeader + PE_NT_HEADER->FileHeader.SizeOfOptionalHeader
-struct PE_SECTION_HEADER
+struct ModuleSymbol
 {
-	BYTE		Name[IMAGE_SIZEOF_SHORT_NAME]{0};
-	union
-	{
-		DWORD   PhysicalAddress;
-		DWORD   VirtualSize;
-	} Misc                                   {0};
-	DWORD		VirtualAddress               {0};
-	DWORD		SizeOfRawData                {0};
-	DWORD		PointerToRawData             {0};
-	DWORD		PointerToRelocations         {0};
-	DWORD		PointerToLinenumbers         {0};
-	WORD		NumberOfRelocations          {0};
-	WORD		NumberOfLinenumbers          {0};
-	DWORD		Characteristics              {0};
+	UINT ordinal   {0}   ;		// ordinal index
+	POINTER offset {0}   ;	    // offset from the base
+	size_t size	   {0}   ;		// size of the subroutine
+	std::string name     ;	    // symbol name
+	ProcessModule* parent;	    // pointer to the module of this symbol
+
+	ModuleSymbol(ProcessModule* parent) : parent(parent){}
 };
 
-// PE_FILE_HEADER = PE_NT_HEADER->FileHeader
-struct PE_FILE_HEADER
+struct ProcessModule
 {
-	WORD		Machine{0};
-	WORD		NumberOfSections{0};
-	DWORD		TimeDateStamp{0};
-	DWORD		PointerToSymbolTable{0};
-	DWORD		NumberOfSymbols{0};
-	WORD		SizeOfOptionalHeader{0};
-	WORD		Characteristics{0};
+	// virtual base address of the module
+	POINTER base = 0ull;
 
-	inline bool Is64() const
-	{
-		return Machine == IMAGE_FILE_MACHINE_AMD64;
-	}
+	// virtual entry point of the module
+	POINTER entryPoint = 0ull;
 
-	inline bool Is32() const
-	{
-		return Machine == IMAGE_FILE_MACHINE_I386;
-	}
+	// size of the module
+	size_t size = 0ull;
 
-	inline bool IsNotSupported() const
-	{
-		return !Is32() && !Is64();
-	}
-};
-
-struct PE_DATA_DIRECTORY
-{
-	DWORD   VirtualAddress{0};
-	DWORD   Size{0};
-};
-
-// PE_OPTIONAL_HEADER_64 = PE_NT_HEADER_64->OptionalHeader
-struct PE_OPTIONAL_HEADER_64
-{
-	WORD		Magic                      {0};
-	BYTE		MajorLinkerVersion         {0};
-	BYTE		MinorLinkerVersion         {0};
-	DWORD		SizeOfCode                 {0};
-	DWORD		SizeOfInitializedData      {0};
-	DWORD		SizeOfUninitializedData    {0};
-	DWORD		AddressOfEntryPoint        {0};
-	DWORD		BaseOfCode                 {0};
-	ULONGLONG	ImageBase                  {0};
-	DWORD		SectionAlignment           {0};
-	DWORD		FileAlignment              {0};
-	WORD		MajorOperatingSystemVersion{0};
-	WORD		MinorOperatingSystemVersion{0};
-	WORD		MajorImageVersion          {0};
-	WORD		MinorImageVersion          {0};
-	WORD		MajorSubsystemVersion      {0};
-	WORD		MinorSubsystemVersion      {0};
-	DWORD		Win32VersionValue          {0};
-	DWORD		SizeOfImage                {0};
-	DWORD		SizeOfHeaders              {0};
-	DWORD		CheckSum                   {0};
-	WORD		Subsystem                  {0};
-	WORD		DllCharacteristics         {0};
-	ULONGLONG	SizeOfStackReserve         {0};
-	ULONGLONG	SizeOfStackCommit          {0};
-	ULONGLONG	SizeOfHeapReserve          {0};
-	ULONGLONG	SizeOfHeapCommit           {0};
-	DWORD		LoaderFlags                {0};
-	DWORD		NumberOfRvaAndSizes        {0};
-	PE_DATA_DIRECTORY	DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-};
-
-// PE_OPTIONAL_HEADER_32 = PE_NT_HEADER_32->OptionalHeader
-struct PE_OPTIONAL_HEADER_32
-{
-	//
-	// Standard fields.
-	//
-
-	WORD		Magic                      {0};
-	BYTE    	MajorLinkerVersion         {0};
-	BYTE    	MinorLinkerVersion         {0};
-	DWORD   	SizeOfCode                 {0};
-	DWORD   	SizeOfInitializedData      {0};
-	DWORD   	SizeOfUninitializedData    {0};
-	DWORD   	AddressOfEntryPoint        {0};
-	DWORD   	BaseOfCode                 {0};
-	DWORD   	BaseOfData                 {0};
-
-	//
-	// NT additional fields.
-	//
-
-	DWORD   	ImageBase                  {0};
-	DWORD   	SectionAlignment           {0};
-	DWORD   	FileAlignment              {0};
-	WORD    	MajorOperatingSystemVersion{0};
-	WORD    	MinorOperatingSystemVersion{0};
-	WORD    	MajorImageVersion          {0};
-	WORD    	MinorImageVersion          {0};
-	WORD    	MajorSubsystemVersion      {0};
-	WORD    	MinorSubsystemVersion      {0};
-	DWORD   	Win32VersionValue          {0};
-	DWORD   	SizeOfImage                {0};
-	DWORD   	SizeOfHeaders              {0};
-	DWORD   	CheckSum                   {0};
-	WORD    	Subsystem                  {0};
-	WORD    	DllCharacteristics         {0};
-	DWORD   	SizeOfStackReserve         {0};
-	DWORD   	SizeOfStackCommit          {0};
-	DWORD   	SizeOfHeapReserve          {0};
-	DWORD   	SizeOfHeapCommit           {0};
-	DWORD   	LoaderFlags                {0};
-	DWORD   	NumberOfRvaAndSizes        {0};
-	PE_DATA_DIRECTORY	DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-};
-
-
-// Parse unknown .EXE to check if it's x86 or x64
-// https://learn.microsoft.com/vi-vn/windows/win32/api/winnt/ns-winnt-image_optional_header32
-struct PE_NT_HEADER_MAGIC
-{
-	DWORD				Signature{0};
-	PE_FILE_HEADER		FileHeader{0};
-	WORD				Magic{0};
-
-	// IMAGE_NT_OPTIONAL_HDR32_MAGIC (0x10B)		x86 Image
-	// IMAGE_NT_OPTIONAL_HDR64_MAGIC (0x20B)		x64 Image
-	// IMAGE_ROM_OPTIONAL_HDR_MAGIC  (0x107)		"The file is a ROM image."? I hope i'll never have to deal with this
-
-	inline bool Is64() const
-	{
-		return Magic == IMAGE_NT_OPTIONAL_HDR64_MAGIC;
-	}
-
-	inline bool Is32() const
-	{
-		return Magic == IMAGE_NT_OPTIONAL_HDR32_MAGIC;
-	}
-
-	inline bool IsNotSupported() const
-	{
-		return !Is32() && !Is64();
-	}
-};
-
-struct PE_NT_HEADER_64
-{
-	DWORD					Signature{0};
-	PE_FILE_HEADER			FileHeader{0};
-	PE_OPTIONAL_HEADER_64	OptionalHeader{0};
-
-	inline PE_SECTION_HEADER* GetFirstSectionHeader()
-	{
-		return reinterpret_cast<PE_SECTION_HEADER*>((ULONG_PTR)&OptionalHeader + FileHeader.SizeOfOptionalHeader);
-	}
-};
-
-struct PE_NT_HEADER_32
-{
-	DWORD					Signature{0};
-	PE_FILE_HEADER			FileHeader{0};
-	PE_OPTIONAL_HEADER_32	OptionalHeader{0};
-
-	inline PE_SECTION_HEADER* GetFirstSectionHeader()
-	{
-		return reinterpret_cast<PE_SECTION_HEADER*>((ULONG_PTR)&OptionalHeader + FileHeader.SizeOfOptionalHeader);
-	}
-};
-
-// PE_DOS_HEADER* = base;
-struct PE_DOS_HEADER
-{      
-	WORD	e_magic   {0};                        // Magic number
-	WORD	e_cblp    {0};                        // Bytes on last page of file
-	WORD	e_cp      {0};                        // Pages in file
-	WORD	e_crlc    {0};                        // Relocations
-	WORD	e_cparhdr {0};                        // Size of header in paragraphs
-	WORD	e_minalloc{0};                        // Minimum extra paragraphs needed
-	WORD	e_maxalloc{0};                        // Maximum extra paragraphs needed
-	WORD	e_ss      {0};                        // Initial (relative) SS value
-	WORD	e_sp      {0};                        // Initial SP value
-	WORD	e_csum    {0};                        // Checksum
-	WORD	e_ip      {0};                        // Initial IP value
-	WORD	e_cs      {0};                        // Initial (relative) CS value
-	WORD	e_lfarlc  {0};                        // File address of relocation table
-	WORD	e_ovno    {0};                        // Overlay number
-	WORD	e_res[4]  {0};                        // Reserved words
-	WORD	e_oemid   {0};                        // OEM identifier (for e_oeminfo)
-	WORD	e_oeminfo {0};                        // OEM information; e_oemid specific
-	WORD	e_res2[10]{0};                        // Reserved words
-	LONG	e_lfanew  {0};                        // File address of new exe header
-};
-
-
-// PE_EXPORT_DIRECTORY* = _RVA_ PE_OPTIONAL_HEADER->DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-struct PE_EXPORT_DIRECTORY
-{
-	DWORD   Characteristics      {0};
-	DWORD   TimeDateStamp        {0};
-	WORD    MajorVersion         {0};
-	WORD    MinorVersion         {0};
-	DWORD   Name                 {0};
-	DWORD   Base                 {0};
-	DWORD   NumberOfFunctions    {0};
-	DWORD   NumberOfNames        {0};
-	DWORD   AddressOfFunctions   {0};			    // RVA from base of image
-	DWORD   AddressOfNames       {0};				// RVA from base of image
-	DWORD   AddressOfNameOrdinals{0};		        // RVA from base of image
-};
-
-
-struct PE_ExportData
-{
-	UINT ordinal  {0};		// ordinal index
-	POINTER offset{0};		// offset from the base
-	std::string name;	    // function name
-};
-
-struct PE_ImportData
-{
-
-};
-
-struct PE_DirectoryData
-{
-	std::vector<PE_ImportData> imports;
-	std::vector<PE_ExportData> exports;
-};
-
-struct PE_Data
-{
-	PE_DOS_HEADER DOS{0};
-	PE_DirectoryData dirs;
-};
-
-// Module information, including PE header info
-struct ModuleData
-{
-	POINTER address = 0;
 	std::string moduleNameA;
 	std::string modulePathA;
 	std::wstring moduleNameW;
 	std::wstring modulePathW;
-	PE_Data pe;
+
+	// module exports
+	std::vector<ModuleSymbol> exports;
+
+	inline ModuleSymbol& AddExportSymbol()
+	{
+		return exports.emplace_back(this);
+	};
 };
 
 // Contains all information about the target process
@@ -277,28 +50,206 @@ struct ProcessData
 	HANDLE handle{0};
 
 	// all loaded modules
-	std::vector<ModuleData> modules;
+	std::vector<ProcessModule> modules;
 
 	// is the process x86 or x64
+	// TODO: Make an architecture enum
 	BOOL is32bit = false;
 
 	// the base image module
-	inline ModuleData& base() { return modules[0]; }
+	ProcessModule* baseModule = nullptr;
 };
 
 
-// The type of address, is it belong to a module, a function, or unknown?
-enum class AddressType
+// LEGACY
+// variant used for symbol linking between symbol data and disassembled instruction
+// using VariantModuleSymbol = std::variant<ProcessModule, ModuleSymbol>;
+
+// use for symbol lookup
+// we use this instead of VariantModuleSymbol for a better performance
+// symbol lookup is a really frequent operation
+class ResultGetSymbol
 {
-	Unknown,
-	Module,
-	Function,
+private:
+	const ProcessModule* pModule;
+	const ModuleSymbol* pSymbol;
+
+public:
+	ResultGetSymbol(const ProcessModule* pModule, const ModuleSymbol* pSymbol) :
+		pModule(pModule), pSymbol(pSymbol)
+	{
+
+	}
+
+	ResultGetSymbol(const ProcessModule* pModule) :
+		pModule(pModule), pSymbol(nullptr)
+	{
+
+	}
+
+	ResultGetSymbol() :
+		pModule(nullptr), pSymbol(nullptr)
+	{
+
+	}
+
+	inline bool has_value() const
+	{
+		return pModule != nullptr;
+	}
+
+	inline bool has_symbol() const
+	{
+		return pSymbol != nullptr;
+	}
+
+	inline const ProcessModule* Module() const
+	{
+		return pModule;
+	}
+
+	inline const ModuleSymbol* Symbol() const
+	{
+		return pSymbol;
+	}
 };
 
-struct DisasmData
+
+// Used for BaseSymbol::AddressSymbolWalk()
+class SymbolWalkContext
 {
-	POINTER address = 0;
-	AddressType addressType = AddressType::Unknown;
-	std::string addressFormat;
-	std::string instruction;
+private:
+	// copy of the modules, maybe change this to a reference to improve performance?
+	// these modules and its symbols must be sorted in order for this to work!
+	const std::vector<ProcessModule>& modules;
+
+	size_t module_index = 0ull;
+	size_t symbol_index = UPTR_UNDEFINED;
+
+public:
+	SymbolWalkContext(const std::vector<ProcessModule>& modules) : modules(modules) {}
+
+	// get the current module
+	_NODISCARD _CONSTEXPR20 const ProcessModule* Module() const noexcept
+	{
+		return &modules[module_index];
+	}
+
+	// get the current symbol
+	_NODISCARD _CONSTEXPR20 const ModuleSymbol* Symbol() const noexcept
+	{
+		if (symbol_index == UPTR_UNDEFINED) return nullptr;
+		return &modules[module_index].exports[symbol_index];
+	}
+
+	// check if the address belongds to any of the symbols
+	_NODISCARD _CONSTEXPR20 bool IsAddressOfSymbols(POINTER address) const noexcept
+	{
+		auto& procMod = modules[module_index];
+
+		if (procMod.exports.size() == 0) return false;
+		
+		POINTER RvaOffset = address - procMod.base;
+		auto& firstSymbol = procMod.exports.front();
+		auto& lastSymbol = procMod.exports.back();
+
+		return firstSymbol.offset <= RvaOffset && RvaOffset <= lastSymbol.offset + lastSymbol.size;
+	}
+
+	// increase the module index by one, if out of bound then set to zero and return false, which means the walk ended
+	// module_index is set to zero to avoid invalid access by Module(), you must handle the return value of this function
+	_NODISCARD _CONSTEXPR20 bool NextModule() noexcept
+	{
+		if (++module_index >= modules.size())
+		{
+			module_index = 0;
+			return false;
+		}
+
+		return true;
+	}
+
+	// increase the symbol index by one, if out of bound then set to UPTR_UNDEFINED and return false
+	_NODISCARD _CONSTEXPR20 bool NextSymbol() noexcept
+	{
+		if (++symbol_index >= modules[module_index].exports.size())
+		{
+			symbol_index = UPTR_UNDEFINED;
+			return false;
+		}
+
+		return true;
+	}
+};
+
+
+enum class DisasmOperandType : UINT
+{
+	Invalid,          // An invalid token
+	WhiteSpace,       // A whitespace character.
+	Delimeter,        // A delimiter character (like `,`, `:`, `+`, `-`, `*`).
+	ParenthesisOpen,  // An open parenthesis character (like '(', `[`, `{`).
+	ParenthesisClose, // A close parenthesis character (like `)`, `]`, `}`).
+	Prefix,           // A prefix literal (like "LOCK", "REP").
+	Mnemonic,         // A mnemonic literal (like "MOV", "VCMPPSD", "LCALL").
+	Register,         // A register literal (like "RAX", "DS", "%ECX").
+	AddressAbs,       // An absolute address literal (like `0x00400000`).
+	AddressRel,       // A relative address literal (like `-0x100`).
+	Displacement,     // A displacement literal (like `0xFFFFFFFF`, `-0x100`, `+0x1234`).
+	Immediate,        // An immediate literal (like `0xC0`, `-0x1234`, `$0x0000`).
+	TypeCast,         // A typecast literal (like `DWORD PTR`).
+	Decorator,        // A decorator literal (like "Z", "1TO4").
+	Literal,          // A symbol literal
+
+	// extra mnemonic types
+	mneCall,			// call instruction
+	mneSyscall,			// syscall instruction
+	mneJump,			// JMP directly
+	mneJumpCondition,	// jump with conditions (je, jne, jz,...)
+	mneReturn,			// ret instruction
+};
+
+_NODISCARD _CONSTEXPR20 bool IsOperandMnemonic(DisasmOperandType type)
+{
+	return (type == DisasmOperandType::Mnemonic) ||
+		static_cast<UINT>(type) >= static_cast<UINT>(DisasmOperandType::mneCall);
+}
+
+
+// Tokenized data
+// Example:
+//    type  = DisasmTokenType::Register
+//    value = "RSP"
+struct DisasmOperand
+{
+	char value[64]		 = {0}; // 64 bytes should be enough!
+	DisasmOperandType type = DisasmOperandType::Invalid;
+
+	// this operand is a reference to another address
+	POINTER refAddress = 0ull;
+};
+
+
+struct DisasmInstruction
+{
+	// length of the instruction, in bytes
+	size_t length = 0ull;
+
+	// raw bytes of the instruction
+	BYTE bytes[24]{0};
+
+	// the absolute virtual address
+	POINTER address = 0ull;
+
+	// the instruction has a reference to another address
+	POINTER refAddress = 0ull;
+
+	// the reference address is a pointer, e.g: mov rax, [refAddress]
+	bool isRefPointer = false;
+
+	// the main operation of the instruction (Mnemonic)
+	DisasmOperand mnemonic;
+
+	// tokenized operands
+	std::vector<DisasmOperand> operands;
 };

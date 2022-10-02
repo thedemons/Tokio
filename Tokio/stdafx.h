@@ -3,8 +3,11 @@
 
 #include <map>
 #include <vector>
+#include <type_traits>
+#include <variant>
 #include <string>
 #include <fstream>
+#include <sstream>
 #include <filesystem>
 #include <iostream>
 #include <chrono>
@@ -18,7 +21,8 @@
 
 #ifdef _DEBUG
 #define DPRINT(...) printf(__VA_ARGS__)
-#define THROW_CPP_ERROR __debugbreak();
+#define THROW_CPP_ERROR 
+//#define THROW_CPP_ERROR __debugbreak();
 #else
 #define THROW_CPP_ERROR 
 #define DPRINT(...) // __VA_ARGS__
@@ -67,6 +71,8 @@ if (!(result)) { \
 if (!(result)) { \
 	return cpp::fail(error); \
 }
+
+#define RESULT_FORWARD(result) return cpp::fail(common::err(result.error()))
 
 #define RESULT_THROW(code) return cpp::fail(common::err(common::errcode::code))
 #define WINAPI_THROW(code) return cpp::fail(common::err(common::errcode::code, common::errtype::WinAPI))
