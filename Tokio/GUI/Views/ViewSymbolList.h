@@ -63,7 +63,9 @@ public:
 	void Render(bool& bOpen) override;
 
 	// update the module data
-	void Update(const std::shared_ptr<ProcessData>& targetProcess) override;
+	void OnAttach(const std::shared_ptr<ProcessData>& targetProcess) override;
+	void OnDetach() override;
+
 };
 
 #endif // !TOKIO_GUI_VIEWS_SYMBOLIST_H

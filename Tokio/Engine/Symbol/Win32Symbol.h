@@ -2,9 +2,7 @@
 #ifndef TOKIO_ENGINE_SYMBOL_WIN32SYMBOL_H
 #define TOKIO_ENGINE_SYMBOL_WIN32SYMBOL_H
 
-#include "Engine/EngineDef.hpp"
-#include "Engine/Symbol/BaseSymbol.hpp"
-#include <vector>
+#include "Engine/Symbol/BaseSymbol.h"
 
 namespace Engine
 {

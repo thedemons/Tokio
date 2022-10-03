@@ -14,7 +14,7 @@ Widgets::Table::Execution
 ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void* UserData)
 {
 	ViewDisassembler* pThis = static_cast<ViewDisassembler*>(UserData);
-	auto& insData = pThis->m_disasmData[index];
+	auto& insData = pThis->m_instructionList[index];
 	ImVec2 cursorOffset(0.f, 0.f);
 
 	if (insData.isBaseOffset)
@@ -26,35 +26,60 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 		ImGui::PopFont();
 	}
 
-	ImGui::Text("%s", insData.addressSymbol.c_str());
+	// draw symbolic address
+	if (insData.addressSymbol.size() > 0 )
+	{
+		ImGui::TextUnformatted(insData.addressSymbol.c_str(), insData.addressSymbol.c_str() + insData.addressSymbol.size());
+	}
+	else
+	{
+		
+		ImGui::PushStyleColor(ImGuiCol_Text, Settings::data.theme.disasm.Address);
+		ImGui::Text("%llX", insData.address);
+		ImGui::PopStyleColor();
+	}
 
 
 	// bytes
 	table->NextColumn();
 	ImGui::SetCursorPos(ImGui::GetCursorPos() + cursorOffset);
 
-	for (size_t i = 0; i < insData.length; i++)
+
+	// not readable address, draw a "??"
+	if (insData.isNotReadable)
 	{
-		ImGui::Text("%02X", insData.bytes[i]);
-		//ImGui::TextColored(ImVec4(ThemeSettings::data.disasm.Bytes), "%02X", insData.bytes[i]);
-		ImGui::SameLine();
+		table->SetColumnIndex(2);
+		static std::string notReadableColored = "??"_c(Settings::data.theme.disasm.Invalid);
+		ImGui::TextUnformatted(notReadableColored.c_str(), notReadableColored.c_str() + notReadableColored.size());
 	}
-
-	// opcode
-	table->NextColumn();
-	ImVec2 cursorPos = ImGui::GetCursorPos() + cursorOffset;
-	ImGui::SetCursorPos(cursorPos);
-
-	ImGui::Text("%s", insData.mnemonic.c_str());
-
-	ImGui::SetCursorPos(cursorPos + ImVec2(55.f, 0.f));
-	ImGui::Text("%s", insData.instruction.c_str());
-
-	if (insData.comment.size() > 0)
+	else
 	{
+
+		for (size_t i = 0; i < insData.length; i++)
+		{
+			ImGui::Text("%02X", insData.bytes[i]);
+			//ImGui::TextColored(ImVec4(ThemeSettings::data.disasm.Bytes), "%02X", insData.bytes[i]);
+			ImGui::SameLine();
+		}
+
+		// opcode
 		table->NextColumn();
-		ImGui::Text("%s", insData.comment.c_str());
+		ImVec2 cursorPos = ImGui::GetCursorPos() + cursorOffset;
+		ImGui::SetCursorPos(cursorPos);
+
+		ImGui::Text(insData.mnemonic.c_str(), insData.mnemonic.c_str() + insData.mnemonic.size());
+
+		ImGui::SetCursorPos(cursorPos + ImVec2(55.f, 0.f));
+		ImGui::Text(insData.instruction.c_str(), insData.instruction.c_str() + insData.instruction.size());
+
+		// comment
+		if (insData.comment.size() > 0)
+		{
+			table->NextColumn();
+			ImGui::Text("%s", insData.comment.c_str());
+		}
 	}
+
 	return Widgets::Table::Execution::Continue;
 };
 
@@ -72,7 +97,7 @@ void ViewDisassembler::TableInputCallback(Widgets::Table* table, size_t index, v
 	{
 		if (auto& selected = table->GetSelectedItems(); selected.size() > 0)
 		{
-			POINTER refAddress = pThis->m_disasmData[selected[0]].refAddress;
+			POINTER refAddress = pThis->m_instructionList[selected[0]].refAddress;
 			if (refAddress)
 			{
 
@@ -134,8 +159,10 @@ ViewDisassembler::ViewDisassembler()
 	desc.RenderCallback = TableRenderCallback;
 	desc.PopupRenderCallback = TablePopupRenderCallback;
 
+	desc.RowFont = MainApplication::FontMonoRegular;
+
 	desc.Flags = ImGuiTableFlags_BordersOuter | // outer borders
-				 ImGuiTableFlags_ScrollY      | // enable vertical scrool
+				 ImGuiTableFlags_SortTristate | // disable sort
 				 ImGuiTableFlags_Hideable     | // hide the columns
 				 ImGuiTableFlags_Resizable    | // resizable coulmns by default
 				 ImGuiTableFlags_Reorderable  ; // re-order the coulmns
@@ -174,16 +201,15 @@ void ViewDisassembler::Render(bool& bOpen)
 	if (currentTime - m_timeLastRefresh > m_refreshInterval)
 	{
 		m_timeLastRefresh = currentTime;
-		GoToAddress(m_pVirtualBase);
+		//GoToAddress(m_pVirtualBase);
 	}
 
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0,0 });
-	ImGui::Begin(Title().c_str(), &bOpen);
+	ImGui::Begin(Title().c_str(), &bOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PopStyleVar();
 
-	ImGui::PushFont(MainApplication::FontMonoRegular);
-	m_table.Render(m_disasmData.size());
-	ImGui::PopFont();
+	m_table.Render(m_instructionList.size());
+
 	ImGui::End();
 
 	m_popupNavigate.Render();
@@ -200,7 +226,7 @@ void ViewDisassembler::Render(bool& bOpen)
 		auto& selectedItems = m_table.GetSelectedItems();
 		if (selectedItems.size() > 0)
 		{
-			if (auto result = common::BhClipboardCopy(m_disasmData[selectedItems[0]].address); result.has_error())
+			if (auto result = common::BhClipboardCopy(m_instructionList[selectedItems[0]].address); result.has_error())
 				result.error().show();
 		}
 
@@ -209,9 +235,16 @@ void ViewDisassembler::Render(bool& bOpen)
 }
 
 
-void ViewDisassembler::Update(const std::shared_ptr<ProcessData>& targetProcess)
+void ViewDisassembler::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 {
+	m_SymbolHandler = Engine::Symbol();
 	GoToAddress(targetProcess->baseModule->base);
+}
+
+void ViewDisassembler::OnDetach()
+{
+	m_instructionList.clear();
+	m_SymbolHandler.reset();
 }
 
 std::string FormatSymbolAddress(
@@ -290,92 +323,230 @@ std::string FormatSymbolAddress(
 	return symbol;
 }
 
-// TODO: Fix this mess
-void ViewDisassembler::GoToAddress(POINTER address)
+
+void ViewDisassembler::DisassembleRegion(size_t offset, size_t size)
 {
+	auto disasmResult = Engine::Disassembler()->Disasm(m_pVirtualBase + offset, m_memoryBuffer.data() + offset, size);
+	assert(disasmResult.has_value() && "Disassemble failed");
 
-	BYTE pBuffer[1024];
-	auto readMemResult = Engine::ReadMem(address, pBuffer, sizeof(pBuffer));
-	if (readMemResult.has_error())
+	auto& instructions = disasmResult.value();
+
+	size_t currentInstructionIndex = m_instructionList.size();
+	size_t instructionIndex = 0;
+	m_instructionList.resize(m_instructionList.size() + instructions.size());
+
+	auto walkContext = m_SymbolHandler->AddressSymbolWalkInit();
+	
+	for (auto& disasmData : disasmResult.value())
 	{
-		//readMemResult.error().show(L"Disassembler failed to read memory process");
-		//return;
-	}
+		auto resultGetModuleSymbol = m_SymbolHandler->AddressSymbolWalkNext(walkContext, disasmData.address);
 
-	auto disasmResult = Engine::Disassembler()->Disasm(address, pBuffer, sizeof(pBuffer));
-	if (disasmResult.has_error())
-	{
-		disasmResult.error().show(L"Error while disassembling the target process");
-	}
-	else
-	{
-		m_disasmData.clear();
-		m_disasmData.resize(disasmResult.value().size());
+		auto& viewDisasmData = m_instructionList[currentInstructionIndex + instructionIndex++];
+		viewDisasmData.address = disasmData.address;
+		viewDisasmData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &viewDisasmData.isBaseOffset);
+		viewDisasmData.refAddress = disasmData.refAddress;
+		viewDisasmData.isRefPointer = disasmData.isRefPointer;
+		viewDisasmData.length = disasmData.length;
 
-		size_t index = 0;
-
-		auto symbolEngine = Engine::Symbol();
-		auto walkContext = symbolEngine->AddressSymbolWalkInit();
-
-		for (auto& disasmData : disasmResult.value())
+		// here we parse the tokenized operands into colored text
+		for (auto& operand : disasmData.operands)
 		{
-			auto resultGetModuleSymbol = symbolEngine->AddressSymbolWalkNext(walkContext, disasmData.address);
+			// skip the menomonic and invalid operands
+			if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
 
-			auto& viewDisasmData = m_disasmData[index];
-			viewDisasmData.address       = disasmData.address;
-			viewDisasmData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &viewDisasmData.isBaseOffset);
-			viewDisasmData.refAddress    = disasmData.refAddress;
-			viewDisasmData.isRefPointer  = disasmData.isRefPointer;
-			viewDisasmData.length        = disasmData.length; 
-
-			memcpy_s(viewDisasmData.bytes, sizeof(viewDisasmData.bytes), disasmData.bytes, sizeof(disasmData.bytes));
-
-			// here we parse the tokenized operands into colored text
-			for (auto& operand : disasmData.operands)
+			// don't colorize white spaces
+			if (operand.type == DisasmOperandType::WhiteSpace)
 			{
-				// skip the menomonic and invalid operands
-				if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
-
-				// don't colorize white spaces
-				if (operand.type == DisasmOperandType::WhiteSpace)
-				{
-					viewDisasmData.instruction += " ";
-				}
-				// it has a reference address, draw it as a symbol
-				else if (viewDisasmData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
-				{
-					auto resultGetModuleSymbol = symbolEngine->AddressToModuleSymbol(viewDisasmData.refAddress);
-					viewDisasmData.instruction += FormatSymbolAddress(viewDisasmData.refAddress, resultGetModuleSymbol);
-				}
-				// it's just a regular operand
-				else
-				{
-					DWORD color = ThemeSettings::GetDisasmColor(operand.type);
-					viewDisasmData.instruction += ImGuiCustomString(operand.value)(color);
-				}
+				viewDisasmData.instruction += " ";
 			}
-
-			if (viewDisasmData.isRefPointer)
+			// it has a reference address, draw it as a symbol
+			else if (viewDisasmData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
 			{
-				auto resultRead = Engine::ReadMem<POINTER>(viewDisasmData.refAddress);
-				if (resultRead.has_value())
-				{
-					POINTER refPointer = resultRead.value();
-					auto resultGetModuleSymbol = symbolEngine->AddressToModuleSymbol(refPointer);
-					viewDisasmData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
-				}
+				auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(viewDisasmData.refAddress);
+				viewDisasmData.instruction += FormatSymbolAddress(viewDisasmData.refAddress, resultGetModuleSymbol);
 			}
-
-			DWORD color = ThemeSettings::GetDisasmColor(disasmData.mnemonic.type);
-			viewDisasmData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
-
-			index++;
+			// it's just a regular operand
+			else
+			{
+				DWORD color = ThemeSettings::GetDisasmColor(operand.type);
+				viewDisasmData.instruction += ImGuiCustomString(operand.value)(color);
+			}
 		}
 
-		m_table.AddSelectedItem(0);
-		m_table.SetScroll(0.f);
+		// if it's is something like `mov rax, [0x12345]`
+		// we read the value at the address 0x12345 and add it as a comment
+		if (viewDisasmData.isRefPointer)
+		{
+			auto resultRead = Engine::ReadMem<POINTER>(viewDisasmData.refAddress);
+			if (resultRead.has_value())
+			{
+				POINTER refPointer = resultRead.value();
+				auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(refPointer);
+				viewDisasmData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
+			}
+		}
 
-		m_pVirtualBase = address;
+		DWORD color = ThemeSettings::GetDisasmColor(disasmData.mnemonic.type);
+		viewDisasmData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
 	}
 }
 
+void ViewDisassembler::Disassemble()
+{
+	m_instructionList.clear();
+	m_instructionOffset = 0;
+
+	if (!Engine::IsAttached()) return;
+
+	POINTER startAddress = m_pVirtualBase - 0x10;
+	size_t bufferSize = m_memoryBuffer.size();
+
+	// to avoid disassembling mid-instruction
+	std::vector<MemoryRegion> regions;
+	auto resultRead = Engine::ReadMemSafe(startAddress, m_memoryBuffer.data(), bufferSize, regions);
+	
+	assert(resultRead.has_value() && "ViewDisassembler Cannot read memory");
+
+
+	// no readable memory, set all instructions to invalid
+	if (regions.size() == 0)
+	{
+		m_instructionList.resize(100);
+
+		for (auto& instruction : m_instructionList)
+		{
+			instruction.address = startAddress++;
+			instruction.isNotReadable = true;
+		}
+	}
+	else
+	{
+		auto regionIter = regions.begin();
+
+		// loop through the buffer, if it's not readable then push invalid instructions, else disassemble it
+		size_t offset = startAddress;
+		while (offset < startAddress + bufferSize)
+		{
+			// push invalid instructions to the list if the memory is not readable
+			if (offset < regionIter->start)
+			{
+				for (; offset < regionIter->start; offset++)
+				{
+					auto& instruction = m_instructionList.emplace_back();
+					instruction.address = offset;
+					instruction.isNotReadable = true;
+				}
+			}
+			// disassemble valid region
+			else
+			{
+				DisassembleRegion(regionIter->start - startAddress, regionIter->size);
+
+				offset += regionIter->size;
+				if (++regionIter == regions.end()) break;
+			}
+		}
+
+		// there are more left after disassembling valid regions
+		// push invalid instructions
+		for (; offset < startAddress + bufferSize; offset++)
+		{
+			auto& instruction = m_instructionList.emplace_back();
+			instruction.address = offset;
+			instruction.isNotReadable = true;
+		}
+	}
+}
+
+// TODO: Fix this mess
+void ViewDisassembler::GoToAddress(POINTER address)
+{
+	m_pVirtualBase = address;
+	Disassemble();
+}
+
+//
+//BYTE pBuffer[1024];
+//auto readMemResult = Engine::ReadMem(address, pBuffer, sizeof(pBuffer));
+//if (readMemResult.has_error())
+//{
+//	//readMemResult.error().show(L"Disassembler failed to read memory process");
+//	//return;
+//}
+//
+//auto disasmResult = Engine::Disassembler()->Disasm(address, pBuffer, sizeof(pBuffer));
+//if (disasmResult.has_error())
+//{
+//	disasmResult.error().show(L"Error while disassembling the target process");
+//
+//}
+//else
+//{
+//	m_instructionList.clear();
+//	m_instructionList.resize(disasmResult.value().size());
+//
+//	size_t index = 0;
+//
+//	auto symbolEngine = Engine::Symbol();
+//	auto walkContext = symbolEngine->AddressSymbolWalkInit();
+//
+//	for (auto& disasmData : disasmResult.value())
+//	{
+//		auto resultGetModuleSymbol = symbolEngine->AddressSymbolWalkNext(walkContext, disasmData.address);
+//
+//		auto& viewDisasmData = m_instructionList[index];
+//		viewDisasmData.address = disasmData.address;
+//		viewDisasmData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &viewDisasmData.isBaseOffset);
+//		viewDisasmData.refAddress = disasmData.refAddress;
+//		viewDisasmData.isRefPointer = disasmData.isRefPointer;
+//		viewDisasmData.length = disasmData.length;
+//
+//		memcpy_s(viewDisasmData.bytes, sizeof(viewDisasmData.bytes), disasmData.bytes, sizeof(disasmData.bytes));
+//
+//		// here we parse the tokenized operands into colored text
+//		for (auto& operand : disasmData.operands)
+//		{
+//			// skip the menomonic and invalid operands
+//			if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
+//
+//			// don't colorize white spaces
+//			if (operand.type == DisasmOperandType::WhiteSpace)
+//			{
+//				viewDisasmData.instruction += " ";
+//			}
+//			// it has a reference address, draw it as a symbol
+//			else if (viewDisasmData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
+//			{
+//				auto resultGetModuleSymbol = symbolEngine->AddressToModuleSymbol(viewDisasmData.refAddress);
+//				viewDisasmData.instruction += FormatSymbolAddress(viewDisasmData.refAddress, resultGetModuleSymbol);
+//			}
+//			// it's just a regular operand
+//			else
+//			{
+//				DWORD color = ThemeSettings::GetDisasmColor(operand.type);
+//				viewDisasmData.instruction += ImGuiCustomString(operand.value)(color);
+//			}
+//		}
+//
+//		if (viewDisasmData.isRefPointer)
+//		{
+//			auto resultRead = Engine::ReadMem<POINTER>(viewDisasmData.refAddress);
+//			if (resultRead.has_value())
+//			{
+//				POINTER refPointer = resultRead.value();
+//				auto resultGetModuleSymbol = symbolEngine->AddressToModuleSymbol(refPointer);
+//				viewDisasmData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
+//			}
+//		}
+//
+//		DWORD color = ThemeSettings::GetDisasmColor(disasmData.mnemonic.type);
+//		viewDisasmData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
+//
+//		index++;
+//	}
+//
+//	m_table.AddSelectedItem(0);
+//	m_table.SetScroll(0.f);
+//
+//	m_pVirtualBase = address;
+//}

@@ -17,6 +17,7 @@
 namespace MainView
 {
 void HandlerAttachProcess(std::shared_ptr<ProcessData> target);
+void HandlerDetachProcess();
 
 void Init()
 {
@@ -37,6 +38,7 @@ void Init()
 	m_ViewList.push_back({ viewSettings  , viewSettings->isDefaultOpen()   });
 
 	Engine::OnAttachCallback(HandlerAttachProcess);
+	Engine::OnDetachCallback(HandlerDetachProcess);
 
 	if (auto result = Engine::Attach(43572); result.has_error()) result.error().show();
 }
@@ -154,12 +156,19 @@ void Render()
 	}
 }
 
-
 void HandlerAttachProcess(std::shared_ptr<ProcessData> target)
 {
 	for (auto& view : m_ViewList)
 	{
-		view.pView->Update(target);
+		view.pView->OnAttach(target);
+	}
+}
+
+void HandlerDetachProcess()
+{
+	for (auto& view : m_ViewList)
+	{
+		view.pView->OnDetach();
 	}
 }
 

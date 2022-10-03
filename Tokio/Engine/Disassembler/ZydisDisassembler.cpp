@@ -187,7 +187,7 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
             auto& operand = disasmData.operands.emplace_back();
             operand.type = DisasmOperandType::Invalid;
 
-            memcpy_s(operand.value, sizeof(operand.value), "db", 3);
+            memcpy_s(operand.value, sizeof(operand.value), "invalid", 8);
 
             disasmData.mnemonic = operand;
             disasmData.length = 1ull;
@@ -199,7 +199,7 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
             // setup userdata
             ZydisCallbackUserData UserData{ this, &disasmData };
 
-            // tokenize instructions
+            // tokenize operands
             ZyanStatus zResultTokenize = 
                 ZydisFormatterTokenizeInstruction(
                     m_formatter, 
@@ -217,7 +217,7 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
             {
                 disasmData.operands.reserve(instruction.operand_count);
 
-
+                // get tokenized operands
                 while (true)
                 {
                     auto& operand = disasmData.operands.emplace_back();

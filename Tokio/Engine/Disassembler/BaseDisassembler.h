@@ -1,5 +1,10 @@
-#ifndef TOKIO_ENGINE_BASEDISASSEMBLER_HPP
-#define TOKIO_ENGINE_BASEDISASSEMBLER_HPP
+#ifndef TOKIO_ENGINE_BASEDISASSEMBLER_H
+#define TOKIO_ENGINE_BASEDISASSEMBLER_H
+
+#include "Engine/EngineDef.h"
+#include "common_result.hpp"
+
+#include <memory>
 
 namespace Engine
 {
@@ -9,7 +14,7 @@ class BaseDisassembler
 protected:
 	std::shared_ptr<ProcessData> m_target;
 public:
-	BaseDisassembler(const std::shared_ptr<ProcessData>& target) : m_target(target) {}
+	BaseDisassembler(const std::shared_ptr<ProcessData>& target);
 
 	// pVirtualBase : The starting point of the memory in the target process
 	// pOpCodes		: Pointer to the opcode buffer to be disassemble
@@ -18,7 +23,7 @@ public:
 
 	// The user interface will call this function to refresh the new settings
 	// any inherited disassembler of this class should handle settings changes
-	virtual void UpdateSettings() {};
+	virtual void UpdateSettings();
 };
 }
 

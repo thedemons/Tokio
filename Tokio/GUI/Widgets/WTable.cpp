@@ -168,7 +168,7 @@ void Table::Render(size_t nMaxItem, ImVec2 Size)
 		// draw table header
 		if (!(m_desc.WidgetFlags & TableFlags::NoHeader))
 		{
-			ImGui::TableSetupScrollFreeze(0, 1);
+			//ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableHeadersRow();
 		}
 
@@ -193,6 +193,8 @@ void Table::Render(size_t nMaxItem, ImVec2 Size)
 		m_hoveredIndex = UPTR_UNDEFINED;
 
 		//table->Flags |= m_desc.ExtraFlags;
+
+		if (m_desc.RowFont != nullptr) ImGui::PushFont(m_desc.RowFont);
 
 		Execution state = Execution::Continue;
 
@@ -221,6 +223,8 @@ void Table::Render(size_t nMaxItem, ImVec2 Size)
 				HandleRowInput(table, i);
 			}
 		}
+
+		if (m_desc.RowFont != nullptr) ImGui::PopFont();
 
 		// it means that we begin a table row
 		// and never used it, if we don't "destroy" it

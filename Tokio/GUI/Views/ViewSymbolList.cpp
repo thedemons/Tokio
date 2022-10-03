@@ -246,11 +246,8 @@ void ViewSymbolList::Render(bool& bOpen)
 }
 
 // update the module data
-void ViewSymbolList::Update(const std::shared_ptr<ProcessData>& targetProcess)
+void ViewSymbolList::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 {
-	m_moduleList.clear();
-	m_moduleList.reserve(targetProcess->modules.size());
-
 	for (auto& modData : targetProcess->modules)
 	{
 		ModuleNode& nodeModule = m_moduleList.emplace_back();
@@ -272,4 +269,9 @@ void ViewSymbolList::Update(const std::shared_ptr<ProcessData>& targetProcess)
 			nodeSymbol.functionName = exportData.name;
 		}
 	}
+}
+
+void ViewSymbolList::OnDetach()
+{
+	m_moduleList.clear();
 }

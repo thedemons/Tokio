@@ -176,8 +176,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="common_helper.cpp" />
+    <ClCompile Include="Engine\Disassembler\BaseDisassembler.cpp" />
     <ClCompile Include="Engine\Disassembler\ZydisDisassembler.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Engine\Memory\BaseMemory.cpp" />
+    <ClCompile Include="Engine\Memory\Win32Memory.cpp" />
+    <ClCompile Include="Engine\Symbol\BaseSymbol.cpp" />
     <ClCompile Include="Engine\Symbol\Win32Symbol.cpp" />
     <ClCompile Include="GUI\ImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -234,14 +238,16 @@
     <ClCompile Include="Tokio.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common.hpp" />
     <ClInclude Include="common_helper.h" />
-    <ClInclude Include="Engine\Disassembler\BaseDisassembler.hpp" />
+    <ClInclude Include="common_result.hpp" />
+    <ClInclude Include="Engine\Disassembler\BaseDisassembler.h" />
     <ClInclude Include="Engine\Disassembler\ZydisDisassembler.h" />
     <ClInclude Include="Engine\Engine.h" />
-    <ClInclude Include="Engine\EngineDef.hpp" />
-    <ClInclude Include="Engine\Memory\BaseMemory.hpp" />
+    <ClInclude Include="Engine\EngineDef.h" />
+    <ClInclude Include="Engine\Memory\BaseMemory.h" />
     <ClInclude Include="Engine\Memory\Win32Memory.hpp" />
-    <ClInclude Include="Engine\Symbol\BaseSymbol.hpp" />
+    <ClInclude Include="Engine\Symbol\BaseSymbol.h" />
     <ClInclude Include="Engine\Symbol\Win32Symbol.h" />
     <ClInclude Include="GUI\ImGui\imconfig.h" />
     <ClInclude Include="GUI\ImGui\imgui.h" />

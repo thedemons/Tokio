@@ -1,7 +1,11 @@
 #pragma once
-#ifndef TOKIO_ENGINE_BASEMEMORY_HPP
-#define TOKIO_ENGINE_BASEMEMORY_HPP
+#ifndef TOKIO_ENGINE_BASEMEMORY_H
+#define TOKIO_ENGINE_BASEMEMORY_H
 
+#include "Engine/EngineDef.h"
+#include "common_result.hpp"
+
+#include <memory>
 
 namespace Engine
 {
@@ -17,6 +21,8 @@ public:
 
 	_NODISCARD virtual auto Read(POINTER src, void* dest, size_t size)->SafeResult(void) = 0;
 	_NODISCARD virtual auto Write(POINTER dest, const void* src, size_t size)->SafeResult(void) = 0;
+
+	_NODISCARD virtual auto VirtualQuery(POINTER address) -> SafeResult(VirtualMemoryInfo) = 0;
 
 	template <typename Type>
 	_NODISCARD auto Read(POINTER address)->SafeResult(Type)
@@ -43,8 +49,10 @@ public:
 	{
 		return m_target->handle;
 	}
-
+	
+	// Read memory of the region that may cross a no-read-access page
+	_NODISCARD virtual auto ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryRegion>& regions)->SafeResult(void);
 };
 }
 
-#endif // !TOKIO_ENGINE_BASEMEMORY_HPP
+#endif // !TOKIO_ENGINE_BASEMEMORY_H

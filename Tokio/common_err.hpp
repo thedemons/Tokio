@@ -19,6 +19,8 @@ enum class errcode
 	WriteProcessMemoryFailed,
 	WriteProcessMemoryNotEnoughByte,
 
+	VirtualQueryFailed,
+
 	EnumProcessModulesFailed,
 	EnumProcesSymbolsFailed,
 
@@ -47,6 +49,7 @@ inline std::map<errcode, std::wstring> rcErrorMessages = {
 	{errcode::ReadProcessMemoryNotEnoughByte   , L"ReadProcessMemory didn't read enough bytes"},
 	{errcode::WriteProcessMemoryFailed         , L"Failed to write to the process memory"},
 	{errcode::WriteProcessMemoryNotEnoughByte  , L"WriteProcessMemory didn't write enough bytes"},
+	{errcode::VirtualQueryFailed  , L"Failed to query virtual memory information"},
 	{errcode::EnumProcessModulesFailed         , L"Failed to enumerate the process' modules"},
 	{errcode::EnumProcesSymbolsFailed          , L"Failed to enumerate the process' symbols"},
 	{errcode::TheImageFileFormatIsNotSupported , L"The image file format is not supported"},

@@ -1,9 +1,8 @@
 #ifndef TOKYO_ENGINE_DISASSEMBLER_ZYDISDISASSEMBLER_H
 #define TOKYO_ENGINE_DISASSEMBLER_ZYDISDISASSEMBLER_H
 
-#include "Engine/EngineDef.hpp"
-#include "Engine/Disassembler/BaseDisassembler.hpp"
-#include "Engine/Symbol/BaseSymbol.hpp"
+#include "Engine/Disassembler/BaseDisassembler.h"
+#include "Engine/Symbol/BaseSymbol.h"
 
 // The only reason we do this and not actually including zydis
 // headers is we don't want its declarations to be leaked into our

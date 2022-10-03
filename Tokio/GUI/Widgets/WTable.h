@@ -42,6 +42,9 @@ public:
 
 		TableFlags WidgetFlags = TableFlags::None;
 
+		// specific font for row rendering, this won't be applied to the header row
+		ImFont* RowFont = nullptr;
+
 		// You must handle the ordering of the selected
 		// items by yourself, it won't be altered after the sort
 		LPSORT_CALLBACK SortCallback = nullptr;
@@ -101,6 +104,7 @@ private:
 
 	// popup widget for right click handling
 	Popup m_popup;
+
 
 	// use by SetScroll()
 	float m_setScrollY = -1.f;

@@ -10,6 +10,7 @@ namespace Engine
 {
 // On process attach callback
 LPON_ATTACH_CALLBACK pAttachCallback = nullptr;
+LPON_DETACH_CALLBACK pDetachCallback = nullptr;
 
 _NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 {
@@ -21,6 +22,8 @@ _NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 
 	if (auto result = g_Memory->Attach(pid); result.has_error())
 	{
+		assert(false && "Could not attach to the process");
+
 		Detach();
 		return result;
 	}
@@ -36,6 +39,8 @@ _NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 
 	if (auto result = g_Symbol->Update(); result.has_error())
 	{
+		assert(false && "Symbol engine failed to update");
+
 		Detach();
 		RESULT_FORWARD(result);
 	}
@@ -47,9 +52,9 @@ _NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 
 void Detach()
 {
-	if (g_Disassembler != nullptr) g_Disassembler.reset();
 	if (g_Symbol       != nullptr) g_Symbol.reset();
 	if (g_Target       != nullptr) g_Target.reset();
+	if (g_Disassembler != nullptr) g_Disassembler.reset();
 
 	if (g_Memory != nullptr)
 	{
@@ -57,6 +62,7 @@ void Detach()
 		g_Memory.reset();
 	}
 	
+	if (pDetachCallback) pDetachCallback();
 }
 
 bool IsAttached()
@@ -65,19 +71,15 @@ bool IsAttached()
 }
 
 
-_NODISCARD auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void)
-{
-	return g_Memory->Read(src, dest, size);
-}
-
-_NODISCARD auto WriteMem(POINTER dest, const void* src, size_t size)->SafeResult(void)
-{
-	return g_Memory->Write(dest, src, size);
-}
-
 // TODO: Make a list of callbacks, not just one
 void OnAttachCallback(LPON_ATTACH_CALLBACK callback)
 {
 	pAttachCallback = callback;
 }
+
+void OnDetachCallback(LPON_DETACH_CALLBACK callback)
+{
+	pDetachCallback = callback;
+}
+
 }

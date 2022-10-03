@@ -120,6 +120,18 @@
     <ClCompile Include="GUI\Views\ViewSettings.cpp">
       <Filter>GUI\Views</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Memory\BaseMemory.cpp">
+      <Filter>Engine\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Memory\Win32Memory.cpp">
+      <Filter>Engine\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Symbol\BaseSymbol.cpp">
+      <Filter>Engine\Symbol</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Disassembler\BaseDisassembler.cpp">
+      <Filter>Engine\Disassembler</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
@@ -194,7 +206,7 @@
     <ClInclude Include="MainApplication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Memory\BaseMemory.hpp">
+    <ClInclude Include="Engine\Memory\BaseMemory.h">
       <Filter>Engine\Memory</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Memory\Win32Memory.hpp">
@@ -212,7 +224,7 @@
     <ClInclude Include="GUI\Views\ViewSymbolList.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\EngineDef.hpp">
+    <ClInclude Include="Engine\EngineDef.h">
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Widgets\WTreeTable.hpp">
@@ -221,7 +233,7 @@
     <ClInclude Include="GUI\Widgets\Widgets.hpp">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Disassembler\BaseDisassembler.hpp">
+    <ClInclude Include="Engine\Disassembler\BaseDisassembler.h">
       <Filter>Engine\Disassembler</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Disassembler\ZydisDisassembler.h">
@@ -239,7 +251,7 @@
     <ClInclude Include="imgui_custom.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Symbol\BaseSymbol.hpp">
+    <ClInclude Include="Engine\Symbol\BaseSymbol.h">
       <Filter>Engine\Symbol</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Symbol\Win32Symbol.h">
@@ -247,6 +259,12 @@
     </ClInclude>
     <ClInclude Include="GUI\Views\ViewSettings.h">
       <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="common.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common_result.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

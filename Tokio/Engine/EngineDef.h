@@ -1,6 +1,43 @@
 #pragma once
+#ifndef TOKIO_ENGINE_ENGINEDEF_H
+#define TOKIO_ENGINE_ENGINEDEF_H
+#include <string>
+#include <vector>
+#include <Windows.h>
 
 typedef unsigned __int64 POINTER;
+
+// used for ReadMemSafe
+struct MemoryRegion
+{
+	POINTER start = 0;
+	size_t size = 0;
+	inline size_t end() const noexcept { return start + size; }
+};
+
+
+typedef int VirtualProtection_;
+class VirtualProtection
+{
+public:
+enum Protection
+{
+	NoAccess     = 0,
+	Guard        = 1 << 0,
+	Read         = 1 << 1,
+	Write        = 1 << 2,
+	WriteCopy    = 1 << 2,
+	Execute      = 1 << 4,
+};
+};
+
+struct VirtualMemoryInfo
+{
+	POINTER base;
+	size_t size;
+	VirtualProtection_ protect;
+};
+
 
 struct ProcessModule;
 
@@ -253,3 +290,5 @@ struct DisasmInstruction
 	// tokenized operands
 	std::vector<DisasmOperand> operands;
 };
+
+#endif // !TOKIO_ENGINE_ENGINEDEF_H

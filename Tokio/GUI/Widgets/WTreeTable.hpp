@@ -122,6 +122,10 @@ public:
 		bool IsMultiSelection = false;
 		ImGuiTableFlags Flags = ImGuiTableFlags_None;		// Flags for the table
 		ImGuiTableFlags ExtraFlags = ImGuiTableFlags_None;	// Extra flag for row rendering
+		TableFlags WidgetFlags = TableFlags::None;
+
+		// specific font for row rendering, this won't be applied t0 the header row
+		ImFont* RowFont = nullptr;
 
 		// The amount of indent, it will use ImGuiStyle.IndentSpacing
 		// by default if this is not set (<= 0.f)
@@ -132,7 +136,6 @@ public:
 		// the arrow '>' button to expand the tree
 		float ItemOffset = 10.f;
 
-		TableFlags WidgetFlags = TableFlags::None;
 
 		// You must handle the ordering of the selected
 		// items by yourself, it won't be altered after the sort
@@ -206,6 +209,7 @@ private:
 
 	// current sort direction
 	ImGuiSortDirection m_currentSortDir = ImGuiSortDirection_Ascending;
+
 
 	// popup widget for right click handling
 	Popup m_popup;
@@ -620,6 +624,8 @@ public:
 			// reset node offset before we begin
 			m_nodeOffset = 0.f;
 
+			if (m_desc.RowFont != nullptr) ImGui::PushFont(m_desc.RowFont);
+
 			size_t index = 0;
 			Execution state = Execution::Continue;
 			for (auto& node : NodeList)
@@ -627,6 +633,8 @@ public:
 				RenderNode(table, node, index, 0, state);
 				if (state == Execution::Stop) break;
 			}
+
+			if (m_desc.RowFont != nullptr) ImGui::PopFont();
 
 			// it means that we begin a table row
 			// and never used it, if we don't "destroy" it
