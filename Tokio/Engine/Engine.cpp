@@ -65,10 +65,6 @@ void Detach()
 	if (pDetachCallback) pDetachCallback();
 }
 
-bool IsAttached()
-{
-	return g_Target != nullptr;
-}
 
 
 // TODO: Make a list of callbacks, not just one

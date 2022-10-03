@@ -72,7 +72,7 @@ void ZydisDisassembler::UpdateSettings()
 
     ZydisFormatterSetProperty(m_formatter, ZYDIS_FORMATTER_PROP_ADDR_PADDING_ABSOLUTE   , paddingStyle);
     ZydisFormatterSetProperty(m_formatter, ZYDIS_FORMATTER_PROP_ADDR_PADDING_RELATIVE   , paddingStyle);
-    ZydisFormatterSetProperty(m_formatter, ZYDIS_FORMATTER_PROP_DISP_PADDING            , paddingStyle);
+    //ZydisFormatterSetProperty(m_formatter, ZYDIS_FORMATTER_PROP_DISP_PADDING            , paddingStyle); // CAUSE SOME BUG IN ZYDIS TO FAIL TOKENIZE THE INSTRUCTION
     ZydisFormatterSetProperty(m_formatter, ZYDIS_FORMATTER_PROP_IMM_PADDING             , paddingStyle);
 }
 
@@ -259,6 +259,18 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
                 //{
                 //    disasmData.operands[UserData.id_refaddress].refAddress = disasmData.refAddress;
                 //}
+            }
+            else
+            {
+                assert(false && "Failed to tokenize the instructions");
+
+                auto& operand = disasmData.operands.emplace_back();
+                operand.type = DisasmOperandType::Invalid;
+
+                memcpy_s(operand.value, sizeof(operand.value), "error", 6);
+
+                disasmData.mnemonic = operand;
+                //disasmData.length = 1ull; // don't change the length
             }
         }
 

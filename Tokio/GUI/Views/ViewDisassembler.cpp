@@ -14,7 +14,7 @@ Widgets::Table::Execution
 ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void* UserData)
 {
 	ViewDisassembler* pThis = static_cast<ViewDisassembler*>(UserData);
-	auto& insData = pThis->m_instructionList[index];
+	auto& insData = pThis->GetInstructionAt(index);
 	ImVec2 cursorOffset(0.f, 0.f);
 
 	if (insData.isBaseOffset)
@@ -33,7 +33,6 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	}
 	else
 	{
-		
 		ImGui::PushStyleColor(ImGuiCol_Text, Settings::data.theme.disasm.Address);
 		ImGui::Text("%llX", insData.address);
 		ImGui::PopStyleColor();
@@ -62,21 +61,38 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 			ImGui::SameLine();
 		}
 
-		// opcode
+		// mnemonic
 		table->NextColumn();
-		ImVec2 cursorPos = ImGui::GetCursorPos() + cursorOffset;
-		ImGui::SetCursorPos(cursorPos);
+
+		// we save the cursor pos for rendering references arrow
+		insData.cursorPos = ImGui::GetCursorPos() + cursorOffset;
+		ImGui::SetCursorPos(insData.cursorPos);
 
 		ImGui::Text(insData.mnemonic.c_str(), insData.mnemonic.c_str() + insData.mnemonic.size());
 
-		ImGui::SetCursorPos(cursorPos + ImVec2(55.f, 0.f));
+		// instructions
+		ImGui::SetCursorPos(insData.cursorPos + ImVec2(55.f, 0.f));
 		ImGui::Text(insData.instruction.c_str(), insData.instruction.c_str() + insData.instruction.size());
 
 		// comment
 		if (insData.comment.size() > 0)
 		{
 			table->NextColumn();
-			ImGui::Text("%s", insData.comment.c_str());
+			ImGui::TextUnformatted(insData.comment.c_str(), insData.comment.c_str() + insData.comment.size());
+		}
+	}
+
+	// calculate jump instruction
+	if (insData.mnemonic_type == DisasmOperandType::mneJump ||
+		insData.mnemonic_type == DisasmOperandType::mneJumpCondition)
+	{
+		// if the reference address inside the current instruction list
+		if (insData.refAddress != 0ull &&
+			insData.refAddress >= pThis->m_instructionList[pThis->m_instructionOffset].address &&
+			insData.refAddress <= pThis->m_instructionList.back().address
+			)
+		{
+
 		}
 	}
 
@@ -97,7 +113,7 @@ void ViewDisassembler::TableInputCallback(Widgets::Table* table, size_t index, v
 	{
 		if (auto& selected = table->GetSelectedItems(); selected.size() > 0)
 		{
-			POINTER refAddress = pThis->m_instructionList[selected[0]].refAddress;
+			POINTER refAddress = pThis->GetInstructionAt(selected[0]).refAddress;
 			if (refAddress)
 			{
 
@@ -208,7 +224,8 @@ void ViewDisassembler::Render(bool& bOpen)
 	ImGui::Begin(Title().c_str(), &bOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PopStyleVar();
 
-	m_table.Render(m_instructionList.size());
+	m_table.Render(m_instructionList.size() - m_instructionOffset);
+	ImVec2 windowPos = ImGui::GetWindowPos();
 
 	ImGui::End();
 
@@ -232,6 +249,33 @@ void ViewDisassembler::Render(bool& bOpen)
 
 		m_shortcutData.bCopyAddress = false;
 	}
+
+	auto* dl = ImGui::GetForegroundDrawList();
+
+	for (auto it = m_instructionList.begin() + m_instructionOffset; it != m_instructionList.end(); it++)
+	{
+		if (it->referenceIndex != UPTR_UNDEFINED && it->referenceIndex >= m_instructionOffset)
+		{
+			auto& refInstruction = m_instructionList[it->referenceIndex];
+			float length = fabs(it->cursorPos.y - refInstruction.cursorPos.y) * 0.05f;
+
+			ImVec2 p1 = it->cursorPos + windowPos + ImVec2(0, 5);
+			ImVec2 p2 = it->cursorPos + windowPos - ImVec2(length, -5);
+			ImVec2 p3 = refInstruction.cursorPos + windowPos - ImVec2(length, -5);
+			ImVec2 p4 = refInstruction.cursorPos + windowPos + ImVec2(0, 5);
+			dl->AddBezierCubic(p1, p2, p3, p4, Settings::data.theme.disasm.mneJumpCondition, 0.5f);
+		}
+	}
+
+	auto& io = ImGui::GetIO();
+	if (io.MouseWheel != 0.f)
+	{
+		m_instructionOffset -= static_cast<size_t>(floor(io.MouseWheel));
+		m_pVirtualBase = m_instructionList[m_instructionOffset].address;
+		Disassemble();
+	}
+
+
 }
 
 
@@ -253,7 +297,7 @@ std::string FormatSymbolAddress(
 	bool* isBaseOffset = nullptr)
 {
 	static char symbol[1024];
-	static std::string regularAddress = "%llX"_c(Settings::data.theme.disasm.Address);
+	static std::string regularAddress = "%llX"_c(Settings::data.theme.disasm.AddressAbs);
 
 	static std::string formatProcModBase = 
 		"%s"_c(Settings::data.theme.disasm.Module);
@@ -324,9 +368,77 @@ std::string FormatSymbolAddress(
 }
 
 
-void ViewDisassembler::DisassembleRegion(size_t offset, size_t size)
+// analyze the reference of the instruction (if it is a pointer e.g isRefPointer == true)
+void ViewDisassembler::AnalyzeReference(ViewInstructionData& insData)
 {
-	auto disasmResult = Engine::Disassembler()->Disasm(m_pVirtualBase + offset, m_memoryBuffer.data() + offset, size);
+	static std::string formatString = "\"%s\""_c(Settings::data.theme.disasm.String);
+	static std::string formatPointer = "[%llX]"_c(Settings::data.theme.disasm.AddressAbs);
+	static std::string formatDecimal = "%d"_c(Settings::data.theme.disasm.Displacement);
+	static char bufferFmt[128];
+
+	auto resultRead = Engine::ReadMem<POINTER>(insData.refAddress);
+	if (resultRead.has_value())
+	{
+		POINTER refPointer = resultRead.value();
+		insData.refValue = refPointer;
+
+		// strip 4 bytes if the target is 32 bit
+		if (Engine::Is32Bit()) refPointer &= 0xFFFFFFFF;
+
+		auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(refPointer);
+
+		// format as a symbol
+		if (resultGetModuleSymbol.has_value())
+		{
+			insData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
+			return;
+		}
+
+		// if it doesn't have a symbol, try to read it as a string
+		static char stringBuffer[64]{'\x00'};
+		if (!Engine::ReadMem(insData.refAddress, stringBuffer, sizeof(stringBuffer) - 1).has_error())
+		{
+			// hardcoded 5 valid char to be defined as a string
+
+			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
+			bool isValidWString = false;
+			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), 32) >= 5;
+
+			// it is a string!
+			if (isValidString)
+			{
+				sprintf_s(bufferFmt, formatString.c_str(), stringBuffer);
+				insData.comment = bufferFmt;
+				return;
+			}
+			else if (isValidWString)
+			{
+				std::wstring wideString(reinterpret_cast<wchar_t*>(stringBuffer));
+				sprintf_s(bufferFmt, formatString.c_str(), common::BhString(wideString).c_str());
+				insData.comment = bufferFmt;
+				return;
+			}
+		}
+
+		// if it's not a string, then might it be a pointer?
+		resultRead = Engine::ReadMem<POINTER>(refPointer);
+		if (!resultRead.has_error())
+		{
+			sprintf_s(bufferFmt, formatPointer.c_str(), refPointer);
+			insData.comment = bufferFmt;
+			return;
+		}
+
+		// it it's not anything above, just format it as a decimal value
+
+		sprintf_s(bufferFmt, formatDecimal.c_str(), refPointer);
+		insData.comment = bufferFmt;
+	}
+}
+
+void ViewDisassembler::DisassembleRegion(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size)
+{
+	auto disasmResult = Engine::Disassembler()->Disasm(pVirtualBase, pOpCodes, size);
 	assert(disasmResult.has_value() && "Disassemble failed");
 
 	auto& instructions = disasmResult.value();
@@ -341,12 +453,13 @@ void ViewDisassembler::DisassembleRegion(size_t offset, size_t size)
 	{
 		auto resultGetModuleSymbol = m_SymbolHandler->AddressSymbolWalkNext(walkContext, disasmData.address);
 
-		auto& viewDisasmData = m_instructionList[currentInstructionIndex + instructionIndex++];
-		viewDisasmData.address = disasmData.address;
-		viewDisasmData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &viewDisasmData.isBaseOffset);
-		viewDisasmData.refAddress = disasmData.refAddress;
-		viewDisasmData.isRefPointer = disasmData.isRefPointer;
-		viewDisasmData.length = disasmData.length;
+		auto& insData = m_instructionList[currentInstructionIndex + instructionIndex++];
+		insData.address = disasmData.address;
+		insData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &insData.isBaseOffset);
+		insData.refAddress = disasmData.refAddress;
+		insData.isRefPointer = disasmData.isRefPointer;
+		insData.length = disasmData.length;
+		insData.mnemonic_type = disasmData.mnemonic.type;
 
 		// here we parse the tokenized operands into colored text
 		for (auto& operand : disasmData.operands)
@@ -357,48 +470,37 @@ void ViewDisassembler::DisassembleRegion(size_t offset, size_t size)
 			// don't colorize white spaces
 			if (operand.type == DisasmOperandType::WhiteSpace)
 			{
-				viewDisasmData.instruction += " ";
+				insData.instruction += " ";
 			}
 			// it has a reference address, draw it as a symbol
-			else if (viewDisasmData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
+			else if (insData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
 			{
-				auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(viewDisasmData.refAddress);
-				viewDisasmData.instruction += FormatSymbolAddress(viewDisasmData.refAddress, resultGetModuleSymbol);
+				auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(insData.refAddress);
+				insData.instruction += FormatSymbolAddress(insData.refAddress, resultGetModuleSymbol);
 			}
 			// it's just a regular operand
 			else
 			{
 				DWORD color = ThemeSettings::GetDisasmColor(operand.type);
-				viewDisasmData.instruction += ImGuiCustomString(operand.value)(color);
+				insData.instruction += ImGuiCustomString(operand.value)(color);
 			}
 		}
 
 		// if it's is something like `mov rax, [0x12345]`
-		// we read the value at the address 0x12345 and add it as a comment
-		if (viewDisasmData.isRefPointer)
-		{
-			auto resultRead = Engine::ReadMem<POINTER>(viewDisasmData.refAddress);
-			if (resultRead.has_value())
-			{
-				POINTER refPointer = resultRead.value();
-				auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(refPointer);
-				viewDisasmData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
-			}
-		}
+		if (insData.isRefPointer) AnalyzeReference(insData);
 
 		DWORD color = ThemeSettings::GetDisasmColor(disasmData.mnemonic.type);
-		viewDisasmData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
+		insData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
 	}
 }
 
 void ViewDisassembler::Disassemble()
 {
 	m_instructionList.clear();
-	m_instructionOffset = 0;
 
 	if (!Engine::IsAttached()) return;
 
-	POINTER startAddress = m_pVirtualBase - 0x10;
+	POINTER startAddress = m_pVirtualBase - 0x20;
 	size_t bufferSize = m_memoryBuffer.size();
 
 	// to avoid disassembling mid-instruction
@@ -440,7 +542,7 @@ void ViewDisassembler::Disassemble()
 			// disassemble valid region
 			else
 			{
-				DisassembleRegion(regionIter->start - startAddress, regionIter->size);
+				DisassembleRegion(regionIter->start, m_memoryBuffer.data() + regionIter->start - startAddress, regionIter->size);
 
 				offset += regionIter->size;
 				if (++regionIter == regions.end()) break;
@@ -456,6 +558,53 @@ void ViewDisassembler::Disassemble()
 			instruction.isNotReadable = true;
 		}
 	}
+
+	// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
+	for (m_instructionOffset = 0; m_instructionOffset < m_instructionList.size(); m_instructionOffset++)
+	{
+		if (m_instructionList[m_instructionOffset].address > m_pVirtualBase)
+		{
+			m_instructionOffset--;
+			break;
+		}
+	}
+
+
+	static const auto referrenceSearch = [](const ViewInstructionData& a, POINTER b) -> bool
+	{
+		return a.address == b;
+	};
+
+	// calculate the reference index, use mainly for jump and call arrow rendering
+	for (auto it = m_instructionList.begin(); it != m_instructionList.end(); it++)
+	{
+		if (it->refAddress != 0)
+		{
+			std::vector<ViewInstructionData>::iterator reference;
+
+			// if the reference address is in range of the current instructions
+			if (m_instructionList.front().address <= it->refAddress && it->refAddress <= m_instructionList.back().address)
+			{
+				// we are optimizing the search by doing this in a sorted list
+				// will binary search be better?
+				if (it->refAddress > it->address)
+				{
+					reference = std::find(it, m_instructionList.end(), it->refAddress);
+				}
+				else
+				{
+					reference = std::find(m_instructionList.begin(), it, it->refAddress);
+				}
+
+				if (reference != m_instructionList.end())
+				{
+					it->referenceIndex = reference - m_instructionList.begin();
+				}
+			}
+
+		}
+	}
+
 }
 
 // TODO: Fix this mess

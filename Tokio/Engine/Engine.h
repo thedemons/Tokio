@@ -44,7 +44,17 @@ _NODISCARD auto Attach(DWORD pid)->SafeResult(std::shared_ptr<ProcessData>);
 void Detach();
 
 // Is attached to any process
-bool IsAttached();
+_NODISCARD _CONSTEXPR20 bool IsAttached()
+{
+	return g_Target != nullptr;
+}
+
+// Is the target process 32 bit
+_NODISCARD _CONSTEXPR20 bool Is32Bit()
+{
+	assert(g_Target != nullptr);
+	return g_Target->is32bit;
+}
 
 // Return a shared pointer of the target process
 _NODISCARD _CONSTEXPR20 std::shared_ptr<ProcessData> Target()

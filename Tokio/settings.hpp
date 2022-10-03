@@ -4,6 +4,7 @@
 
 namespace Settings
 {
+#define SETTINGS_VERSION 0x100
 
 class Theme : public Serializable
 {
@@ -53,6 +54,7 @@ public:
 		DWORD Bytes;            // the bytes displayed in the bytes column
 		DWORD Module;           // module color
 		DWORD Function;         // Function color
+		DWORD String;	        // string color for comments
 
 		DWORD mneCall;          // Function color
 		DWORD mneSyscall;       // Function color
@@ -100,13 +102,14 @@ class SettingData : public Serializable
 protected:
 	void Serialize(SerializeStream& stream) const override
 	{
-		stream << theme << disasm;
+		stream << Version << theme << disasm;
 	}
 
 	void Deserialize(SerializeStream& stream) override
 	{
-		stream >> theme >> disasm;
+		stream >> Version >> theme >> disasm;
 	}
+	UINT Version = SETTINGS_VERSION;
 public:
 	Theme theme;
 	Disasm disasm;
@@ -114,9 +117,14 @@ public:
 	void Load()
 	{
 		// load from file
-		if (FromFile(L"Tokio.dat")) return;
+		if (FromFile(L"Tokio.dat"))
+		{
+			// version mismatched, load default
+			if (Version == SETTINGS_VERSION) return;
+		}
 
 		// default settings
+		*this = SettingData();
 		theme.type = Theme::Type::VSDark;
 	}
 
