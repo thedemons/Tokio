@@ -369,12 +369,12 @@ std::string FormatSymbolAddress(
 
 
 // analyze the reference of the instruction (if it is a pointer e.g isRefPointer == true)
-void ViewDisassembler::AnalyzeReference(ViewInstructionData& insData)
+void ViewDisassembler::AnalyzeInstructionReference(ViewInstructionData& insData)
 {
 	static std::string formatString = "\"%s\""_c(Settings::data.theme.disasm.String);
 	static std::string formatPointer = "[%llX]"_c(Settings::data.theme.disasm.AddressAbs);
 	static std::string formatDecimal = "%d"_c(Settings::data.theme.disasm.Displacement);
-	static char bufferFmt[128];
+	static char bufferFmt[1024];
 
 	auto resultRead = Engine::ReadMem<POINTER>(insData.refAddress);
 	if (resultRead.has_value())
@@ -395,14 +395,14 @@ void ViewDisassembler::AnalyzeReference(ViewInstructionData& insData)
 		}
 
 		// if it doesn't have a symbol, try to read it as a string
-		static char stringBuffer[64]{'\x00'};
+		static char stringBuffer[64]{};
 		if (!Engine::ReadMem(insData.refAddress, stringBuffer, sizeof(stringBuffer) - 1).has_error())
 		{
 			// hardcoded 5 valid char to be defined as a string
 
 			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
 			bool isValidWString = false;
-			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), 32) >= 5;
+			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), 31) >= 5;
 
 			// it is a string!
 			if (isValidString)
@@ -433,6 +433,46 @@ void ViewDisassembler::AnalyzeReference(ViewInstructionData& insData)
 
 		sprintf_s(bufferFmt, formatDecimal.c_str(), refPointer);
 		insData.comment = bufferFmt;
+	}
+}
+
+void ViewDisassembler::AnalyzeCrossReference()
+{
+	static char bufferFmt[1024];
+	std::string formatXRef = "XREF: %s "_c(Settings::data.theme.disasm.Xref);
+
+	POINTER instructionStart = m_instructionList.front().address;
+	POINTER instructionEnd = m_instructionList.back().address;
+
+	// calculate the reference index, mainly used for jump and call pointer rendering
+	for (auto it = m_instructionList.begin(); it != m_instructionList.end(); it++)
+	{
+		// if the reference address is in range of the current instructions
+		if (it->refAddress != 0 &&
+			instructionStart <= it->refAddress &&
+			it->refAddress <= instructionEnd)
+		{
+			std::vector<ViewInstructionData>::iterator reference;
+
+			// we are optimizing the search by doing this in a sorted list
+			// will binary search be better?
+			if (it->refAddress > it->address)
+			{
+				reference = std::find(it, m_instructionList.end(), it->refAddress);
+			}
+			else
+			{
+				reference = std::find(m_instructionList.begin(), it, it->refAddress);
+			}
+
+			if (reference != m_instructionList.end())
+			{
+				it->referenceIndex = reference - m_instructionList.begin();
+				reference->refererIndex = it - m_instructionList.begin();
+				sprintf_s(bufferFmt, formatXRef.c_str(), it->addressSymbol.c_str());
+				reference->comment += bufferFmt;
+			}
+		}
 	}
 }
 
@@ -487,7 +527,7 @@ void ViewDisassembler::DisassembleRegion(POINTER pVirtualBase, const BYTE* pOpCo
 		}
 
 		// if it's is something like `mov rax, [0x12345]`
-		if (insData.isRefPointer) AnalyzeReference(insData);
+		if (insData.isRefPointer) AnalyzeInstructionReference(insData);
 
 		DWORD color = ThemeSettings::GetDisasmColor(disasmData.mnemonic.type);
 		insData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
@@ -549,7 +589,7 @@ void ViewDisassembler::Disassemble()
 			}
 		}
 
-		// there are more left after disassembling valid regions
+		// there are more bytes left after disassembling valid regions
 		// push invalid instructions
 		for (; offset < startAddress + bufferSize; offset++)
 		{
@@ -569,133 +609,11 @@ void ViewDisassembler::Disassemble()
 		}
 	}
 
-
-	static const auto referrenceSearch = [](const ViewInstructionData& a, POINTER b) -> bool
-	{
-		return a.address == b;
-	};
-
-	// calculate the reference index, use mainly for jump and call arrow rendering
-	for (auto it = m_instructionList.begin(); it != m_instructionList.end(); it++)
-	{
-		if (it->refAddress != 0)
-		{
-			std::vector<ViewInstructionData>::iterator reference;
-
-			// if the reference address is in range of the current instructions
-			if (m_instructionList.front().address <= it->refAddress && it->refAddress <= m_instructionList.back().address)
-			{
-				// we are optimizing the search by doing this in a sorted list
-				// will binary search be better?
-				if (it->refAddress > it->address)
-				{
-					reference = std::find(it, m_instructionList.end(), it->refAddress);
-				}
-				else
-				{
-					reference = std::find(m_instructionList.begin(), it, it->refAddress);
-				}
-
-				if (reference != m_instructionList.end())
-				{
-					it->referenceIndex = reference - m_instructionList.begin();
-				}
-			}
-
-		}
-	}
-
+	AnalyzeCrossReference();
 }
 
-// TODO: Fix this mess
 void ViewDisassembler::GoToAddress(POINTER address)
 {
 	m_pVirtualBase = address;
 	Disassemble();
 }
-
-//
-//BYTE pBuffer[1024];
-//auto readMemResult = Engine::ReadMem(address, pBuffer, sizeof(pBuffer));
-//if (readMemResult.has_error())
-//{
-//	//readMemResult.error().show(L"Disassembler failed to read memory process");
-//	//return;
-//}
-//
-//auto disasmResult = Engine::Disassembler()->Disasm(address, pBuffer, sizeof(pBuffer));
-//if (disasmResult.has_error())
-//{
-//	disasmResult.error().show(L"Error while disassembling the target process");
-//
-//}
-//else
-//{
-//	m_instructionList.clear();
-//	m_instructionList.resize(disasmResult.value().size());
-//
-//	size_t index = 0;
-//
-//	auto symbolEngine = Engine::Symbol();
-//	auto walkContext = symbolEngine->AddressSymbolWalkInit();
-//
-//	for (auto& disasmData : disasmResult.value())
-//	{
-//		auto resultGetModuleSymbol = symbolEngine->AddressSymbolWalkNext(walkContext, disasmData.address);
-//
-//		auto& viewDisasmData = m_instructionList[index];
-//		viewDisasmData.address = disasmData.address;
-//		viewDisasmData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &viewDisasmData.isBaseOffset);
-//		viewDisasmData.refAddress = disasmData.refAddress;
-//		viewDisasmData.isRefPointer = disasmData.isRefPointer;
-//		viewDisasmData.length = disasmData.length;
-//
-//		memcpy_s(viewDisasmData.bytes, sizeof(viewDisasmData.bytes), disasmData.bytes, sizeof(disasmData.bytes));
-//
-//		// here we parse the tokenized operands into colored text
-//		for (auto& operand : disasmData.operands)
-//		{
-//			// skip the menomonic and invalid operands
-//			if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
-//
-//			// don't colorize white spaces
-//			if (operand.type == DisasmOperandType::WhiteSpace)
-//			{
-//				viewDisasmData.instruction += " ";
-//			}
-//			// it has a reference address, draw it as a symbol
-//			else if (viewDisasmData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
-//			{
-//				auto resultGetModuleSymbol = symbolEngine->AddressToModuleSymbol(viewDisasmData.refAddress);
-//				viewDisasmData.instruction += FormatSymbolAddress(viewDisasmData.refAddress, resultGetModuleSymbol);
-//			}
-//			// it's just a regular operand
-//			else
-//			{
-//				DWORD color = ThemeSettings::GetDisasmColor(operand.type);
-//				viewDisasmData.instruction += ImGuiCustomString(operand.value)(color);
-//			}
-//		}
-//
-//		if (viewDisasmData.isRefPointer)
-//		{
-//			auto resultRead = Engine::ReadMem<POINTER>(viewDisasmData.refAddress);
-//			if (resultRead.has_value())
-//			{
-//				POINTER refPointer = resultRead.value();
-//				auto resultGetModuleSymbol = symbolEngine->AddressToModuleSymbol(refPointer);
-//				viewDisasmData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
-//			}
-//		}
-//
-//		DWORD color = ThemeSettings::GetDisasmColor(disasmData.mnemonic.type);
-//		viewDisasmData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
-//
-//		index++;
-//	}
-//
-//	m_table.AddSelectedItem(0);
-//	m_table.SetScroll(0.f);
-//
-//	m_pVirtualBase = address;
-//}

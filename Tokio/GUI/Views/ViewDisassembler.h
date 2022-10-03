@@ -39,7 +39,12 @@ private:
 
 		// for rendering references
 		ImVec2 cursorPos{ 0.f, 0.f };
+
+		// index of the instruction this instruction refer to
 		size_t referenceIndex = UPTR_UNDEFINED;
+
+		// index of the instruction the refer to this instruction
+		size_t refererIndex = UPTR_UNDEFINED;
 
 		bool operator==(const ViewInstructionData& v) {
 			return address == v.address;
@@ -98,7 +103,8 @@ public:
 
 	void Render(bool& bOpen) override;
 
-	void AnalyzeReference(ViewInstructionData& insData);
+	void AnalyzeInstructionReference(ViewInstructionData& insData);
+	void AnalyzeCrossReference();
 	void Disassemble();
 	void DisassembleRegion(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size);
 

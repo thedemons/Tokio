@@ -55,6 +55,7 @@ public:
 		DWORD Module;           // module color
 		DWORD Function;         // Function color
 		DWORD String;	        // string color for comments
+		DWORD Xref;				// cross-reference
 
 		DWORD mneCall;          // Function color
 		DWORD mneSyscall;       // Function color
@@ -117,11 +118,11 @@ public:
 	void Load()
 	{
 		// load from file
-		if (FromFile(L"Tokio.dat"))
-		{
-			// version mismatched, load default
-			if (Version == SETTINGS_VERSION) return;
-		}
+		//if (FromFile(L"Tokio.dat"))
+		//{
+		//	// version mismatched, load default
+		//	if (Version == SETTINGS_VERSION) return;
+		//}
 
 		// default settings
 		*this = SettingData();

@@ -126,6 +126,7 @@ _CONSTEXPR20  void SetDarkVSTheme()
 	Settings::data.theme.disasm.Function = 0xFFAADCDC;
 	Settings::data.theme.disasm.Module = 0xFFB0C94E;
 	Settings::data.theme.disasm.String = 0xFF859DD6;
+	Settings::data.theme.disasm.Xref = 0xFFB9EBEB;
 
 	Settings::data.theme.disasm.mneCall = 0xFF3EC431;
 	Settings::data.theme.disasm.mneSyscall = 0xFFFFB7BE;
