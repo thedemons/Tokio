@@ -286,7 +286,7 @@ _NODISCARD auto ParseNtHeader(void* pBase, ProcessModule& procMod)->SafeResult(v
 	auto* pByteBase = reinterpret_cast<BYTE*>(pBase);
 	auto* pDosHeader = reinterpret_cast<PE_DOS_HEADER*>(pBase);
 	auto* pNtHeader = reinterpret_cast<NtHeaderType*>(pByteBase + pDosHeader->e_lfanew);
-	auto* pSectionHeaders = pNtHeader->GetFirstSectionHeader();
+	//auto* pSectionHeaders = pNtHeader->GetFirstSectionHeader();
 
 	// virtual address of the directory
 	DWORD dirVirtualAddr = pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
@@ -294,7 +294,7 @@ _NODISCARD auto ParseNtHeader(void* pBase, ProcessModule& procMod)->SafeResult(v
 
 	RESULT_FAILIFN(RVA_offset, SymbolEngineFailedToFindRelativeVirtualAddress);
 
-	auto* pDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + dirVirtualAddr);
+	//auto* pDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + dirVirtualAddr);
 	auto* pExportDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + dirVirtualAddr);
 
 	auto* lpFunctionNames = reinterpret_cast<DWORD*>(RVA_offset + pExportDirectory->AddressOfNames);
@@ -402,6 +402,13 @@ _NODISCARD auto Win32Symbol::Tlhelp32RetrieveModuleList()->SafeResult(void)
 		procMod.modulePathW = modEntry.szExePath;
 		procMod.moduleNameA = common::BhString(procMod.moduleNameW);
 		procMod.modulePathA = common::BhString(procMod.modulePathW);
+
+		procMod.moduleShortName = procMod.moduleNameA;
+		auto findDot = procMod.moduleShortName.rfind('.');
+		if (findDot != std::string::npos)
+		{
+			procMod.moduleShortName = procMod.moduleShortName.substr(0, findDot);
+		}
 
 	} while (Module32NextW(hSnap, &modEntry));
 
@@ -578,8 +585,6 @@ _NODISCARD auto Win32Symbol::AddressToSymbol(POINTER address) -> SafeResult(std:
 
 		return symbol;
 	}
-
-	RESULT_THROW(NoMessage);
 }
 
 // return an adddress from a symbol such as module.function+0xxxx
