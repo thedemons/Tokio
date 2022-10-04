@@ -63,7 +63,7 @@ public:
 	// the string without trailing null bytes
 	_CONSTEXPR20 std::string str_strip() const
 	{
-		return std::string(m_buffer.c_str(), m_privateData.BufTextLen);
+		return std::string(m_buffer.c_str(), static_cast<size_t>(m_privateData.BufTextLen));
 	}
 
 	_CONSTEXPR20 void Focus()

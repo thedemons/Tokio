@@ -12,7 +12,7 @@ int TextInput::ResizeCallback(ImGuiInputTextCallbackData* data)
 
 	if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 	{
-		pThis->m_buffer.resize(data->BufSize);
+		pThis->m_buffer.resize(static_cast<size_t>(data->BufSize));
 		data->Buf = pThis->m_buffer.data();
 		pThis->m_privateData = *data;
 	}
