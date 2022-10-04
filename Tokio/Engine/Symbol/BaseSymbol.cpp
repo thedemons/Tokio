@@ -6,7 +6,7 @@ namespace Engine
 
 BaseSymbol::BaseSymbol(const std::shared_ptr<ProcessData>& target) : m_target(target) {}
 
-// sort symbols, acsending order
+// sort symbols, ascending order
 // this also calculate the symbol size
 void BaseSymbol::SortSymbol(ProcessModule& procMod)
 {
@@ -30,7 +30,7 @@ void BaseSymbol::SortSymbol(ProcessModule& procMod)
 }
 
 // Make a copy of the modules (m_sortedModules)
-// and sort them in acsending order
+// and sort them in ascending order
 void BaseSymbol::UpdateModules(const std::vector<ProcessModule>& modules)
 {
 	m_sortedModules = modules;
