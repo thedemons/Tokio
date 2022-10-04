@@ -105,6 +105,7 @@ struct ShortCuts
 	ShortcutKey DisasmFollowInstruction;
 	ShortcutKey DisasmAddToWatchList;
 	ShortcutKey DisasmOpenInMemoryView;
+	ShortcutKey DisasmSwitchMode;
 	
 	ShortcutKey SymListCopyAddress;
 	ShortcutKey SymListRefresh;
@@ -154,7 +155,11 @@ _NODISCARD _CONSTEXPR20 DWORD GetDisasmColor(DisasmOperandType tokenType) noexce
 
 	unsigned int index = static_cast<unsigned int>(tokenType);
 
-	assert(index >= 0 && index < sizeof(arrayColor));
+	if (!(index >= 0 && index < (sizeof(arrayColor) / sizeof(DWORD)) - 1))
+	{
+		assert(false && "Why do we have an invalid tokenType?");
+		return theme.disasm.Invalid;
+	}
 
 	return arrayColor[index];
 }
