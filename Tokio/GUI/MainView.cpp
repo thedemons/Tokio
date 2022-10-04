@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "MainView.h"
-#include "Themes.hpp"
 
 #include "Engine/Engine.h"
 #include "Widgets/Widgets.hpp"
@@ -21,8 +20,6 @@ void HandlerDetachProcess();
 
 void Init()
 {
-	ThemeSettings::SetDarkVSTheme();
-
 	BaseView* viewScanner    = new ViewMemoryScan();
 	BaseView* viewWatchList  = new ViewWatchList();
 	BaseView* viewAttachProc = new ViewAttachProc();
@@ -40,7 +37,9 @@ void Init()
 	Engine::OnAttachCallback(HandlerAttachProcess);
 	Engine::OnDetachCallback(HandlerDetachProcess);
 
-	if (auto result = Engine::Attach(43572); result.has_error()) result.error().show();
+	// AUTO ATTACH FOR DEBUG MODE ONLY
+	if (auto result = Engine::Attach(43572); result.has_error())
+		result.error().show();
 }
 
 void RenderMenuBar()
