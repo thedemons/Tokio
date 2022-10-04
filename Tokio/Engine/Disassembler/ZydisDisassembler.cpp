@@ -7,7 +7,7 @@
 #include <Zycore/LibC.h>
 #include <Zydis/Zydis.h>
 
-#include "Settings.hpp"
+#include "Settings.h"
 
 namespace Engine
 {
@@ -37,7 +37,7 @@ ZydisDisassembler::ZydisDisassembler(const std::shared_ptr<ProcessData>& target)
 
 void ZydisDisassembler::InitFormatter()
 {
-    auto& settings = Settings::data.disasm;
+    auto& settings = Settings::disasm;
     ZydisFormatterStyle fmtStyle = ZYDIS_FORMATTER_STYLE_INTEL;
     if (settings.style == Settings::Disasm::FormatStyle::ATT)
         fmtStyle = ZYDIS_FORMATTER_STYLE_ATT;
@@ -50,7 +50,7 @@ void ZydisDisassembler::InitFormatter()
 
 void ZydisDisassembler::UpdateSettings()
 {
-    auto& settings = Settings::data.disasm;
+    auto& settings = Settings::disasm;
 
     ZyanUPointer paddingStyle = settings.bAutoHexPadding ? ZYDIS_PADDING_AUTO : ZYDIS_PADDING_DISABLED;
 
@@ -98,6 +98,7 @@ DisasmOperandType ZydisDisassembler::GetOperandMnemonicType(ZydisMnemonic mnemon
         case ZYDIS_MNEMONIC_SYSCALL: return  DisasmOperandType::mneSyscall;
         case ZYDIS_MNEMONIC_RET: return  DisasmOperandType::mneReturn;
         case ZYDIS_MNEMONIC_JMP: return  DisasmOperandType::mneJump;
+        case ZYDIS_MNEMONIC_INT3: return  DisasmOperandType::mneInt3;
 
         case ZYDIS_MNEMONIC_JB:
         case ZYDIS_MNEMONIC_JBE:
@@ -120,6 +121,9 @@ DisasmOperandType ZydisDisassembler::GetOperandMnemonicType(ZydisMnemonic mnemon
         case ZYDIS_MNEMONIC_JRCXZ:
         case ZYDIS_MNEMONIC_JS:
         case ZYDIS_MNEMONIC_JZ: 
+        case ZYDIS_MNEMONIC_LOOP: 
+        case ZYDIS_MNEMONIC_LOOPE:
+        case ZYDIS_MNEMONIC_LOOPNE: 
             return DisasmOperandType::mneJumpCondition;
     }
 
