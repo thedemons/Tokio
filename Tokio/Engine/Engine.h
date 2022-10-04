@@ -1,9 +1,12 @@
 #ifndef TOKIO_ENGINE_H
 #define TOKIO_ENGINE_H
 
+#include "EngineDef.h"
+
 #include "Memory/BaseMemory.h"
 #include "Symbol/BaseSymbol.h"
 #include "Disassembler/BaseDisassembler.h"
+#include "Analyzer/BaseAnalyzer.h"
 
 #include <memory>
 
@@ -30,6 +33,9 @@ inline std::shared_ptr<BaseSymbol> g_Symbol = nullptr;
 
 // DISASSEMBLE ENGINE
 inline std::shared_ptr<BaseDisassembler> g_Disassembler = nullptr;
+
+// ANALYZER ENGINE
+inline std::shared_ptr<BaseAnalyzer> g_Analyzer = nullptr;
 
 // callback when we attach to a process
 typedef void (*LPON_ATTACH_CALLBACK)(std::shared_ptr<ProcessData>);
@@ -74,6 +80,12 @@ _NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDisassembler> Disassembler()
 	return g_Disassembler;
 }
 
+// return a shared pointer to the analyzer engine
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseAnalyzer> Analyzer()
+{
+	return g_Analyzer;
+}
+
 // return a shared pointer to the disassembler engine
 _NODISCARD _CONSTEXPR20 std::shared_ptr<BaseSymbol> Symbol()
 {
@@ -87,7 +99,7 @@ _NODISCARD _CONSTEXPR20 auto ReadMem(POINTER src, void* dest, size_t size)->Safe
 }
 
 // Read memory of the region that may cross a no-read-access page
-_NODISCARD _CONSTEXPR20 auto ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions)->SafeResult(void)
+_CONSTEXPR20 void ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions)
 {
 	assert(g_Memory != nullptr);
 	return g_Memory->ReadMemSafe(address, buffer, size, regions);
@@ -119,13 +131,21 @@ _NODISCARD _CONSTEXPR20 auto VirtualQuery(POINTER address)->SafeResult(VirtualMe
 	return g_Memory->VirtualQuery(address);
 }
 
-// disassemble instructions
-_NODISCARD _CONSTEXPR20 SafeResult(std::vector<DisasmInstruction>)
-Disassemble(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size)
+
+// Analyze a memory region
+// address:		      the virtual address in the target process
+// size:		      the size in bytes to analyze
+// bDisectSubroutine: true to disect subroutine, if false, the subroutines vector will have a size of zero, only the instructions are analyzed
+// outBuffer:		  the output buffer contains read memory
+// outData:			  the output analyzed data	
+_NODISCARD _CONSTEXPR20 common::errcode
+Analyze(POINTER address, size_t size, bool bDisectSubroutine, std::vector<BYTE>& outBuffer, AnalyzedData& outData)
 {
-	assert(g_Disassembler != nullptr);
-	return g_Disassembler->Disasm(pVirtualBase, pOpCodes, size);
+	assert(g_Analyzer != nullptr);
+	return g_Analyzer->Analyze(address, size, bDisectSubroutine, outBuffer, outData);
 }
+
+_NODISCARD
 
 void OnAttachCallback(LPON_ATTACH_CALLBACK callback);
 void OnDetachCallback(LPON_DETACH_CALLBACK callback);

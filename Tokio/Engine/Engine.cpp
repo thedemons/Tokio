@@ -1,9 +1,12 @@
 #pragma once
 #include "stdafx.h"
 #include "Engine.h"
+
 #include "Memory/Win32Memory.hpp"
 #include "Symbol/Win32Symbol.h"
 #include "Disassembler/ZydisDisassembler.h"
+
+#include "Analyzer/TokioAnalyzer.h"
 
 
 namespace Engine
@@ -36,6 +39,7 @@ _NODISCARD auto Attach(DWORD pid) -> SafeResult(std::shared_ptr<ProcessData>)
 	// init the symbol and disassembler engine
 	g_Symbol = std::make_shared<Win32Symbol>(g_Target);
 	g_Disassembler = std::make_shared<ZydisDisassembler>(g_Target);
+	g_Analyzer = std::make_shared<TokioAnalyzer>(g_Target, g_Symbol, g_Memory, g_Disassembler);
 
 	if (auto result = g_Symbol->Update(); result.has_error())
 	{
@@ -55,6 +59,7 @@ void Detach()
 	if (g_Symbol       != nullptr) g_Symbol.reset();
 	if (g_Target       != nullptr) g_Target.reset();
 	if (g_Disassembler != nullptr) g_Disassembler.reset();
+	if (g_Analyzer     != nullptr) g_Analyzer.reset();
 
 	if (g_Memory != nullptr)
 	{
