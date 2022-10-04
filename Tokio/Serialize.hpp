@@ -1,6 +1,10 @@
 #ifndef TOKIO_SERIALIZE_HPP
 #define TOKIO_SERIALIZE_HPP
 
+#include <vector>
+#include <string>
+#include <fstream>
+
 class Serializable;
 
 typedef unsigned int dsize;
