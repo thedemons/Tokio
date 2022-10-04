@@ -6,6 +6,7 @@ namespace common
 
 enum class errcode
 {
+	Success,
 	NoMessage,
 	RegisterWndClassFailed,
 	CreateWindowFailed,
@@ -29,6 +30,9 @@ enum class errcode
 	CannotGetTargetProcesArchitecture,
 
 	SymbolEngineFailedToFindRelativeVirtualAddress,
+
+	AnalyzerFailedToReadMemory,
+	AnalyzerFailedToDisassemble,
 };
 
 enum class errtype
@@ -56,6 +60,8 @@ inline std::map<errcode, std::wstring> rcErrorMessages = {
 	{errcode::CannotParseImagePEHeader         , L"Cannot parse the image PE Header"},
 	{errcode::CannotGetTargetProcesArchitecture, L"Cannot get the target proces architecture (x86 or x64), please try again"},
 	{errcode::SymbolEngineFailedToFindRelativeVirtualAddress, L"Symbol engine failed to find relative virtual address"},
+	{errcode::AnalyzerFailedToReadMemory       , L"The analyzer had failed to read memory\nThis is probably because the VirtualQuery operation didn't succeed"},
+	{errcode::AnalyzerFailedToDisassemble      , L"The analyzer had failed to disassemble instructions"},
 };
 
 
@@ -93,14 +99,14 @@ public:
 		if (type == errtype::WinAPI && extra_code)
 		{
 			wchar_t* winMessage = nullptr;
-			size_t size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 				NULL, extra_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPWSTR>(&winMessage), 0, NULL);
 
 			swprintf_s(message, L"%s\n\nWinAPI Error: %s\nWinAPI Error code: 0x%x", format().c_str(), winMessage, extra_code);
 		}
 		else if (type == errtype::HRESULT && extra_code)
 		{
-			_com_error err(extra_code);
+			_com_error err(static_cast<HRESULT>(extra_code));
 			LPCTSTR errMsg = err.ErrorMessage();
 			swprintf_s(message, L"%s\n\nHRESULT Error: %s\nHRESULT Error code: 0x%x", format().c_str(), errMsg, extra_code);
 		}
