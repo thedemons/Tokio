@@ -95,10 +95,10 @@ auto GetTextureFromHIcon(const HICON hIcon)->SafeResult(ID3D11ShaderResourceView
 
 	// calculate the buffer size needed
 	// ds.dsBm.bmBitsPixel is the number of bit per pixel
-	int byteSize = width * height * (ds.dsBm.bmBitsPixel / 8);
+	LONG byteSize = width * height * (ds.dsBm.bmBitsPixel / 8);
 
 	// copy bitmap to the buffer
-	std::vector<BYTE> bitmapBuffer(byteSize);
+	std::vector<BYTE> bitmapBuffer(static_cast<size_t>(byteSize));
 	LONG resultGetBm = GetBitmapBits(iconInfo.hbmColor, byteSize, bitmapBuffer.data());
 	RESULT_FAILIFN_NM(resultGetBm);
 
@@ -157,6 +157,8 @@ auto GetWindowIconTexture(const HWND hwnd)->SafeResult(ID3D11ShaderResourceView*
 Widgets::Table::Execution
 ViewAttachProc::TableRenderCallback(Widgets::Table* table, size_t index, void* UserData)
 {
+	UNUSED(table);
+
 	ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
 	ProcessListData& procData = pThis->m_processList[index];
 
@@ -246,6 +248,8 @@ ViewAttachProc::TableRenderCallback(Widgets::Table* table, size_t index, void* U
 
 void ViewAttachProc::TableSortCallback(Widgets::Table* table, size_t column, ImGuiSortDirection direction, void* UserData)
 {
+	UNUSED(table);
+
 	ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
 	bool isAscending = direction == ImGuiSortDirection_Ascending;
 
@@ -318,6 +322,8 @@ void ViewAttachProc::TableSortCallback(Widgets::Table* table, size_t column, ImG
 
 void ViewAttachProc::TableInputCallback(Widgets::Table* table, size_t index, void* UserData)
 {
+	UNUSED(table);
+
 	ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
 
 	// if any row is hovered
@@ -377,6 +383,7 @@ void ViewAttachProc::TablePopupRenderCallback(Widgets::Table* table, size_t inde
 
 void ViewAttachProc::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTextCallbackData* data, void* UserData)
 {
+	UNUSED(tinput);
 	ViewAttachProc* pThis = static_cast<ViewAttachProc*>(UserData);
 
 	// the filter contains nothing
@@ -387,7 +394,7 @@ void ViewAttachProc::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 	}
 	else
 	{
-		std::string filter = std::string(data->Buf, data->BufTextLen);
+		std::string filter = std::string(data->Buf, static_cast<size_t>(data->BufTextLen));
 		filter = common::BhStringLower(filter);
 
 		for (auto& procData : pThis->m_processList)
