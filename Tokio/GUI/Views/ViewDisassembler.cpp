@@ -56,6 +56,16 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 
 		insData.fmtAddress.Render(MainApplication::FontMonoBigBold);
 	}
+	else if (insData.isAtSubroutineStart)
+	{
+		cursorOffset.y += 15.f;
+		ImGui::Text("start_%llx", insData.address);
+	}
+	else if (insData.isAtSubroutineEnd)
+	{
+		cursorOffset.y += 15.f;
+		ImGui::Text("endp_%llx", insData.address);
+	}
 	else if (insData.referers.size() != 0)
 	{
 		auto refererIns = insData.referers[0];
@@ -184,6 +194,9 @@ void ViewDisassembler::PopupNavigateRenderCallback(Widgets::Popup* popup, void* 
 ViewDisassembler::ViewDisassembler()
 {
 	m_title = ICON_DISASSEMBLER u8" Disassembler";
+
+	auto viewList = MainView::FindMultipleViewByClass<ViewDisassembler>();
+	if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
 
 	Widgets::Table::Desc desc;
 	desc.Name = "##TableDisassembler";
@@ -410,8 +423,16 @@ void ViewDisassembler::HandleScrolling()
 
 	if (scrollDir != 0)
 	{
-		m_instructionOffset += scrollDir;
-		m_pVirtualBase = m_analyzedData.instructions[m_instructionOffset].address;
+		// not enough instructions in the list to goes backward, subtract the address instead
+		if (scrollDir < 0 && m_instructionOffset < -scrollDir)
+		{
+			m_pVirtualBase += scrollDir;
+		}
+		else
+		{
+			m_instructionOffset += scrollDir;
+			m_pVirtualBase = m_analyzedData.instructions[m_instructionOffset].address;
+		}
 
 		Disassemble();
 
@@ -422,11 +443,16 @@ void ViewDisassembler::HandleScrolling()
 			size_t ins_list_size = m_analyzedData.instructions.size();
 			size_t currentIndex = selectedItems[0];
 
-			if ((scrollDir > 0 && currentIndex >= scrollDir) ||
-				(scrollDir < 0 && currentIndex - scrollDir <= ins_list_size - 1))
+			if (scrollDir > 0)
 			{
-				m_table.AddSelectedItem(selectedItems[0] - scrollDir);
+				currentIndex = (currentIndex >= scrollDir) ? currentIndex - scrollDir : 0;
 			}
+			else if (scrollDir < 0)
+			{
+				currentIndex = (currentIndex - scrollDir <= ins_list_size - 1) ? currentIndex - scrollDir : ins_list_size - 1;
+			}
+
+			m_table.AddSelectedItem(currentIndex);
 		}
 
 	}
@@ -485,7 +511,7 @@ void ViewDisassembler::Render(bool& bOpen)
 	GoToAddress(m_pVirtualBase);
 
 
-	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0,0 });
+	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0.f, 0.f });
 	ImGui::Begin(Title().c_str(), &bOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PopStyleVar();
 
@@ -506,7 +532,9 @@ void ViewDisassembler::Render(bool& bOpen)
 
 void ViewDisassembler::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 {
-	GoToAddress(targetProcess->baseModule->base);
+	UNUSED(targetProcess);
+	GoToAddress(0x7ffe10c9265c);
+	//GoToAddress(targetProcess->baseModule->base);
 }
 
 void ViewDisassembler::OnDetach()
@@ -878,9 +906,9 @@ void ViewDisassembler::Disassemble()
 {
 	if (!Engine::IsAttached()) return;
 
-	POINTER startAddress = m_pVirtualBase - 32;
+	POINTER startAddress = m_pVirtualBase - 512;
 
-	auto resultAnalyze = Engine::Analyze(startAddress, 512, false, m_memoryBuffer, m_analyzedData);
+	auto resultAnalyze = Engine::Analyze(startAddress, 1024, true, m_memoryBuffer, m_analyzedData);
 	if (resultAnalyze != common::errcode::Success)
 	{
 		//common::err(resultAnalyze).show();

@@ -100,12 +100,13 @@ private:
 	bool m_scrollBarDragging = false;
 	double m_scrollDragInterval = 0.0;
 
+	bool m_isGraphMode = false;
+
 private:
 	void HandleShortcuts();
 	void HandleScrolling();
 	void RenderReferenceArrow();
-	void Render(bool& bOpen) override;
-
+	void RenderGraph();
 	void Disassemble();
 
 public:
@@ -115,6 +116,7 @@ public:
 		return true;
 	}
 
+	void Render(bool& bOpen) override;
 	void OnAttach(const std::shared_ptr<ProcessData>& targetProcess) override;
 	void OnDetach() override;
 
