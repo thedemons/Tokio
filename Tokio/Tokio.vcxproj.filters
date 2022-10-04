@@ -52,6 +52,9 @@
     <Filter Include="GUI\ImGui\custom">
       <UniqueIdentifier>{e43e66ce-4e54-45c5-b4c3-ad8208c2d78e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Analyzer">
+      <UniqueIdentifier>{19038aef-5df2-4c95-850a-9730fbf0d6fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -143,6 +146,12 @@
     </ClCompile>
     <ClCompile Include="GUI\ImGui\custom\TokenizedText.cpp">
       <Filter>GUI\ImGui\custom</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Analyzer\BaseAnalyzer.cpp">
+      <Filter>Engine\Analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Analyzer\TokioAnalyzer.cpp">
+      <Filter>Engine\Analyzer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +286,15 @@
     </ClInclude>
     <ClInclude Include="GUI\ImGui\custom\TokenizedText.h">
       <Filter>GUI\ImGui\custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Analyzer\BaseAnalyzer.h">
+      <Filter>Engine\Analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Analyzer\TokioAnalyzer.h">
+      <Filter>Engine\Analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\EngineAnalyzerDef.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
