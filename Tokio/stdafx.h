@@ -1,5 +1,5 @@
 #pragma once
-
+#pragma warning (push, 3)
 #include <map>
 #include <array>
 #include <vector>
@@ -20,3 +20,5 @@
 #include <Psapi.h>
 
 #include "common.hpp"
+#pragma warning (pop)
+
