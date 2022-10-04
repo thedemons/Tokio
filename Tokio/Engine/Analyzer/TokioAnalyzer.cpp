@@ -13,6 +13,220 @@ using namespace std::string_literals;
 namespace Engine
 {
 
+bool AnalyzeSubroutineBlocks(AnalyzedData& data, SubroutineInfo& subroutine, size_t start_index)
+{
+	AnalyzedInstruction& firstInstruction = data.instructions[start_index];
+	
+	// check if this instruction already has a block (already analyzed)
+	if (firstInstruction.iBlock != UPTR_UNDEFINED) return true;
+
+	SubroutineBlock* thisBlock = &subroutine.AddBlock();
+	thisBlock->insStartIndex = start_index;
+
+	size_t thisBlockIndex = subroutine.blocks.size();
+	firstInstruction.iBlock = thisBlockIndex;
+
+	for (size_t index = start_index; index < data.instructions.size() - 1; index++)
+	{
+		AnalyzedInstruction& instruction = data.instructions[index];
+		AnalyzedInstruction& next_instruction = data.instructions[index + 1];
+
+		// if this instruction is a "ret"
+		if (instruction.mnemonic.type == DisasmOperandType::mneReturn)
+		{
+			thisBlock->insEndIndex = index + 1;
+			return true;
+		}
+		// if this is an "int3"
+		else if (instruction.mnemonic.type == DisasmOperandType::mneInt3)
+		{
+			thisBlock->insEndIndex = index + 1;
+			return true;
+		}
+		// if the next instruction has a block (already analyzed)
+		else if (next_instruction.iBlock != UPTR_UNDEFINED)
+		{
+			// we set this block next index to the next instruction block index
+			thisBlock->iNextBlock = next_instruction.iBlock;
+			thisBlock->insEndIndex = index + 1;
+			return true;
+		}
+
+		// if the instruction was a jump without condition
+		if (instruction.mnemonic.type == DisasmOperandType::mneJump)
+		{
+			thisBlock->insEndIndex = index + 1;
+
+			// if the referenced index is valid
+			if (instruction.referencedIndex != UPTR_UNDEFINED)
+			{
+				// jump out of the subroutine, we should mark it as ended here
+				if (instruction.referencedIndex > index && next_instruction.mnemonic.type == DisasmOperandType::mneInt3) return true;
+
+
+				// analyzed the block that this instruction jumps to
+				thisBlock->iNextBlock = subroutine.blocks.size();
+				return AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex);
+			}
+
+			// if the referenced index was invalid, there are multiple reasons why
+			// it might jumps to somewhere outside of the analyzed range, or the opcode
+			// was corrupted, or this simply isn't a subroutine
+			return true;
+		}
+		// if is is a jump with condition, there are two paths
+		else if (instruction.mnemonic.type == DisasmOperandType::mneJumpCondition)
+		{
+			thisBlock->insEndIndex = index + 1;
+
+			// if the referenced index is valid, it's probably isn't valid if it points to
+			// somewhere outside the analyzed range
+			if (instruction.referencedIndex != UPTR_UNDEFINED)
+			{
+				// analyzed the block that this instruction jumps to
+				thisBlock->iConditionalBlock = subroutine.blocks.size();
+				bool result = AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex);
+
+				if (!result) return false;
+			}
+
+			// notice that we don't use the pointer thisBlock here, because when we call
+			// AnalyzeSubroutineBlocks again (recursively), it might have emplace_back() 
+			// and thus make the thisBlock pointer invalid
+			subroutine.blocks[thisBlockIndex].iNextBlock = subroutine.blocks.size();
+
+			// continue analyze the next instruction
+			return AnalyzeSubroutineBlocks(data, subroutine, index + 1);
+		}
+	}
+
+	// the end point was not found, either the subroutine was too big that it ended outside
+	// of the analyzed region, or simply isn't a subroutine
+	return false;
+}
+
+void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data)
+{
+
+	bool bLastInt3 = false;
+	bool bLastUnreadable = false;
+
+	for (size_t index = 0; index < data.instructions.size(); index++)
+	{
+		AnalyzedInstruction& instruction = data.instructions[index];
+		bool bIsInt3 = instruction.mnemonic.type == DisasmOperandType::mneInt3;
+
+		// case 1: check if the last instruction was int3 and this one is not
+		// case 2: check if the last instruction was unreadable and this one is not
+		// case 3: check if this instruction has a symbol and start at the offset 0 (isAtSubroutineStart)
+
+		if ((bLastInt3 && !bIsInt3) || (bLastUnreadable && !instruction.isNotReadable) || instruction.isAtSubroutineStart)
+		{
+			SubroutineInfo& subroutine = data.AddSubroutine();
+			if (AnalyzeSubroutineBlocks(data, subroutine, index) && subroutine.blocks.size() > 0)
+			{
+				// find the start and end point of the subroutine simply by min max the blocks start/end index
+				subroutine.start = UPTR_UNDEFINED;
+				subroutine.end = 0;
+				size_t startidx = UPTR_UNDEFINED;
+				size_t endidx = UPTR_UNDEFINED;
+
+				for (auto& block : subroutine.blocks)
+				{
+					POINTER startAddr = data.instructions[block.insStartIndex].address;
+					POINTER endAddr = data.instructions[block.insEndIndex].address;
+
+					if (startAddr < subroutine.start)
+					{
+						subroutine.start = startAddr;
+						startidx = block.insStartIndex;
+					}
+					if (endAddr > subroutine.end)
+					{
+						subroutine.end = endAddr;
+						endidx = block.insEndIndex;
+					}
+				}
+
+				data.instructions[startidx].isAtSubroutineStart = true;
+				data.instructions[endidx].isAtSubroutineEnd = true;
+
+				index = endidx + 1;
+
+				bLastUnreadable = data.instructions[index].isNotReadable;
+				bLastInt3 = bIsInt3;
+				
+				continue;
+			}
+			else
+			{
+				data.subroutines.pop_back();
+			}
+		}
+
+		bLastInt3 = bIsInt3;
+		bLastUnreadable = instruction.isNotReadable;
+	}
+}
+
+void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data)
+{
+	static ImGui::TokenizedText xRefString("REF: "s, Settings::theme.disasm.Xref);
+	
+	POINTER instructionStart = data.instructions.front().address;
+	POINTER instructionEnd = data.instructions.back().address;
+	
+	auto iterBegin = data.instructions.begin();
+	auto iterEnd = data.instructions.end();
+
+	// calculate the reference index, mainly used for jump and call pointer rendering
+	for (auto it = iterBegin; it != iterEnd; it++)
+	{
+		// if the reference address is in range of the current instructions
+		if (it->referencedAddress != 0 &&
+			instructionStart <= it->referencedAddress &&
+			it->referencedAddress <= instructionEnd)
+		{
+
+			std::vector<AnalyzedInstruction>::iterator reference;
+
+			// we are optimizing the search by doing this in a sorted list
+			// will binary search be better?
+			bool bHasReference = false;
+			if (it->referencedAddress > it->address)
+			{
+				reference = std::find(it, iterEnd, it->referencedAddress);
+				bHasReference = reference != iterEnd;
+			}
+			else
+			{
+				reference = std::find(iterBegin, it, it->referencedAddress);
+				bHasReference = reference != it;
+			}
+
+
+			if (bHasReference)
+			{
+				it->referencedInstruction = reference._Ptr;
+				it->referencedIndex = reference - iterBegin;
+
+				reference->referers.push_back(it._Ptr);
+
+				reference->fmtComment.append_space(xRefString);
+				reference->fmtComment += it->fmtAddress;
+
+			}
+			else
+			{
+				it->referencedAddress = 0;
+				it->isRefPointer = false;
+			}
+
+
+		}
+	}
+}
+
 ImGui::TokenizedText FormatSymbolAddress(
 	POINTER address,
 	const ResultGetSymbol& resultGetSymbol,
@@ -134,7 +348,6 @@ common::errcode TokioAnalyzer::AnalyzeRegion(
 		instruction.length            = disasmData.length;
 
 		instruction.mnemonic          = std::move(disasmData.mnemonic);
-		instruction.fmtMnemonic       = ImGui::TokenizedText(disasmData.mnemonic.value, mnemonicColor);
 
 		instruction.bufferOffset      = insBufferOffset;
 
@@ -145,16 +358,19 @@ common::errcode TokioAnalyzer::AnalyzeRegion(
 		instruction.isNotReadable = false;
 
 		// format the address for the instruction
-		auto a = FormatSymbolAddress(
+		//instruction.fmtMnemonic.clear();
+		instruction.fmtMnemonic.push_back(disasmData.mnemonic.value, mnemonicColor);
+
+		instruction.fmtAddress = std::move(FormatSymbolAddress(
 			disasmData.address,
 			resultGetSymbol,
 			&instruction.isAtBaseModule,
 			&instruction.isAtSubroutineStart
-		);
-		instruction.fmtAddress.move(a);
+		));
 
-		// clear the operands
-		instruction.fmtOperand.clear();
+		// clear all the formatted text
+		//instruction.fmtOperand.clear();
+		//instruction.fmtComment.clear();
 
 		// here we parse the tokenized operands into colored text
 		for (auto& operand : instruction.operands)
@@ -193,12 +409,11 @@ common::errcode TokioAnalyzer::AnalyzeRegion(
 _NODISCARD common::errcode TokioAnalyzer::Analyze(
 	POINTER address,
 	size_t size,
-	bool bDisectSubroutine,
+	bool bAnalyzeSubroutine,
 	std::vector<BYTE>& outBuffer,
 	AnalyzedData& outData
 )
 {
-	UNUSED(bDisectSubroutine);
 
 	if (size == 0)
 	{
@@ -219,7 +434,11 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 	// invalidate all of the instructions
 	AnalyzedInstruction invalidInstruction(outData);
 	invalidInstruction.isNotReadable = true;
+
+	// FIXME-PERFORMANCE: Using clear is bad, reduce performance about 20%, but we had to do it
+	outData.instructions.clear();
 	outData.instructions.resize(size, invalidInstruction);
+
 
 	// no readable memory, set all instructions to invalid
 	if (regions.size() == 0)
@@ -227,7 +446,6 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 		for (auto& instruction : outData.instructions)
 		{
 			instruction.address = startAddress++;
-			instruction.isNotReadable = true;
 		}
 
 		return common::errcode::AnalyzerFailedToReadMemory;
@@ -286,6 +504,16 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 
 	outData.instructions.resize(instructionIndex, invalidInstruction);
 	//outData.subroutines.resize(0, outData);
+
+	AnalyzeCrossReferences(outData);
+
+	if (bAnalyzeSubroutine)
+	{
+		AnalyzeSubroutines(outData);
+
+	}
+	
+
 	return common::errcode::Success;
 }
 

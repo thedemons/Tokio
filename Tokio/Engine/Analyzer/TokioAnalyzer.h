@@ -19,11 +19,17 @@ private:
 		AnalyzedData& data
 	);
 
+	void AnalyzeCrossReferences(AnalyzedData& data);
+
+	//void AnalyzeSubroutineBlocks(AnalyzedData& data, SubroutineInfo& subroutine, size_t start_index);
+	void AnalyzeSubroutines(AnalyzedData& data);
+
+
 public:
 	_NODISCARD common::errcode Analyze(
 		POINTER address,
 		size_t size,
-		bool bDisectSubroutine,
+		bool bAnalyzeSubroutine,
 		std::vector<BYTE>& outBuffer,
 		AnalyzedData& outData
 	) override;
