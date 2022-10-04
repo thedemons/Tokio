@@ -27,7 +27,7 @@ struct MemoryReadRegion
 	size_t size = 0;
 
 	// quick function to calculate the end address
-	inline size_t end() const noexcept { return start + size; }
+	_NODISCARD _CONSTEXPR20 size_t end() const noexcept { return start + size; }
 };
 
 
@@ -91,6 +91,10 @@ struct ProcessModule
 	// size of the module
 	size_t size = 0ull;
 
+	// short name for the module, such as "kernel32.dll" -> "kernel32"
+	// for rendering purposes
+	std::string moduleShortName;
+
 	std::string moduleNameA;
 	std::string modulePathA;
 
@@ -142,26 +146,26 @@ public:
 	}
 
 	// has_value() will return false if the lookup failed, the address has no symbol
-	inline bool has_value() const
+	_NODISCARD _CONSTEXPR20 bool has_value() const noexcept
 	{
 		return pModule != nullptr;
 	}
 
 	// has_symbol() will return true if the address has both module and symbol
 	// if (has_value() && !has_symbol()) then the address only has a linked module
-	inline bool has_symbol() const
+	_NODISCARD _CONSTEXPR20 bool has_symbol() const noexcept
 	{
 		return pSymbol != nullptr;
 	}
 
 	// pointer to the module of this address
-	inline const ProcessModule* Module() const
+	_NODISCARD _CONSTEXPR20 const ProcessModule* Module() const noexcept
 	{
 		return pModule;
 	}
 
 	// pointer to the symbol of this address
-	inline const ModuleSymbol* Symbol() const
+	_NODISCARD _CONSTEXPR20 const ModuleSymbol* Symbol() const noexcept
 	{
 		return pSymbol;
 	}
@@ -178,6 +182,9 @@ private:
 
 	size_t module_index = 0ull;
 	size_t symbol_index = UPTR_UNDEFINED;
+
+	size_t saved_module_index = 0;
+	size_t saved_symbol_index = UPTR_UNDEFINED;
 
 public:
 	SymbolWalkContext(const std::vector<ProcessModule>& modules) : modules(modules) {}
@@ -232,6 +239,20 @@ public:
 		}
 
 		return true;
+	}
+
+	// we save the current index before start walking, if found none, call EndWalk() to revert to the old index
+	_CONSTEXPR20 void BeginWalk() noexcept
+	{
+		saved_module_index = module_index;
+		saved_symbol_index = symbol_index;
+	}
+
+	// end the walk, revert the index back
+	_CONSTEXPR20 void EndWalk() noexcept
+	{
+		module_index = saved_module_index;
+		symbol_index = saved_symbol_index;
 	}
 };
 
@@ -295,129 +316,26 @@ struct DisasmOperand
 // Contains a summary of information on the instruction, including tokenized operands
 struct DisasmInstruction
 {
-	// length of the instruction, in bytes
-	size_t length = 0ull;
-
 	// the absolute virtual address
 	POINTER address = 0ull;
+
+	// length of the instruction, in bytes
+	size_t length = 0ull;
 
 	// the instruction has a reference to another address
 	// example: jne 0x7FFA1E370
 	// the refAddress here is 0x7FFA1E370
-	POINTER refAddress = 0ull;
-
-	// the reference address is a pointer e.g: mov rax, [refAddress]
-	bool isRefPointer = false;
+	POINTER referencedAddress = 0ull;
 
 	// the main operation of the instruction (Mnemonic)
 	DisasmOperand mnemonic;
 
 	// tokenized operands
 	std::vector<DisasmOperand> operands;
+
+	// the referenced address is a pointer e.g: mov rax, [referencedAddress]
+	bool isRefPointer = false;
 };
-
-// ================================== ANALYZER DEFINITIONS ==================================
-
-struct AnalyzeData;
-struct SubroutineInfo;
-
-// block of codes belongs to the subroutine
-struct SubroutineBlock
-{
-	// pointer to the next block, might be nullptr
-	const SubroutineBlock* pNextBlock = nullptr;
-
-	// pointer to the conditional block, might be mullptr
-	const SubroutineBlock* pConditionalBlock = nullptr;
-
-	// the start index of its instructions in the root
-	// we don't want to each individual block to store its instructions
-	// while we could query from the root AnalyzeData
-	size_t insStartIndex = 0;
-
-	// the end index of its instructions in the root
-	size_t insEndIndex = 0;
-
-	// reference to the root AnalyzeData of this block
-	const AnalyzeData& root;
-
-	// reference to the parent SubroutineInfo of this block
-	const SubroutineInfo& subroutine;
-
-	SubroutineBlock(const AnalyzeData& root, const SubroutineInfo& subroutine) : 
-		root(root), subroutine(subroutine) {}
-};
-
-
-struct SubroutineInfo
-{
-	// the start address of the subroutine
-	POINTER start = 0;
-
-	// the end address of the subroutine
-	POINTER end = 0;
-
-	// reference to the root AnalyzeData of this subroutine
-	const AnalyzeData& root;
-
-	// a list of blocks of the subroutine
-	// blocks are separated by jmp and conditional jumps
-	std::vector<SubroutineBlock> blocks;
-
-	// Example:
-	// 
-	//	sub_0  start
-	// 
-	//		0x00	push rbx
-	//		0x02	sub		rsp, 20h
-	//		0x06	mov		rbx, rcx
-	//		0x09	test	[rcx], edx
-	//		0x0B	je		0x2A     >--------------;
-	//												|
-	//	 block_0D:                                  |
-	//		0x0D	lea		eax, [rdx-01h]          |
-	//		0x10	test	edx, eax                |
-	//		0x12	jnz		0x2A	>-----------;	|
-	//										    |	|
-	//	 block_14:								|	|
-	//		0x14	imul	ecx, edx, -02		|	|
-	//		0x17	and		ecx, [rbx]			|	|
-	//		0x19	call	0x30C				|	|
-	//		0x1E	mov		eax, eax			|	|
-	//		0x20	add		rax, rbx			|	|
-	//											|	|
-	//	 block_23:  <<-------------------;      |	|
-	//		0x23	add		rsp, 20h	 |	    |	|
-	//		0x27	pop		rbx			 |	    |	|
-	//		0x28	ret					 |		|	|
-	//		0x29	int3				 |	    |	|
-	//									 |	    |	|
-	//	 block_2A:  <<===================+======+---'
-	//		0x2A	xor		eax, eax	 |
-	//		0x2C	jmp		0x23	>----'
-	//		0x2E	int3
-	// 
-	//	 sub_0  endp
-	//
-	// The subroutine above start at address 0x00 and end at 0x2E
-	// with 5 blocks in total
-
-	SubroutineInfo(const AnalyzeData& root) : root(root) {};
-};
-
-// Output of the BaseAnalyzer
-struct AnalyzeData
-{
-	// a list of subroutines
-	std::vector<SubroutineInfo> subroutines;
-
-	// the memory buffer of the analyzed data
-	std::vector<BYTE> memoryBuffer;
-
-	// the analyzed instructions
-	std::vector<DisasmInstruction> instructions;
-};
-
 
 
 // ================================== MAIN DEFINITIONS ==================================
