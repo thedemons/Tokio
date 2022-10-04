@@ -49,6 +49,9 @@
     <Filter Include="Engine\Symbol">
       <UniqueIdentifier>{4f696f9a-80cf-44c9-a5d0-4711988eb290}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ImGui\custom">
+      <UniqueIdentifier>{e43e66ce-4e54-45c5-b4c3-ad8208c2d78e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -137,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="Settings.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\ImGui\custom\TokenizedText.cpp">
+      <Filter>GUI\ImGui\custom</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -251,9 +257,6 @@
     <ClInclude Include="GUI\Widgets\WidgetsFlags.hpp">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
-    <ClInclude Include="imgui_custom.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Symbol\BaseSymbol.h">
       <Filter>Engine\Symbol</Filter>
     </ClInclude>
@@ -271,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="GUI\ShortcutKey.h">
       <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\ImGui\custom\TokenizedText.h">
+      <Filter>GUI\ImGui\custom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
