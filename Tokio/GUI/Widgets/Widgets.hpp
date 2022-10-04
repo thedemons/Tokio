@@ -11,6 +11,8 @@
 //#include "imgui.hpp"
 
 #include "WidgetsFlags.hpp"
+#include "Resources/FontAwesomeImpl.h"
+
 //#include "WTable.h"
 //#include "WTreeTable.hpp"
 //#include "WTextInput.hpp"
@@ -24,6 +26,10 @@
 #define ICON_PE_VIEW      u8"👓"
 #define ICON_MEMORY_VIEW  u8"💽"
 #define ICON_WATCH_LIST   u8"👁"
+
+#define ICON_COPY ICON_FA_CLIPBOARD u8" "
+#define ICON_GOTO_ADDRESS ICON_FA_ARROW_RIGHT u8" "
+#define ICON_FOLLOW_ADDRESS ICON_FA_ARROW_DOWN u8" "
 
 #define ICON_SUSPEND	  u8"❄"
 #define ICON_KILL		  u8"💀"
