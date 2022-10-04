@@ -18,13 +18,13 @@ private:
 	static void PopupNavigateRenderCallback(Widgets::Popup* table, void* OpenUserData, void* UserData);
 	//static void PopupEditInsRenderCallback(Widgets::Table* table, void* OpenUserData, void* UserData);
 
+	int RenderScrollBar();
 private:
 
 	struct ViewInstructionData
 	{
 		DisasmOperandType mnemonic_type = DisasmOperandType::Invalid;
-
-		BYTE bytes[24]{0};                          // raw bytes of the instruction
+		size_t bufferOffset = 0;					// the position in the m_memoryBuffer
 		size_t length      = 0;                     // length of the instruction, in bytes
 		POINTER address    = 0;                     // virtual address of the target processs
 		POINTER refAddress = 0;			            // the jump/call/mov... address, can be nullptr
@@ -39,12 +39,20 @@ private:
 
 		// for rendering references
 		ImVec2 cursorPos{ 0.f, 0.f };
+		float refDepthLevel = 0.f;
+
+		// check if the instruction was rendered this frame
+		// we skipped rendering it for optimization
+		//bool isRendered = false;
 
 		// index of the instruction this instruction refer to
 		size_t referenceIndex = UPTR_UNDEFINED;
 
-		// index of the instruction the refer to this instruction
-		size_t refererIndex = UPTR_UNDEFINED;
+		// list of the instructions the refer to this instruction
+		std::vector<size_t> refererIndexes;
+
+		// address of the instruction the refer to this instruction
+		//POINTER refererAddress = 0;
 
 		bool operator==(const ViewInstructionData& v) {
 			return address == v.address;
@@ -61,7 +69,7 @@ private:
 	Widgets::Popup m_popupEditIns;					// popup for "Edit instruction" | NOT IMPLEMENTED YET
 
 	double m_timeLastRefresh = 0.f;					// last refresh time, for refreshing the process list every x ms
-	double m_refreshInterval = 0.25f;					// refresh every 1000ms
+	double m_refreshInterval = 0.25f;				// refresh every 250ms
 
 
 	// need a symbol engine to symbolize the opcodes
@@ -74,6 +82,9 @@ private:
 	// disassembled instructions
 	std::vector<ViewInstructionData> m_instructionList;
 
+	// list of instruction that has a reference pointer
+	std::vector<std::reference_wrapper<ViewInstructionData>> m_referenceList;
+
 
 	// the start offset in the instruction list
 	// for example: if we go to the address 0x400, it will read
@@ -84,15 +95,9 @@ private:
 	// the buffer to store read memory
 	std::array<BYTE, 512> m_memoryBuffer;
 
-	struct PrivateShortcutData
-	{
-		bool bCopyAddress = false;
-		bool bFollowAddress = false;
-		bool bGotoAddress = false;
-		bool bOpenInMemory = false;
-		bool bAddToWatchList = false;
 
-	} m_shortcutData;
+	bool m_scrollBarDragging = false;
+	double m_scrollDragInterval = 0.0;
 
 public:
 	ViewDisassembler();
@@ -101,12 +106,15 @@ public:
 		return true;
 	}
 
+	void HandleShortcuts();
+	void HandleScrolling();
+	void RenderReferenceArrow();
 	void Render(bool& bOpen) override;
 
 	void AnalyzeInstructionReference(ViewInstructionData& insData);
 	void AnalyzeCrossReference();
 	void Disassemble();
-	void DisassembleRegion(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size);
+	void DisassembleRegion(const MemoryRegion& region, size_t bufferOffset);
 
 
 public:
