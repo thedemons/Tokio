@@ -17,10 +17,11 @@ void Load()
 
 	shortcuts.DisasmCopyAddress          = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         };
 	shortcuts.DisasmGoToAdress           = { ImGuiKey_LeftCtrl, ImGuiKey_G, "Go to address"        };
-	shortcuts.DisasmGoToReference        = { ImGuiKey_LeftCtrl, ImGuiKey_E, "Go to reference"      };
-	shortcuts.DisasmFollowInstruction    = { ImGuiKey_Space               , "Follow address"       };
+	shortcuts.DisasmFollowInstruction    = { ImGuiKey_LeftCtrl, ImGuiKey_E, "Follow address"       };
+	shortcuts.DisasmGoToReference        = { ImGuiKey_LeftCtrl, ImGuiKey_X, "Go to references"     };
 	shortcuts.DisasmAddToWatchList       = { ImGuiKey_LeftCtrl, ImGuiKey_T, "Add to watch list"    };
 	shortcuts.DisasmOpenInMemoryView     = { ImGuiKey_LeftCtrl, ImGuiKey_B, "Open in memory view"  };
+	shortcuts.DisasmSwitchMode           = { ImGuiKey_Space               , "Switch mode"          };
 
 	shortcuts.SymListCopyAddress         = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         };
 	shortcuts.SymListRefresh             = { ImGuiKey_LeftCtrl, ImGuiKey_R, "Refresh symbols"      };
