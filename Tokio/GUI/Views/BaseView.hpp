@@ -27,6 +27,10 @@ public:
 
 	virtual void Render(bool& bOpen) = 0;
 
-	virtual void OnAttach(const std::shared_ptr<ProcessData>& targetProcess){}
+	virtual void OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
+	{
+		UNUSED(targetProcess);
+	}
+
 	virtual void OnDetach(){}
 };
