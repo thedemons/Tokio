@@ -244,6 +244,7 @@ enum class DisasmOperandType : UINT
 	mneJump,			// JMP directly
 	mneJumpCondition,	// jump with conditions (je, jne, jz,...)
 	mneReturn,			// ret instruction
+	mneInt3,			// int3 break instruction
 };
 
 _NODISCARD _CONSTEXPR20 bool IsOperandMnemonic(DisasmOperandType type)
