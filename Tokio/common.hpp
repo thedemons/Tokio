@@ -12,7 +12,7 @@
 #define assert(...) // __VA_ARGS__
 #endif // _DEBUG
 
-#include "Serialize.hpp"
+#define UNUSED(...) (void)__VA_ARGS__;
 
 // Tokio is designed to be x64 to avoid conflicts
 // Not sure if we can build as x86 without any changes 
@@ -22,8 +22,14 @@ constexpr auto UPTR_UNDEFINED = ~0ull;
 constexpr auto UPTR_UNDEFINED ~0ul
 #endif
 
+
+#include "Serialize.hpp"
+
+
+
 #include "common_result.hpp"
 #include "common_helper.h"
+
 
 
 #endif // !TOKIO_COMMON_HPP
