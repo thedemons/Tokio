@@ -18,6 +18,20 @@ void Popup::Setup(const Desc& desc)
 
 void Popup::Render()
 {
+	if (m_nextOpen)
+	{
+		if ((m_desc.WidgetFlags & PopupFlags::PopupModal) == PopupFlags::PopupModal)
+		{
+
+			ImGui::OpenPopup(m_desc.name.c_str(), m_desc.OpenFlags);
+		}
+		else
+		{
+			ImGui::OpenPopupEx(m_desc.id, m_desc.OpenFlags);
+		}
+		m_nextOpen = false;
+	}
+
 	if ((m_desc.WidgetFlags & PopupFlags::PopupModal) == PopupFlags::PopupModal)
 	{
 		bool bOpen = true;
