@@ -2,6 +2,7 @@
 #include "ViewSettings.h"
 #include "GUI/Widgets/Widgets.hpp"
 #include "Engine/Engine.h"
+#include "Settings.h"
 
 
 ViewSettings::ViewSettings()
@@ -11,7 +12,7 @@ ViewSettings::ViewSettings()
 
 void ViewSettings::DrawDisassemblerTab()
 {
-	auto& settings = Settings::data.disasm;
+	auto& settings = Settings::disasm;
 
 	ImGui::BeginChild("##childdisasmSettings");
 
