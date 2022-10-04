@@ -32,7 +32,9 @@ extern "C" {
 	typedef uint32_t  ZyanU32;
 	typedef ZyanU32 ZyanStatus;
 	typedef ZyanU8 ZydisTokenType;
+#pragma warning (push, 3)
 	typedef enum ZydisMnemonic_ ZydisMnemonic;
+#pragma warning (pop)
 	typedef struct ZydisDecoder_ ZydisDecoder;
 	typedef struct ZydisFormatter_ ZydisFormatter;
 	typedef struct ZydisFormatterContext_ ZydisFormatterContext;
@@ -56,30 +58,28 @@ private:
 
 	std::shared_ptr<BaseSymbol> g_SymbolEngine = nullptr;
 
-	const std::map<ZydisTokenType, DisasmOperandType> m_mapTokenType = {
-		{ 0x00, DisasmOperandType::Invalid          },
-		{ 0x01, DisasmOperandType::WhiteSpace       },
-		{ 0x02, DisasmOperandType::Delimeter        },
-		{ 0x03, DisasmOperandType::ParenthesisOpen  },
-		{ 0x04, DisasmOperandType::ParenthesisClose },
-		{ 0x05, DisasmOperandType::Prefix           },
-		{ 0x06, DisasmOperandType::Mnemonic         },
-		{ 0x07, DisasmOperandType::Register         },
-		{ 0x08, DisasmOperandType::AddressAbs       },
-		{ 0x09, DisasmOperandType::AddressRel       },
-		{ 0x0A, DisasmOperandType::Displacement     },
-		{ 0x0B, DisasmOperandType::Immediate        },
-		{ 0x0C, DisasmOperandType::TypeCast         },
-		{ 0x0D, DisasmOperandType::Decorator        },
-		{ 0x0E, DisasmOperandType::Literal          },
+	const std::array< DisasmOperandType, 15> m_arrayTokenType = {
+		 DisasmOperandType::Invalid,
+		 DisasmOperandType::WhiteSpace,
+		 DisasmOperandType::Delimeter,
+		 DisasmOperandType::ParenthesisOpen,
+		 DisasmOperandType::ParenthesisClose,
+		 DisasmOperandType::Prefix,
+		 DisasmOperandType::Mnemonic,
+		 DisasmOperandType::Register,
+		 DisasmOperandType::AddressAbs,
+		 DisasmOperandType::AddressRel,
+		 DisasmOperandType::Displacement,
+		 DisasmOperandType::Immediate,
+		 DisasmOperandType::TypeCast,
+		 DisasmOperandType::Decorator,
+		 DisasmOperandType::Literal,
 	};
 
 	_NODISCARD _CONSTEXPR20 DisasmOperandType GetOperandType(ZydisTokenType tokenType) const noexcept
 	{
-		auto find = m_mapTokenType.find(tokenType);
-		if (find == m_mapTokenType.end()) return DisasmOperandType::Invalid;
-
-		return find->second;
+		assert(tokenType >= 0 && tokenType < 15 );
+		return m_arrayTokenType[tokenType];
 	}
 
 	_NODISCARD DisasmOperandType GetOperandMnemonicType(ZydisMnemonic mnemonic) const noexcept;

@@ -142,7 +142,7 @@ ZyanStatus ZydisDisassembler::ZydisHookAddressFormatter(
     ZYAN_CHECK(ZydisCalcAbsoluteAddress(context->instruction, context->operand,
         context->runtime_address, &address));
 
-    UserData->disasmData->refAddress = address;
+    UserData->disasmData->referencedAddress = address;
     UserData->id_refaddress = context->operand->id;
 
 
@@ -152,7 +152,7 @@ ZyanStatus ZydisDisassembler::ZydisHookAddressFormatter(
 _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size)->SafeResult(std::vector<DisasmInstruction>)
 {
 
-    char buffer[256];
+    static char buffer[256];
 
     // select the right decoder
     ZydisDecoder* decoder = m_target->is32bit ? m_decoder32 : m_decoder64;
@@ -172,13 +172,16 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
     ZydisDecodedOperand operands[ZYDIS_MAX_OPERAND_COUNT];
 
     std::vector<DisasmInstruction> result;
+    result.resize(size);
+    
+    size_t instructionIndex = 0;
 
     POINTER pVirtualPointer = pVirtualBase;
     POINTER pVirtualEnd = pVirtualBase + size;
 
     while (pVirtualPointer < pVirtualEnd)
     {
-        DisasmInstruction& disasmData = result.emplace_back();
+        DisasmInstruction& disasmData = result[instructionIndex++];
         disasmData.address = pVirtualPointer;
 
         ZyanStatus zResultDecode = ZydisDecoderDecodeFull(decoder, pOpCodes, size, &instruction, operands,
@@ -219,12 +222,13 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
 
             if (ZYAN_SUCCESS(zResultTokenize))
             {
-                disasmData.operands.reserve(instruction.operand_count);
+                disasmData.operands.resize(20);
+                size_t operandIndex = 0;
 
                 // get tokenized operands
                 while (true)
                 {
-                    auto& operand = disasmData.operands.emplace_back();
+                    auto& operand = disasmData.operands[operandIndex++];
 
                     ZydisFormatterTokenGetValue(token, &token_type, &token_value);
 
@@ -259,6 +263,7 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
                     if (!ZYAN_SUCCESS(ZydisFormatterTokenNext(&token))) break;
                 }
 
+                disasmData.operands.resize(operandIndex);
                 //if (UserData.id_refaddress != 204u && UserData.id_refaddress < disasmData.operands.size())
                 //{
                 //    disasmData.operands[UserData.id_refaddress].refAddress = disasmData.refAddress;
@@ -278,14 +283,13 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
             }
         }
 
-        // copy the raw bytes of the instruction
-        memcpy_s(disasmData.bytes, sizeof(disasmData.bytes), pOpCodes, disasmData.length);
-
         size -= disasmData.length;
         pOpCodes += disasmData.length;
         pVirtualPointer += disasmData.length;
     }
+    
 
+    result.resize(instructionIndex);
     return result;
 }
 }
