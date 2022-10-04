@@ -5,14 +5,15 @@ namespace Engine
 {
 
 // Read memory of the region that may cross a no-read-access page
-_NODISCARD auto BaseMemory::ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryRegion>& regions)->SafeResult(void)
+void BaseMemory::ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions)
 {
 	auto resultQuery = VirtualQuery(address);
 
 	if (resultQuery.has_error())
 	{
-		assert(false && "ViewDisassembler could not query the start address information");
-		RESULT_FORWARD(resultQuery);
+		//assert(false && "ViewDisassembler could not query the start address information");
+		//RESULT_FORWARD(resultQuery);
+		return;
 	}
 
 	VirtualMemoryInfo& memInfo = resultQuery.value();
@@ -32,11 +33,10 @@ _NODISCARD auto BaseMemory::ReadMemSafe(POINTER address, BYTE* buffer, size_t si
 
 			if (auto resultRead = Read(address, buffer, size); resultRead.has_error())
 			{
-				assert(false && "ReadMemSafe failed");
-				RESULT_FORWARD(resultRead);
+				resultRead.error().show();
+				assert(false && "The memory was readable but still couldn't read it");
+				//RESULT_FORWARD(resultRead);
 			}
-
-			return {};
 		}
 		else
 		{
@@ -45,8 +45,9 @@ _NODISCARD auto BaseMemory::ReadMemSafe(POINTER address, BYTE* buffer, size_t si
 
 			if (auto resultRead = Read(address, buffer, region.size); resultRead.has_error())
 			{
-				assert(false && "ReadMemSafe failed");
-				RESULT_FORWARD(resultRead);
+				resultRead.error().show();
+				assert(false && "The memory was readable but still couldn't read it");
+				//RESULT_FORWARD(resultRead);
 			}
 
 			return ReadMemSafe(endAddress, buffer + region.size, size - offset, regions);
@@ -58,7 +59,6 @@ _NODISCARD auto BaseMemory::ReadMemSafe(POINTER address, BYTE* buffer, size_t si
 		return ReadMemSafe(endAddress, buffer + offset, size - offset, regions);
 	}
 
-	return {};
 }
 
 }

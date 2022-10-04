@@ -51,7 +51,7 @@ public:
 	}
 	
 	// Read memory of the region that may cross a no-read-access page
-	_NODISCARD virtual auto ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryRegion>& regions)->SafeResult(void);
+	virtual void ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions);
 };
 }
 
