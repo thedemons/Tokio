@@ -52,6 +52,10 @@ void BaseSymbol::UpdateModules(const std::vector<ProcessModule>& modules)
 // find next address, remember that the addresses passed into this function must be sorted
 _NODISCARD auto BaseSymbol::AddressSymbolWalkNext(SymbolWalkContext& context, POINTER address) -> ResultGetSymbol
 {
+	// FIXME: THIS COULD BE OPTIMIZED FURTHER BY SAVING THE INDEX OF THE NEAREST MODULE
+
+	context.BeginWalk();
+
 	// walking the modules
 	do
 	{
@@ -90,6 +94,9 @@ _NODISCARD auto BaseSymbol::AddressSymbolWalkNext(SymbolWalkContext& context, PO
 		}
 
 	} while (context.NextModule());
+
+	// found none, revert the index back
+	context.EndWalk();
 
 	return ResultGetSymbol();
 }
