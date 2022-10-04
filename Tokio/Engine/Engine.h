@@ -87,7 +87,7 @@ _NODISCARD _CONSTEXPR20 auto ReadMem(POINTER src, void* dest, size_t size)->Safe
 }
 
 // Read memory of the region that may cross a no-read-access page
-_NODISCARD _CONSTEXPR20 auto ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryRegion>& regions)->SafeResult(void)
+_NODISCARD _CONSTEXPR20 auto ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions)->SafeResult(void)
 {
 	assert(g_Memory != nullptr);
 	return g_Memory->ReadMemSafe(address, buffer, size, regions);
