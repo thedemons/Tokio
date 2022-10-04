@@ -16,6 +16,15 @@
 #define IMGUI_ENABLE_FREETYPE
 #define IMGUI_USE_WCHAR32
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//              LEGACY LEGACY LEGACY LEGACY LEGACY 
+// 
+//           THIS CUSTOM RENDERING IS NOT USED ANYMORE
+//            IT IS REPLACED BY ImGui::TokenizedText
+// 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// 
+// 
 // !!! ABOUT CUSTOM COLOR TEXT RENDERING !!!!
 // 
 // Custom font rendering used for Tokio
@@ -48,9 +57,10 @@
 // This won't work: u8"\xC0\0x01\xFF\0x01\xFFHello\xC1 World!", and will display garbages
 // Maybe i'll find a way to work around in the future.
 //
-#define IMGUI_CUSTOM_FONT_RENDERING
-#define IMGUI_CUSTOM_FONT_START_COLOR 0xC0ul
-#define IMGUI_CUSTOM_FONT_END_COLOR 0xC1ul
+// 
+//#define IMGUI_CUSTOM_FONT_RENDERING
+//#define IMGUI_CUSTOM_FONT_START_COLOR 0xC0ul
+//#define IMGUI_CUSTOM_FONT_END_COLOR 0xC1ul
 
 //---- Define assertion handler. Defaults to calling assert().
 // If your macro uses multiple statements, make sure is enclosed in a 'do { .. } while (0)' block so it can be used as a single statement.
