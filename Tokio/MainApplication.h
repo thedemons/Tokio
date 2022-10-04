@@ -2,8 +2,14 @@
 #ifndef TOKIO_MAINWINDOW_H
 #define TOKIO_MAINWINDOW_H
 
+
 #include "imgui.hpp"
+
+// suppress macro redefinition warning from d3d11.h
+#pragma warning (push)
+#pragma warning (disable : 4005)
 #include <d3d11.h>
+#pragma warning (pop)
 
 #ifdef _DEBUG
 #define DX11_ENABLE_DEBUG_LAYER
@@ -27,13 +33,12 @@ if ((statement) != S_OK) {\
 	MainApplication::D3DDebugPrintMsg();\
 	return cpp::fail(common::err(common::errcode::code)); \
 }
-
-
 #else 
 #define DX_DEBUG(statement) statement
 #define DX_THROWIFN(statement) if ((statement) != S_OK) throw
 #define DX_FAILIFN(statement, code) if ((statement) != S_OK) return cpp::fail(common::err(common::errcode::code))
-#endif
+#endif // !_DEBUG
+
 
 namespace MainApplication
 {
