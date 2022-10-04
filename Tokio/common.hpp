@@ -13,7 +13,6 @@
 #endif // _DEBUG
 
 #include "Serialize.hpp"
-#include "Settings.hpp"
 
 // Tokio is designed to be x64 to avoid conflicts
 // Not sure if we can build as x86 without any changes 
