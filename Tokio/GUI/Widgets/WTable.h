@@ -106,6 +106,9 @@ private:
 	Popup m_popup;
 
 
+	ImGuiTable* m_currentTable = nullptr;
+
+
 	// use by SetScroll()
 	float m_setScrollY = -1.f;
 
@@ -162,7 +165,7 @@ public:
 
 	// Manually trigger the sort callback
 	// User must specify the m_desc.SortCallback beforehand
-	_CONSTEXPR20 void Sort()
+	_CONSTEXPR20 void Sort() 
 	{
 		if (!m_desc.SortCallback) return;
 
@@ -186,14 +189,12 @@ public:
 		return Sort();
 	}
 
-	_CONSTEXPR20 bool NextColumn()
+	_CONSTEXPR20 bool NextColumn() const
 	{
-		ImGuiContext& g = *GImGui;
-		ImGuiTable* table = g.CurrentTable;
-		return SetColumnIndex(table->CurrentColumn + 1);
+		return SetColumnIndex(m_currentTable->CurrentColumn + 1);
 	}
 
-	_CONSTEXPR20 bool SetColumnIndex(int index)
+	_CONSTEXPR20 bool SetColumnIndex(int index) const
 	{
 		return ImGui::TableSetColumnIndex(index);
 	}
@@ -201,6 +202,16 @@ public:
 	_CONSTEXPR20 void SetScroll(float Y)
 	{
 		m_setScrollY = Y;
+	}
+
+	_CONSTEXPR20 size_t GetHoveredIndex() const
+	{
+		return m_hoveredIndex;
+	}
+
+	_NODISCARD _CONSTEXPR20 ImGuiTable* GetHandle() const
+	{
+		return m_currentTable;
 	}
 
 	// nMaxItem: enforce the row/item limit

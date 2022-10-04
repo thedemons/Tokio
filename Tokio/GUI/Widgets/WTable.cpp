@@ -159,6 +159,7 @@ void Table::Render(size_t nMaxItem, ImVec2 Size)
 
 
 		auto* table = g.CurrentTable;
+		m_currentTable = table;
 
 		for (auto& column : m_columns)
 		{
