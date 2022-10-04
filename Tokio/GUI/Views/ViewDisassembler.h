@@ -6,7 +6,8 @@
 #include "GUI/Widgets/WTextInput.h"
 #include "GUI/ImGui/custom/TokenizedText.h"
 
-#include "Engine/Symbol/BaseSymbol.h"
+#include "Engine/EngineAnalyzerDef.h"
+#include "Engine/Analyzer/BaseAnalyzer.h"
 
 
 class ViewDisassembler : public BaseView
@@ -74,18 +75,16 @@ private:
 	double m_refreshInterval = 0.25f;				// refresh every 250ms
 
 
-	// need a symbol engine to symbolize the opcodes
-	// get the symbol on OnAttach() and destroy it on OnDetach()
-	std::shared_ptr<Engine::BaseSymbol> m_SymbolHandler = nullptr;
-
 	// virtual address in the target process
 	POINTER m_pVirtualBase;
 
 	// disassembled instructions
-	std::vector<ViewInstructionData> m_instructionList;
+	//std::vector<ViewInstructionData> m_instructionList;
 
 	// list of instruction that has a reference pointer
-	std::vector<std::reference_wrapper<ViewInstructionData>> m_referenceList;
+	//std::vector<std::reference_wrapper<ViewInstructionData>> m_referenceList;
+
+	AnalyzedData m_analyzedData;
 
 
 	// the start offset in the instruction list
@@ -95,11 +94,19 @@ private:
 	size_t m_instructionOffset = 0;
 
 	// the buffer to store read memory
-	std::array<BYTE, 512> m_memoryBuffer;
+	std::vector<BYTE> m_memoryBuffer;
 
 
 	bool m_scrollBarDragging = false;
 	double m_scrollDragInterval = 0.0;
+
+private:
+	void HandleShortcuts();
+	void HandleScrolling();
+	void RenderReferenceArrow();
+	void Render(bool& bOpen) override;
+
+	void Disassemble();
 
 public:
 	ViewDisassembler();
@@ -107,19 +114,6 @@ public:
 	{
 		return true;
 	}
-
-	void HandleShortcuts();
-	void HandleScrolling();
-	void RenderReferenceArrow();
-	void Render(bool& bOpen) override;
-
-	void AnalyzeInstructionReference(ViewInstructionData& insData);
-	void AnalyzeCrossReference();
-	void Disassemble();
-	void DisassembleRegion(const MemoryRegion& region, size_t bufferOffset);
-
-
-public:
 
 	void OnAttach(const std::shared_ptr<ProcessData>& targetProcess) override;
 	void OnDetach() override;
@@ -129,9 +123,9 @@ public:
 
 	// get the instruction at index with the m_instructionOffset added
 	// use this safely, not to overflow the index
-	_NODISCARD _CONSTEXPR20 ViewInstructionData& GetInstructionAt(size_t index)
+	_NODISCARD _CONSTEXPR20 AnalyzedInstruction& GetInstructionAt(size_t index)
 	{
-		return m_instructionList[m_instructionOffset + index];
+		return m_analyzedData.instructions[m_instructionOffset + index];
 	}
 };
 

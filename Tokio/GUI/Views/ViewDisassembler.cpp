@@ -16,6 +16,9 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	ViewDisassembler* pThis = static_cast<ViewDisassembler*>(UserData);
 	auto& insData = pThis->GetInstructionAt(index);
 	ImVec2 cursorOffset(0.f, 0.f);
+
+	static ImGui::TokenizedText notReadableColored(1);
+
 	//ImVec2 cursorPos = ImGui::GetCursorPos();
 
 	//ImGuiTable* im_table = table->GetHandle();
@@ -29,18 +32,35 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	//	}
 	//}
 
-	if (insData.isBaseOffset)
+
+	// not readable address, draw a "??"
+	if (insData.isNotReadable)
+	{
+		if (notReadableColored.size() == 0) notReadableColored.push_back(Settings::theme.disasm.Invalid, "??");
+
+		ImGui::Text("%llX", insData.address);
+
+		table->NextColumn();
+		notReadableColored.Render();
+
+		table->NextColumn();
+		notReadableColored.Render();
+
+		return Widgets::Table::Execution::Continue;
+	}
+
+	if (insData.isAtBaseModule)
 	{
 		cursorOffset.y += 25.f;
 		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(0, 10.f));
 
-		insData.addressSymbol.Render(MainApplication::FontMonoBigBold);
+		insData.fmtAddress.Render(MainApplication::FontMonoBigBold);
 	}
-	else if (insData.refererIndexes.size() != 0)
+	else if (insData.referers.size() != 0)
 	{
-		auto& refererIns = pThis->m_instructionList[insData.refererIndexes[0]];
-		if (refererIns.mnemonic_type == DisasmOperandType::mneJump ||
-			refererIns.mnemonic_type == DisasmOperandType::mneJumpCondition)
+		auto refererIns = insData.referers[0];
+		if (refererIns->mnemonic.type == DisasmOperandType::mneJump ||
+			refererIns->mnemonic.type == DisasmOperandType::mneJumpCondition)
 		{
 			cursorOffset.y += 15.f;
 			ImGui::Text("loc_%llx", insData.address);
@@ -48,9 +68,10 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	}
 
 	// draw symbolic address
-	if (insData.addressSymbol.size() > 0 )
+	// FIXME: is checking the size needed?
+	if (insData.fmtAddress.size() > 0 )
 	{
-		insData.addressSymbol.Render();
+		insData.fmtAddress.Render();
 	}
 	else
 	{
@@ -64,69 +85,42 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	table->NextColumn();
 	ImGui::SetCursorPos(ImGui::GetCursorPos() + cursorOffset);
 
-
-	// not readable address, draw a "??"
-	if (insData.isNotReadable)
+	for (size_t i = 0; i < insData.length; i++)
 	{
-		table->SetColumnIndex(2);
-
-		ImGui::TokenizedText notReadableColored(1);
-		notReadableColored.push_back(Settings::theme.disasm.Invalid, "??");
-		notReadableColored.Render();
+		ImGui::Text("%02X", pThis->m_memoryBuffer[insData.bufferOffset + i]);
+		//ImGui::TextColored(ImVec4(ThemeSettings::disasm.Bytes), "%02X", insData.bytes[i]);
+		ImGui::SameLine();
 	}
-	else
+
+	// mnemonic
+	table->NextColumn();
+
+	ImVec2 cursorPos = ImGui::GetCursorPos() + cursorOffset;
+	ImGui::SetCursorPos(cursorPos);
+
+	insData.fmtMnemonic.Render();
+
+	// instructions
+	ImGui::SetCursorPos(cursorPos + ImVec2(55.f, 0.f));
+	insData.fmtOperand.Render();
+
+	// comment
+	if (insData.fmtComment.size() > 0)
 	{
-
-		for (size_t i = 0; i < insData.length; i++)
-		{
-			ImGui::Text("%02X", pThis->m_memoryBuffer[insData.bufferOffset + i]);
-			//ImGui::TextColored(ImVec4(ThemeSettings::disasm.Bytes), "%02X", insData.bytes[i]);
-			ImGui::SameLine();
-		}
-
-		// mnemonic
 		table->NextColumn();
-
-		// we save the cursor pos for rendering references arrow
-		insData.cursorPos = ImGui::GetCursorPos() + cursorOffset;
-
-		ImGui::SetCursorPos(insData.cursorPos);
-		insData.mnemonic.Render();
-
-		// instructions
-		ImGui::SetCursorPos(insData.cursorPos + ImVec2(55.f, 0.f));
-		insData.instruction.Render();
-
-		// comment
-		if (insData.comment.size() > 0)
-		{
-			table->NextColumn();
-			insData.comment.Render();
-		}
+		insData.fmtComment.Render();
 	}
-
-	// calculate jump instruction
-	if (insData.mnemonic_type == DisasmOperandType::mneJump ||
-		insData.mnemonic_type == DisasmOperandType::mneJumpCondition)
-	{
-		// if the reference address inside the current instruction list
-		if (insData.refAddress != 0ull &&
-			insData.refAddress >= pThis->m_instructionList[pThis->m_instructionOffset].address &&
-			insData.refAddress <= pThis->m_instructionList.back().address
-			)
-		{
-
-		}
-	}
-
-	//insData.isRendered = true;
 
 	return Widgets::Table::Execution::Continue;
 };
 
 void ViewDisassembler::TableInputCallback(Widgets::Table* table, size_t index, void* UserData)
 {
-	ViewDisassembler* pThis = static_cast<ViewDisassembler*>(UserData);
+	UNUSED(table);
+	UNUSED(index);
+	UNUSED(UserData);
+
+	//ViewDisassembler* pThis = static_cast<ViewDisassembler*>(UserData);
 
 	// if any row is hovered
 	if (index != UPTR_UNDEFINED)
@@ -138,7 +132,7 @@ void ViewDisassembler::TableInputCallback(Widgets::Table* table, size_t index, v
 
 void ViewDisassembler::TablePopupRenderCallback(Widgets::Table* table, size_t index, void* UserData)
 {
-	ViewDisassembler* pThis = static_cast<ViewDisassembler*>(UserData);
+	UNUSED(UserData);
 
 	// popup events are guaranteed to have at least one selected item
 	index = table->GetSelectedItems()[0];
@@ -161,6 +155,8 @@ void ViewDisassembler::TablePopupRenderCallback(Widgets::Table* table, size_t in
 
 void ViewDisassembler::PopupNavigateRenderCallback(Widgets::Popup* popup, void* OpenUserData, void* UserData)
 {
+	UNUSED(OpenUserData);
+
 	ViewDisassembler* pThis = static_cast<ViewDisassembler*>(UserData);
 
 	ImGui::SetNextItemWidth(-1);
@@ -236,80 +232,79 @@ ViewDisassembler::ViewDisassembler()
 
 void ViewDisassembler::RenderReferenceArrow()
 {
-	auto* dl = ImGui::GetWindowDrawList();
-	ImVec2 windowPos = ImGui::GetWindowPos();
-	ImVec2 heightOffset{ -5.f, ImGui::GetTextLineHeight() / 2.f };
+	//ImVec2 windowPos = ImGui::GetWindowPos();
+	//ImVec2 heightOffset{ -5.f, ImGui::GetTextLineHeight() / 2.f };
 
 
-	ImGuiTable* table = m_table.GetHandle();
-	ImDrawList* draw_list = table->InnerWindow->DrawList;
-	draw_list->PushClipRect(table->InnerClipRect.Min + ImVec2(0, table->RowPosY2 - table->RowPosY1 + 2), table->InnerClipRect.Max);
+	//ImGuiTable* table = m_table.GetHandle();
+	//ImDrawList* draw_list = table->InnerWindow->DrawList;
+	//draw_list->PushClipRect(table->InnerClipRect.Min + ImVec2(0, table->RowPosY2 - table->RowPosY1 + 2), table->InnerClipRect.Max);
 
 
-	const auto RenderReference = [=](const ViewInstructionData& insData, ImU32 color, float width = 1.f, float triangleSize = 3.f)
-	{
-		static ImVec2 polyline[4];
-		static ImVec2 polyline2[3];
+	//const auto RenderReference = [=](const ViewInstructionData& insData, ImU32 color, float width = 1.f, float triangleSize = 3.f)
+	//{
+	//	static ImVec2 polyline[4];
+	//	static ImVec2 polyline2[3];
 
-		auto& refA = insData;
-		auto& refB = m_instructionList[refA.referenceIndex];
+	//	auto& refA = insData;
+	//	auto& refB = m_instructionList[refA.referenceIndex];
 
-		float depthLevel = refA.refDepthLevel + 1.f;
+	//	float depthLevel = refA.refDepthLevel + 1.f;
 
-		polyline[0] = windowPos + refA.cursorPos + heightOffset;
-		polyline[3] = windowPos + refB.cursorPos + heightOffset;
+	//	polyline[0] = windowPos + refA.cursorPos + heightOffset;
+	//	polyline[3] = windowPos + refB.cursorPos + heightOffset;
 
-		// for an instruction that is index < m_instructionOffset, it wasn't being drawn so it doesn't have the cursor offset
-		if (refA.cursorPos.y == 0.f)
-			polyline[0] = { polyline[3].x, windowPos.y };
-		else if (refB.cursorPos.y == 0.f)
-			polyline[3] = { polyline[0].x, windowPos.y };
+	//	// for an instruction that is index < m_instructionOffset, it wasn't being drawn so it doesn't have the cursor offset
+	//	if (refA.cursorPos.y == 0.f)
+	//		polyline[0] = { polyline[3].x, windowPos.y };
+	//	else if (refB.cursorPos.y == 0.f)
+	//		polyline[3] = { polyline[0].x, windowPos.y };
 
-		polyline[1] = polyline[0] - ImVec2(5.f * depthLevel, 0.f);
-		polyline[2] = polyline[3] - ImVec2(5.f * depthLevel, 0.f);
+	//	polyline[1] = polyline[0] - ImVec2(5.f * depthLevel, 0.f);
+	//	polyline[2] = polyline[3] - ImVec2(5.f * depthLevel, 0.f);
 
-		// triangle arrow
-		ImVec2 tria1 = polyline[3] + ImVec2(3 - triangleSize, -triangleSize);
-		ImVec2 tria2 = polyline[3] + ImVec2(3, 0);
-		ImVec2 tria3 = polyline[3] + ImVec2(3 - triangleSize, triangleSize);
+	//	// triangle arrow
+	//	ImVec2 tria1 = polyline[3] + ImVec2(3 - triangleSize, -triangleSize);
+	//	ImVec2 tria2 = polyline[3] + ImVec2(3, 0);
+	//	ImVec2 tria3 = polyline[3] + ImVec2(3 - triangleSize, triangleSize);
 
 
-		table->InnerWindow->DrawList->AddPolyline(polyline, 4, color, ImDrawFlags_None, width);
-		table->InnerWindow->DrawList->AddTriangleFilled(tria1, tria2, tria3, color);
-	};
+	//	table->InnerWindow->DrawList->AddPolyline(polyline, 4, color, ImDrawFlags_None, width);
+	//	table->InnerWindow->DrawList->AddTriangleFilled(tria1, tria2, tria3, color);
+	//};
 
-	const auto RenderHighLight = [=](const ViewInstructionData& insData)
-	{
-		// render highlight if it has a reference
-		if (insData.referenceIndex != UPTR_UNDEFINED)
-			RenderReference(insData, Settings::theme.disasm.ReferenceHighLight, 2.f, 5.f);
+	//const auto RenderHighLight = [=](const ViewInstructionData& insData)
+	//{
+	//	// render highlight if it has a reference
+	//	if (insData.referenceIndex != UPTR_UNDEFINED)
+	//		RenderReference(insData, Settings::theme.disasm.ReferenceHighLight, 2.f, 5.f);
 
-		for (auto& referer : insData.refererIndexes)
-		{
-			RenderReference(m_instructionList[referer], Settings::theme.disasm.ReferenceHighLight, 2.f, 5.f);
-		}
-	};
+	//	for (auto& referer : insData.refererIndexes)
+	//	{
+	//		RenderReference(m_instructionList[referer], Settings::theme.disasm.ReferenceHighLight, 2.f, 5.f);
+	//	}
+	//};
 
-	for (auto it = m_referenceList.begin(); it != m_referenceList.end(); it++)
-	{
-		auto& insData = it->get();
-		ImU32 color = Settings::GetDisasmColor(insData.mnemonic_type);
-		RenderReference(insData, color);
-	}
+	//for (auto it = m_referenceList.begin(); it != m_referenceList.end(); it++)
+	//{
+	//	auto& insData = it->get();
+	//	ImU32 color = Settings::GetDisasmColor(insData.mnemonic_type);
+	//	RenderReference(insData, color);
+	//}
 
-	if (size_t hoveredIndex = m_table.GetHoveredIndex(); hoveredIndex != UPTR_UNDEFINED)
-	{
-		auto& insData = GetInstructionAt(hoveredIndex);
-		RenderHighLight(insData);
-	}
+	//if (size_t hoveredIndex = m_table.GetHoveredIndex(); hoveredIndex != UPTR_UNDEFINED)
+	//{
+	//	auto& insData = GetInstructionAt(hoveredIndex);
+	//	RenderHighLight(insData);
+	//}
 
-	if (auto& selectedIndex = m_table.GetSelectedItems(); selectedIndex.size() > 0)
-	{
-		auto& insData = GetInstructionAt(selectedIndex[0]);
-		RenderHighLight(insData);
-	}
+	//if (auto& selectedIndex = m_table.GetSelectedItems(); selectedIndex.size() > 0)
+	//{
+	//	auto& insData = GetInstructionAt(selectedIndex[0]);
+	//	RenderHighLight(insData);
+	//}
 
-	draw_list->PopClipRect();
+	//draw_list->PopClipRect();
 
 }
 
@@ -409,15 +404,14 @@ void ViewDisassembler::HandleScrolling()
 		auto& io = ImGui::GetIO();
 		if (io.MouseWheel != 0.f)
 		{
-			scrollDir = io.MouseWheel > 0.f ? -1 : 1;
+			scrollDir = io.MouseWheel > 0.f ? -2 : 2;
 		}
 	}
 
 	if (scrollDir != 0)
 	{
-
 		m_instructionOffset += scrollDir;
-		m_pVirtualBase = m_instructionList[m_instructionOffset].address;
+		m_pVirtualBase = m_analyzedData.instructions[m_instructionOffset].address;
 
 		Disassemble();
 
@@ -425,8 +419,14 @@ void ViewDisassembler::HandleScrolling()
 		{
 			// TODO: When scrolling down, if the selected index is == 0 we couldn't "hide" it and return
 			// it back when scrolling back up, please handle this ugliness
-			if (selectedItems[0] > 0 && selectedItems[0] < m_instructionList.size() - m_instructionOffset - 1)
+			size_t ins_list_size = m_analyzedData.instructions.size();
+			size_t currentIndex = selectedItems[0];
+
+			if ((scrollDir > 0 && currentIndex >= scrollDir) ||
+				(scrollDir < 0 && currentIndex - scrollDir <= ins_list_size - 1))
+			{
 				m_table.AddSelectedItem(selectedItems[0] - scrollDir);
+			}
 		}
 
 	}
@@ -461,8 +461,8 @@ void ViewDisassembler::HandleShortcuts()
 		if (auto& selected = m_table.GetSelectedItems(); selected.size() > 0)
 		{
 			auto& insData = GetInstructionAt(selected[0]);
-			POINTER refAddress = insData.refAddress;
-			POINTER refValue = insData.refAddress;
+			POINTER refAddress = insData.referencedAddress;
+			POINTER refValue = insData.referencedAddress;
 
 			if (refAddress || refValue)
 			{
@@ -482,13 +482,14 @@ void ViewDisassembler::Render(bool& bOpen)
 		m_timeLastRefresh = currentTime;
 		//GoToAddress(m_pVirtualBase);
 	}
+	GoToAddress(m_pVirtualBase);
 
 
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0,0 });
 	ImGui::Begin(Title().c_str(), &bOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PopStyleVar();
 
-	m_table.Render(m_instructionList.size() - m_instructionOffset);
+	m_table.Render(m_analyzedData.instructions.size() - m_instructionOffset);
 
 	RenderReferenceArrow();
 
@@ -505,15 +506,12 @@ void ViewDisassembler::Render(bool& bOpen)
 
 void ViewDisassembler::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 {
-	m_SymbolHandler = Engine::Symbol();
 	GoToAddress(targetProcess->baseModule->base);
 }
 
 void ViewDisassembler::OnDetach()
 {
-	m_referenceList.clear();
-	m_instructionList.clear();
-	m_SymbolHandler.reset();
+	m_analyzedData.instructions.clear(); // FIXME
 }
 
 ImGui::TokenizedText FormatSymbolAddress(
@@ -593,366 +591,314 @@ ImGui::TokenizedText FormatSymbolAddress(
 	}
 }
 
-
-// analyze the reference of the instruction (if it is a pointer e.g isRefPointer == true)
-void ViewDisassembler::AnalyzeInstructionReference(ViewInstructionData& insData)
-{
-	static const auto& settings = Settings::theme.disasm;
-
-	auto resultRead = Engine::ReadMem<POINTER>(insData.refAddress);
-	if (resultRead.has_value())
-	{
-		POINTER refPointer = resultRead.value();
-		insData.refValue = refPointer;
-
-		// strip 4 bytes if the target is 32 bit
-		if (Engine::Is32Bit()) refPointer &= 0xFFFFFFFF;
-
-		auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(refPointer);
-
-		// format as a symbol
-		if (resultGetModuleSymbol.has_value())
-		{
-			insData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
-			return;
-		}
-
-		// if it doesn't have a symbol, try to read it as a string
-		static char stringBuffer[64];
-		if (!Engine::ReadMem(insData.refAddress, stringBuffer, sizeof(stringBuffer) - 1).has_error())
-		{
-			// hardcoded 5 valid chars to be defined as a string
-
-			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
-			bool isValidWString = false;
-			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), (sizeof(stringBuffer) - 1) / 2) >= 5;
-
-			// it is a string!
-			if (isValidString)
-			{
-				std::string comment(stringBuffer, sizeof(stringBuffer));
-				auto findLineBreak = comment.rfind('\n');
-
-				// strip \n out of the comment
-				if (findLineBreak != std::string::npos)
-					comment = comment.substr(0, findLineBreak);
-
-				insData.comment.push_back(comment, settings.String);
-				return;
-			}
-			else if (isValidWString)
-			{
-
-				std::wstring wideComment(reinterpret_cast<wchar_t*>(stringBuffer), sizeof(stringBuffer) / 2);
-				auto findLineBreak = wideComment.rfind(L'\n');
-
-				// strip \n out of the comment
-				if (findLineBreak != std::wstring::npos)
-					wideComment = wideComment.substr(0, findLineBreak);
-
-
-				insData.comment.push_back(common::BhString(wideComment), settings.String);
-				return;
-			}
-		}
-
-		// if it's not a string, then might it be a pointer?
-		resultRead = Engine::ReadMem<POINTER>(refPointer);
-		if (!resultRead.has_error())
-		{
-			insData.comment.push_back("[%llX]"s, settings.AddressAbs);
-			return;
-		}
-
-		// it it's not anything above, just format it as a decimal value
-		insData.comment.push_back(settings.Displacement, "%lld", refPointer);
-	}
-}
-
-void ViewDisassembler::AnalyzeCrossReference()
-{
-	static ImGui::TokenizedText xRefString("REF: "s, Settings::theme.disasm.Xref);
-
-	POINTER instructionStart = m_instructionList.front().address;
-	POINTER instructionEnd = m_instructionList.back().address;
-
-
-	// calculate the reference index, mainly used for jump and call pointer rendering
-	for (auto it = m_instructionList.begin(); it != m_instructionList.end(); it++)
-	{
-		// if the reference address is in range of the current instructions
-		if (it->refAddress != 0 &&
-			instructionStart <= it->refAddress &&
-			it->refAddress <= instructionEnd)
-		{
-
-			std::vector<ViewInstructionData>::iterator reference;
-
-			// we are optimizing the search by doing this in a sorted list
-			// will binary search be better?
-			bool bHasReference = false;
-			if (it->refAddress > it->address)
-			{
-				reference = std::find(it, m_instructionList.end(), it->refAddress);
-				bHasReference = reference != m_instructionList.end();
-			}
-			else
-			{
-				reference = std::find(m_instructionList.begin(), it, it->refAddress);
-				bHasReference = reference != it;
-			}
-
-			if (bHasReference)
-			{
-				it->referenceIndex = reference - m_instructionList.begin();
-				reference->refererIndexes.push_back(it - m_instructionList.begin());
-				//reference->refererAddress = it->address;
-
-				reference->comment += xRefString + it->addressSymbol;
-
-				m_referenceList.push_back(*it);
-			}
-			else
-			{
-				it->refAddress = 0;
-				it->referenceIndex = UPTR_UNDEFINED;
-				it->isRefPointer = false;
-			}
-
-
-		}
-	}
-
-	// calculate the "depth" level of the arrow line
-	for (auto it = m_referenceList.begin(); it != m_referenceList.end(); it++)
-	{
-		auto& refA = it->get();
-
-		POINTER addrStartA, addrEndA;
-		if (refA.address > refA.refAddress)
-		{
-			addrStartA = refA.refAddress;
-			addrEndA = refA.address;
-		}
-		else
-		{
-			addrStartA = refA.address;
-			addrEndA = refA.refAddress;
-		}
-
-		for (auto jt = m_referenceList.begin(); jt != m_referenceList.end(); jt++)
-		{
-			auto& refB = jt->get();
-			POINTER addrStartB, addrEndB;
-
-			if (refB.address > refB.refAddress)
-			{
-				addrStartB = refB.refAddress;
-				addrEndB = refB.address;
-			}
-			else
-			{
-				addrStartB = refB.address;
-				addrEndB = refB.refAddress;
-			}
-
-			// refB cover refA
-			bool case1 = addrStartB < addrStartA && addrEndB    > addrEndA;
-
-			// refB inside refA
-			bool case2 = addrStartB >  addrStartA && addrEndB    < addrEndA;
-
-			// refB start inside refA and end outside
-			bool case3 = addrStartB < addrStartA && addrEndB    > addrStartA && addrEndB < addrEndA;
-
-			// refB start outside refA and end inside
-			bool case4 = addrStartB >  addrStartA && addrStartB  < addrEndA  && addrEndB >  addrEndA;
-
-			bool case5 = addrStartB == addrStartA;
-			bool case6 = addrEndB == addrEndA;
-			bool case7 = refB.refDepthLevel == refA.refDepthLevel;
-
-			if (case1 && case7) refB.refDepthLevel += 1.f;
-			if (case2 && case7) refB.refDepthLevel += 1.f;
-			//if (case3 && case7) refB.refDepthLevel += 1.f;
-			//if (case4 && case7) refB.refDepthLevel += 1.f;
-
-			//if (case5) refB.refDepthLevel += 1.f;
-			if (case5)
-			{
-				if (addrEndB > addrEndA)
-				{
-					//if (refB.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
-						refA.refDepthLevel += 1.f;
-					//refB.refDepthLevel += 1.f;
-				}
-				else
-				{
-					//if (refA.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
-				}
-			}
-			if (case6)
-			{
-				if (addrStartB > addrStartA)
-				{
-					//if (refB.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
-					refA.refDepthLevel += 1.f;
-					//refB.refDepthLevel += 1.f;
-				}
-				else
-				{
-					//if (refA.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
-					//refB.refDepthLevel += 1.f;
-				}
-			}
-
-		}
-	}
-}
-
-void ViewDisassembler::DisassembleRegion(const MemoryRegion& region, size_t bufferOffset)
-{
-	auto disasmResult = Engine::Disassembler()->Disasm(region.start, m_memoryBuffer.data() + bufferOffset, region.size);
-	assert(disasmResult.has_value() && "Disassemble failed");
-
-	auto& instructions = disasmResult.value();
-
-	size_t currentInstructionIndex = m_instructionList.size();
-	size_t instructionIndex = 0;
-	size_t instructionOffset = bufferOffset;
-	m_instructionList.resize(m_instructionList.size() + instructions.size());
-
-	auto walkContext = m_SymbolHandler->AddressSymbolWalkInit();
-	
-	for (auto& disasmData : disasmResult.value())
-	{
-		auto resultGetModuleSymbol = m_SymbolHandler->AddressSymbolWalkNext(walkContext, disasmData.address);
-
-		auto& insData = m_instructionList[currentInstructionIndex + instructionIndex++];
-
-		insData.address = disasmData.address;
-		insData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &insData.isBaseOffset);
-
-		insData.refAddress = disasmData.refAddress;
-		insData.isRefPointer = disasmData.isRefPointer;
-
-		insData.length = disasmData.length;
-		insData.mnemonic_type = disasmData.mnemonic.type;
-
-		insData.bufferOffset = instructionOffset;
-
-		// here we parse the tokenized operands into colored text
-		for (auto& operand : disasmData.operands)
-		{
-			// skip the menomonic and invalid operands
-			if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
-
-			// don't colorize white spaces
-			if (operand.type == DisasmOperandType::WhiteSpace)
-			{
-				insData.instruction += " ";
-			}
-			// it has a reference address, draw it as a symbol
-			else if (insData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
-			{
-				auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(insData.refAddress);
-				insData.instruction += FormatSymbolAddress(insData.refAddress, resultGetModuleSymbol);
-			}
-			// it's just a regular operand
-			else
-			{
-				DWORD color = Settings::GetDisasmColor(operand.type);
-				insData.instruction += ImGui::TokenizedText(operand.value, color);
-			}
-		}
-
-		// if it's is something like `mov rax, [0x12345]`
-		if (insData.isRefPointer) AnalyzeInstructionReference(insData);
-
-		DWORD color = Settings::GetDisasmColor(disasmData.mnemonic.type);
-		insData.mnemonic = ImGui::TokenizedText(disasmData.mnemonic.value, color);
-
-		instructionOffset += insData.length;
-	}
-}
+//
+//// analyze the reference of the instruction (if it is a pointer e.g isRefPointer == true)
+//void ViewDisassembler::AnalyzeInstructionReference(ViewInstructionData& insData)
+//{
+//	static const auto& settings = Settings::theme.disasm;
+//
+//	auto resultRead = Engine::ReadMem<POINTER>(insData.refAddress);
+//	if (resultRead.has_value())
+//	{
+//		POINTER refPointer = resultRead.value();
+//		insData.refValue = refPointer;
+//
+//		// strip 4 bytes if the target is 32 bit
+//		if (Engine::Is32Bit()) refPointer &= 0xFFFFFFFF;
+//
+//		auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(refPointer);
+//
+//		// format as a symbol
+//		if (resultGetModuleSymbol.has_value())
+//		{
+//			insData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
+//			return;
+//		}
+//
+//		// if it doesn't have a symbol, try to read it as a string
+//		static char stringBuffer[64];
+//		if (!Engine::ReadMem(insData.refAddress, stringBuffer, sizeof(stringBuffer) - 1).has_error())
+//		{
+//			// hardcoded 5 valid chars to be defined as a string
+//
+//			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
+//			bool isValidWString = false;
+//			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), (sizeof(stringBuffer) - 1) / 2) >= 5;
+//
+//			// it is a string!
+//			if (isValidString)
+//			{
+//				std::string comment(stringBuffer, sizeof(stringBuffer));
+//				auto findLineBreak = comment.rfind('\n');
+//
+//				// strip \n out of the comment
+//				if (findLineBreak != std::string::npos)
+//					comment = comment.substr(0, findLineBreak);
+//
+//				insData.comment.push_back(comment, settings.String);
+//				return;
+//			}
+//			else if (isValidWString)
+//			{
+//
+//				std::wstring wideComment(reinterpret_cast<wchar_t*>(stringBuffer), sizeof(stringBuffer) / 2);
+//				auto findLineBreak = wideComment.rfind(L'\n');
+//
+//				// strip \n out of the comment
+//				if (findLineBreak != std::wstring::npos)
+//					wideComment = wideComment.substr(0, findLineBreak);
+//
+//
+//				insData.comment.push_back(common::BhString(wideComment), settings.String);
+//				return;
+//			}
+//		}
+//
+//		// if it's not a string, then might it be a pointer?
+//		resultRead = Engine::ReadMem<POINTER>(refPointer);
+//		if (!resultRead.has_error())
+//		{
+//			insData.comment.push_back("[%llX]"s, settings.AddressAbs);
+//			return;
+//		}
+//
+//		// it it's not anything above, just format it as a decimal value
+//		insData.comment.push_back(settings.Displacement, "%lld", refPointer);
+//	}
+//}
+//
+//void ViewDisassembler::AnalyzeCrossReference()
+//{
+//	static ImGui::TokenizedText xRefString("REF: "s, Settings::theme.disasm.Xref);
+//
+//	POINTER instructionStart = m_instructionList.front().address;
+//	POINTER instructionEnd = m_instructionList.back().address;
+//
+//
+//	// calculate the reference index, mainly used for jump and call pointer rendering
+//	for (auto it = m_instructionList.begin(); it != m_instructionList.end(); it++)
+//	{
+//		// if the reference address is in range of the current instructions
+//		if (it->refAddress != 0 &&
+//			instructionStart <= it->refAddress &&
+//			it->refAddress <= instructionEnd)
+//		{
+//
+//			std::vector<ViewInstructionData>::iterator reference;
+//
+//			// we are optimizing the search by doing this in a sorted list
+//			// will binary search be better?
+//			bool bHasReference = false;
+//			if (it->refAddress > it->address)
+//			{
+//				reference = std::find(it, m_instructionList.end(), it->refAddress);
+//				bHasReference = reference != m_instructionList.end();
+//			}
+//			else
+//			{
+//				reference = std::find(m_instructionList.begin(), it, it->refAddress);
+//				bHasReference = reference != it;
+//			}
+//
+//			if (bHasReference)
+//			{
+//				it->referenceIndex = reference - m_instructionList.begin();
+//				reference->refererIndexes.push_back(it - m_instructionList.begin());
+//				//reference->refererAddress = it->address;
+//
+//				reference->comment += xRefString + it->addressSymbol;
+//
+//				m_referenceList.push_back(*it);
+//			}
+//			else
+//			{
+//				it->refAddress = 0;
+//				it->referenceIndex = UPTR_UNDEFINED;
+//				it->isRefPointer = false;
+//			}
+//
+//
+//		}
+//	}
+//
+//	// calculate the "depth" level of the arrow line
+//	for (auto it = m_referenceList.begin(); it != m_referenceList.end(); it++)
+//	{
+//		auto& refA = it->get();
+//
+//		POINTER addrStartA, addrEndA;
+//		if (refA.address > refA.refAddress)
+//		{
+//			addrStartA = refA.refAddress;
+//			addrEndA = refA.address;
+//		}
+//		else
+//		{
+//			addrStartA = refA.address;
+//			addrEndA = refA.refAddress;
+//		}
+//
+//		for (auto jt = m_referenceList.begin(); jt != m_referenceList.end(); jt++)
+//		{
+//			auto& refB = jt->get();
+//			POINTER addrStartB, addrEndB;
+//
+//			if (refB.address > refB.refAddress)
+//			{
+//				addrStartB = refB.refAddress;
+//				addrEndB = refB.address;
+//			}
+//			else
+//			{
+//				addrStartB = refB.address;
+//				addrEndB = refB.refAddress;
+//			}
+//
+//			// refB cover refA
+//			bool case1 = addrStartB < addrStartA && addrEndB    > addrEndA;
+//
+//			// refB inside refA
+//			bool case2 = addrStartB >  addrStartA && addrEndB    < addrEndA;
+//
+//			// refB start inside refA and end outside
+//			//bool case3 = addrStartB < addrStartA && addrEndB    > addrStartA && addrEndB < addrEndA;
+//
+//			// refB start outside refA and end inside
+//			//bool case4 = addrStartB >  addrStartA && addrStartB  < addrEndA  && addrEndB >  addrEndA;
+//
+//			bool case5 = addrStartB == addrStartA;
+//			bool case6 = addrEndB == addrEndA;
+//			bool case7 = refB.refDepthLevel == refA.refDepthLevel;
+//
+//			if (case1 && case7) refB.refDepthLevel += 1.f;
+//			if (case2 && case7) refB.refDepthLevel += 1.f;
+//			//if (case3 && case7) refB.refDepthLevel += 1.f;
+//			//if (case4 && case7) refB.refDepthLevel += 1.f;
+//
+//			//if (case5) refB.refDepthLevel += 1.f;
+//			if (case5)
+//			{
+//				if (addrEndB > addrEndA)
+//				{
+//					//if (refB.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
+//						refA.refDepthLevel += 1.f;
+//					//refB.refDepthLevel += 1.f;
+//				}
+//				else
+//				{
+//					//if (refA.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
+//				}
+//			}
+//			if (case6)
+//			{
+//				if (addrStartB > addrStartA)
+//				{
+//					//if (refB.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
+//					refA.refDepthLevel += 1.f;
+//					//refB.refDepthLevel += 1.f;
+//				}
+//				else
+//				{
+//					//if (refA.refDepthLevel == 0.f || refB.refDepthLevel == refA.refDepthLevel)
+//					//refB.refDepthLevel += 1.f;
+//				}
+//			}
+//
+//		}
+//	}
+//}
+//
+//void ViewDisassembler::DisassembleRegion(const MemoryReadRegion& region, size_t bufferOffset)
+//{
+//	auto disasmResult = Engine::Disassembler()->Disasm(region.start, m_memoryBuffer.data() + bufferOffset, region.size);
+//	assert(disasmResult.has_value() && "Disassemble failed");
+//
+//	auto& instructions = disasmResult.value();
+//
+//	size_t currentInstructionIndex = m_instructionList.size();
+//	size_t instructionIndex = 0;
+//	size_t instructionOffset = bufferOffset;
+//	m_instructionList.resize(m_instructionList.size() + instructions.size());
+//
+//	auto walkContext = m_SymbolHandler->AddressSymbolWalkInit();
+//	
+//	for (auto& disasmData : disasmResult.value())
+//	{
+//		auto resultGetModuleSymbol = m_SymbolHandler->AddressSymbolWalkNext(walkContext, disasmData.address);
+//
+//		auto& insData = m_instructionList[currentInstructionIndex + instructionIndex++];
+//
+//		insData.address = disasmData.address;
+//		insData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &insData.isBaseOffset);
+//
+//		insData.refAddress = disasmData.referencedAddress;
+//		insData.isRefPointer = disasmData.isRefPointer;
+//
+//		insData.length = disasmData.length;
+//		insData.mnemonic_type = disasmData.mnemonic.type;
+//
+//		insData.bufferOffset = instructionOffset;
+//
+//		// here we parse the tokenized operands into colored text
+//		for (auto& operand : disasmData.operands)
+//		{
+//			// skip the menomonic and invalid operands
+//			if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
+//
+//			// don't colorize white spaces
+//			if (operand.type == DisasmOperandType::WhiteSpace)
+//			{
+//				insData.instruction += " ";
+//			}
+//			// it has a reference address, draw it as a symbol
+//			else if (insData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
+//			{
+//				auto resultGetSymbol = m_SymbolHandler->AddressToModuleSymbol(insData.refAddress);
+//				insData.instruction += FormatSymbolAddress(insData.refAddress, resultGetSymbol);
+//			}
+//			// it's just a regular operand
+//			else
+//			{
+//				DWORD color = Settings::GetDisasmColor(operand.type);
+//				insData.instruction += ImGui::TokenizedText(operand.value, color);
+//			}
+//		}
+//
+//		// if it's is something like `mov rax, [0x12345]`
+//		if (insData.isRefPointer) AnalyzeInstructionReference(insData);
+//
+//		DWORD color = Settings::GetDisasmColor(disasmData.mnemonic.type);
+//		insData.mnemonic = ImGui::TokenizedText(disasmData.mnemonic.value, color);
+//
+//		instructionOffset += insData.length;
+//	}
+//}
 
 void ViewDisassembler::Disassemble()
 {
-	m_referenceList.clear();
-	m_instructionList.clear();
-
 	if (!Engine::IsAttached()) return;
 
 	POINTER startAddress = m_pVirtualBase - 32;
-	size_t bufferSize = m_memoryBuffer.size();
 
-	// to avoid disassembling mid-instruction
-	std::vector<MemoryRegion> regions;
-	auto resultRead = Engine::ReadMemSafe(startAddress, m_memoryBuffer.data(), bufferSize, regions);
-	
-	assert(resultRead.has_value() && "ViewDisassembler Cannot read memory");
-
-
-	// no readable memory, set all instructions to invalid
-	if (regions.size() == 0)
+	auto resultAnalyze = Engine::Analyze(startAddress, 512, false, m_memoryBuffer, m_analyzedData);
+	if (resultAnalyze != common::errcode::Success)
 	{
-		m_instructionList.resize(100);
-
-		for (auto& instruction : m_instructionList)
-		{
-			instruction.address = startAddress++;
-			instruction.isNotReadable = true;
-		}
-	}
-	else
-	{
-		auto regionIter = regions.begin();
-
-		// loop through the buffer, if it's not readable then push invalid instructions, else disassemble it
-		size_t offset = startAddress;
-		while (offset < startAddress + bufferSize)
-		{
-			// push invalid instructions to the list if the memory is not readable
-			if (offset < regionIter->start)
-			{
-				for (; offset < regionIter->start; offset++)
-				{
-					auto& instruction = m_instructionList.emplace_back();
-					instruction.address = offset;
-					instruction.isNotReadable = true;
-				}
-			}
-			// disassemble valid region
-			else
-			{
-				DisassembleRegion(*regionIter, regionIter->start - startAddress);
-
-				offset += regionIter->size;
-				if (++regionIter == regions.end()) break;
-			}
-		}
-
-		// there are more bytes left after disassembling valid regions
-		// push invalid instructions
-		for (; offset < startAddress + bufferSize; offset++)
-		{
-			auto& instruction = m_instructionList.emplace_back();
-			instruction.address = offset;
-			instruction.isNotReadable = true;
-		}
+		//common::err(resultAnalyze).show();
+		//assert(false && "Analyze failed");
+		m_instructionOffset = 32;
+		return;
 	}
 
 	// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
-	for (m_instructionOffset = 0; m_instructionOffset < m_instructionList.size(); m_instructionOffset++)
+	for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
 	{
-		if (m_instructionList[m_instructionOffset].address > m_pVirtualBase)
+		if (m_analyzedData.instructions[m_instructionOffset].address > m_pVirtualBase)
 		{
 			m_instructionOffset--;
 			break;
 		}
 	}
 
-	AnalyzeCrossReference();
 }
 
 void ViewDisassembler::GoToAddress(POINTER address)
