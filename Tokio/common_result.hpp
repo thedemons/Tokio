@@ -15,7 +15,7 @@ if (!(result)) { \
 #define HRESULT_FAILIFN(result, code) \
 if (result != S_OK) { \
 	THROW_CPP_ERROR \
-	return cpp::fail(common::err(common::errcode::code, common::errtype::HRESULT, result)); \
+	return cpp::fail(common::err(common::errcode::code, common::errtype::HRESULT, static_cast<HRESULT>(result))); \
 }
 
 #define RESULT_FAILIFN(result, code) \
@@ -31,7 +31,7 @@ if (!(result)) { \
 
 #define HRESULT_FAILIFN_NM(result) \
 if (result != S_OK) { \
-	return cpp::fail(common::err(common::errcode::NoMessage, common::errtype::HRESULT, result)); \
+	return cpp::fail(common::err(common::errcode::NoMessage, common::errtype::HRESULT, static_cast<HRESULT>(result))); \
 }
 
 #define RESULT_FAILIFN_NM(result) \
