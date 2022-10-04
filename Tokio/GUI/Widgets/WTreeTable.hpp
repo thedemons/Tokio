@@ -278,7 +278,6 @@ private:
 			ImGui::IsMouseHoveringRect(row_rect.Min, row_rect.Max, false) &&
 			ImGui::IsWindowHovered(ImGuiHoveredFlags_None) &&
 			!ImGui::IsAnyItemHovered();
-		auto hoveredID = ImGui::GetHoveredID();
 
 		bool bLBtnDown = ImGui::IsMouseDown(0);
 		bool bLBtnClicked = ImGui::IsMouseReleased(0);
@@ -338,7 +337,6 @@ private:
 			m_popupIndex = m_hoveredIndex;
 			m_popupNode = m_hoveredNode;
 
-			UserNode* openedNode = GetNodeAtIndex(m_popupIndex);
 
 			// open the popup
 			m_popup.Open(reinterpret_cast<void*>(m_hoveredIndex));
@@ -347,6 +345,9 @@ private:
 
 	static void PopupRenderCallback(Popup* popup, void* OpenUserData, void* UserData)
 	{
+		UNUSED(popup);
+		UNUSED(OpenUserData);
+
 		TreeTable<UserNode>* pThis = static_cast<TreeTable<UserNode>*>(UserData);
 
 		// check if the cached node pointer is still at the same index
@@ -368,7 +369,6 @@ private:
 
 		// forward the callback
 		// OpenUserData is the index hovered when the user right-clicked
-		size_t index = size_t(OpenUserData);
 		pThis->m_desc.PopupRenderCallback(pThis, pThis->m_popupNode, pThis->m_popupIndex, pThis->m_desc.PopupRenderUserData);
 	}
 
@@ -608,7 +608,7 @@ public:
 				{
 					sorts_specs->SpecsDirty = false;
 					Sort(
-						sorts_specs->Specs->ColumnIndex,
+						static_cast<size_t>(sorts_specs->Specs->ColumnIndex),
 						sorts_specs->Specs->SortDirection
 					);
 				}
