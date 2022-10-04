@@ -14,9 +14,12 @@ ViewSymbolList::TableRenderCallback(
 	void* UserData
 )
 {
+	UNUSED(index);
+	UNUSED(level);
+	UNUSED(UserData);
+
 	if (node.isHidden) return SymbolTable::Execution::Skip;
 
-	auto pThis = static_cast<ViewSymbolList*>(UserData);
 
 
 	// Render the node as module
@@ -28,8 +31,8 @@ ViewSymbolList::TableRenderCallback(
 
 		table->NextColumn();
 		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextModule), "%s", node.moduleNameA.c_str());
-		ImGui::SameLine();
-		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextModule), "%s", node.modulePathA.c_str());
+		//ImGui::SameLine();
+		//ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextModule), "%s", node.modulePathA.c_str());
 		ImGui::PopFont();
 	}
 	// Render it as symbol
@@ -48,19 +51,43 @@ ViewSymbolList::TableRenderCallback(
 	return SymbolTable::Execution::Continue;
 }
 
-void ViewSymbolList::TableInputCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData)
-{
-	//printf("%d\n", index);
-}
-
 void ViewSymbolList::TableSortCallback(SymbolTable* table, size_t column, ImGuiSortDirection direction, void* UserData)
 {
+	UNUSED(table);
 
-	//printf("%d\n", column);
+	ViewSymbolList* pThis = static_cast<ViewSymbolList*>(UserData);
+	bool isAscending = direction == ImGuiSortDirection_Ascending;
+
+	// sort by module address
+	auto sortByAddress = [=](const ModuleNode& a, const ModuleNode& b) -> bool
+	{
+		return isAscending ? a.address < b.address : a.address > b.address;
+	};
+
+	// sort by module name
+	auto sortByName = [=](const ModuleNode& a, const ModuleNode& b) -> bool
+	{
+		int cmp = std::strcmp(a.moduleNameA.c_str(), b.moduleNameA.c_str());
+		if (cmp == 0) return sortByAddress(a, b);
+
+		return isAscending ? cmp < 0 : cmp > 0;
+	};
+
+	// TODO: Should we have a sort by symbol feature? That would be a lot of work to do
+
+	std::function sortFunction = sortByAddress;
+	if (column == 1) sortFunction = sortByName;
+
+	std::sort(pThis->m_moduleList.begin(), pThis->m_moduleList.end(), sortFunction);
+
 }
 
 void ViewSymbolList::TablePopupRenderCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData)
 {
+	UNUSED(table);
+	UNUSED(index);
+	UNUSED(UserData);
+
 	if (node != nullptr)
 	{
 		if (node->isModule)
@@ -73,7 +100,6 @@ void ViewSymbolList::TablePopupRenderCallback(SymbolTable* table, ModuleNode* no
 			ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextModule), "%s", node->moduleNameA.c_str());
 			ImGui::PopFont();
 		}
-		// Render it as symbol
 		else
 		{
 			ImGui::PushFont(MainApplication::FontMonoRegular);
@@ -101,6 +127,8 @@ void ViewSymbolList::TablePopupRenderCallback(SymbolTable* table, ModuleNode* no
 
 void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTextCallbackData* data, void* UserData)
 {
+	UNUSED(tinput);
+
 	ViewSymbolList* pThis = static_cast<ViewSymbolList*>(UserData);
 
 	// the filter contains nothing
@@ -127,7 +155,7 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 		}
 
 
-		std::string filter = std::string(data->Buf, data->BufTextLen);
+		std::string filter = std::string(data->Buf, static_cast<size_t>(data->BufTextLen));
 		filter = common::BhStringLower(filter);
 
 		for (auto& modData : pThis->m_moduleList)
@@ -149,10 +177,10 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 
 			for (auto& symbolData : modData.Childs())
 			{
-				std::string lowerName = common::BhStringLower(symbolData.functionName);
+				std::string functionLowerName = common::BhStringLower(symbolData.functionName);
 
 				// hide it if couldn't find the filter in its name
-				symbolData.isHidden = (lowerName.find(filter) == std::string::npos);
+				symbolData.isHidden = (functionLowerName.find(filter) == std::string::npos);
 
 				isAnyChildVisible |= !symbolData.isHidden;
 			}
@@ -179,12 +207,10 @@ ViewSymbolList::ViewSymbolList()
 	desc.Name = "##TableModuleList";
 
 	desc.SortUserData = this;
-	desc.InputUserData = this;
 	desc.RenderUserData = this;
 	desc.PopupRenderUserData = this;
 
 	desc.SortCallback = TableSortCallback;
-	desc.InputCallback = TableInputCallback;
 	desc.RenderCallback = TableRenderCallback;
 	desc.PopupRenderCallback = TablePopupRenderCallback;
 
@@ -202,10 +228,6 @@ ViewSymbolList::ViewSymbolList()
 //desc.ExtraFlags = ImGuiTableFlags_NoPadInnerX | ImGuiTableFlags_NoPadOuterX;
 
 	m_table.Setup(desc);
-
-	// flags for the address column
-	auto colFlags = ImGuiTableColumnFlags_DefaultSort | // default sort by address
-		ImGuiTableColumnFlags_PreferSortAscending;
 
 	m_table.AddColumn("Address", ImGuiTableColumnFlags_WidthFixed, 140.f);
 	m_table.AddColumn("Symbol");

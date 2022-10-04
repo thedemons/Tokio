@@ -50,8 +50,6 @@ private:
 			void* UserData
 		);
 
-	static void TableInputCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData);
-
 	static void TableSortCallback(SymbolTable* table, size_t column, ImGuiSortDirection direction, void* UserData);
 
 	static void TablePopupRenderCallback(SymbolTable* table, ModuleNode* node, size_t index, void* UserData);
