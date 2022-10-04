@@ -4,6 +4,8 @@
 #include "GUI/MainView.h"
 #include "GUI/Widgets/WTable.h"
 #include "GUI/Widgets/WTextInput.h"
+#include "GUI/ImGui/custom/TokenizedText.h"
+
 #include "Engine/Symbol/BaseSymbol.h"
 
 
@@ -24,18 +26,18 @@ private:
 	struct ViewInstructionData
 	{
 		DisasmOperandType mnemonic_type = DisasmOperandType::Invalid;
-		size_t bufferOffset = 0;					// the position in the m_memoryBuffer
-		size_t length      = 0;                     // length of the instruction, in bytes
-		POINTER address    = 0;                     // virtual address of the target processs
-		POINTER refAddress = 0;			            // the jump/call/mov... address, can be nullptr
-		POINTER refValue   = 0;			            // if isRefPointer is true, this contains the value of [refAddress]
-		std::string addressSymbol;                  // formatted address
-		std::string mnemonic;						// formatted mnemonic of the instruction (main operand)
-		std::string instruction;                    // formatted instruction
-		bool isBaseOffset = false;					// is this a base offset? (start of a module or function)
-		bool isRefPointer = false;					// is the reference address a pointer to something, e.g. mov eax, [refAddress]
-		bool isNotReadable = false;					// if the memory is not readable (display as "??")
-		std::string comment;
+		size_t bufferOffset = 0;				// the position in the m_memoryBuffer
+		size_t length       = 0;				// length of the instruction, in bytes
+		POINTER address     = 0;				// virtual address of the target processs
+		POINTER refAddress  = 0;				// the jump/call/mov... address, can be nullptr
+		POINTER refValue    = 0;				// if isRefPointer is true, this contains the value of [refAddress]
+		ImGui::TokenizedText addressSymbol;		// formatted address
+		ImGui::TokenizedText mnemonic;			// formatted mnemonic of the instruction (main operand)
+		ImGui::TokenizedText instruction;		// formatted instruction
+		bool isBaseOffset   = false;			// is this a base offset? (start of a module or function)
+		bool isRefPointer   = false;			// is the reference address a pointer to something, e.g. mov eax, [refAddress]
+		bool isNotReadable  = false;			// if the memory is not readable (display as "??")
+		ImGui::TokenizedText comment;
 
 		// for rendering references
 		ImVec2 cursorPos{ 0.f, 0.f };

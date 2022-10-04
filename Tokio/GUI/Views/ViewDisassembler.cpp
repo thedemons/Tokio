@@ -2,11 +2,12 @@
 #include "stdafx.h"
 #include "ViewDisassembler.h"
 
-#include "imgui_custom.hpp"
 #include "GUI/Widgets/Widgets.hpp"
 
 #include "Settings.h"
 #include "Engine/Engine.h"
+
+using namespace std::string_literals;
 
 // Table Callback
 Widgets::Table::Execution
@@ -32,9 +33,8 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	{
 		cursorOffset.y += 25.f;
 		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(0, 10.f));
-		ImGui::PushFont(MainApplication::FontMonoBigBold);
-		ImGui::TextUnformatted(insData.addressSymbol.c_str(), insData.addressSymbol.c_str() + insData.addressSymbol.size());
-		ImGui::PopFont();
+
+		insData.addressSymbol.Render(MainApplication::FontMonoBigBold);
 	}
 	else if (insData.refererIndexes.size() != 0)
 	{
@@ -50,7 +50,7 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	// draw symbolic address
 	if (insData.addressSymbol.size() > 0 )
 	{
-		ImGui::TextUnformatted(insData.addressSymbol.c_str(), insData.addressSymbol.c_str() + insData.addressSymbol.size());
+		insData.addressSymbol.Render();
 	}
 	else
 	{
@@ -69,8 +69,10 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	if (insData.isNotReadable)
 	{
 		table->SetColumnIndex(2);
-		static std::string notReadableColored = "??"_c(Settings::theme.disasm.Invalid);
-		ImGui::TextUnformatted(notReadableColored.c_str(), notReadableColored.c_str() + notReadableColored.size());
+
+		ImGui::TokenizedText notReadableColored(1);
+		notReadableColored.push_back(Settings::theme.disasm.Invalid, "??");
+		notReadableColored.Render();
 	}
 	else
 	{
@@ -87,19 +89,19 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 
 		// we save the cursor pos for rendering references arrow
 		insData.cursorPos = ImGui::GetCursorPos() + cursorOffset;
-		ImGui::SetCursorPos(insData.cursorPos);
 
-		ImGui::Text(insData.mnemonic.c_str(), insData.mnemonic.c_str() + insData.mnemonic.size());
+		ImGui::SetCursorPos(insData.cursorPos);
+		insData.mnemonic.Render();
 
 		// instructions
 		ImGui::SetCursorPos(insData.cursorPos + ImVec2(55.f, 0.f));
-		ImGui::Text(insData.instruction.c_str(), insData.instruction.c_str() + insData.instruction.size());
+		insData.instruction.Render();
 
 		// comment
 		if (insData.comment.size() > 0)
 		{
 			table->NextColumn();
-			ImGui::TextUnformatted(insData.comment.c_str(), insData.comment.c_str() + insData.comment.size());
+			insData.comment.Render();
 		}
 	}
 
@@ -514,39 +516,18 @@ void ViewDisassembler::OnDetach()
 	m_SymbolHandler.reset();
 }
 
-std::string FormatSymbolAddress(
+ImGui::TokenizedText FormatSymbolAddress(
 	POINTER address,
 	const ResultGetSymbol& resultGetModuleSymbol,
 	bool* isBaseOffset = nullptr)
 {
-	static char symbol[1024];
-	static std::string regularAddress = "%llX"_c(Settings::theme.disasm.AddressAbs);
 
-	static std::string formatProcModBase = 
-		"%s"_c(Settings::theme.disasm.Module);
-
-	static std::string formatProcMod = 
-		"%s"_c(Settings::theme.disasm.Module) +
-		"+"_c(Settings::theme.disasm.Delimeter) +
-		"%llX"_c(Settings::theme.disasm.Displacement);
-
-	static std::string formatFunc = 
-		"%s"_c(Settings::theme.disasm.Module) 
-		+ "."_c(Settings::theme.disasm.Delimeter)
-		+ "%s"_c(Settings::theme.disasm.Function)
-		+ "+"_c(Settings::theme.disasm.Delimeter) 
-		+ "%llX"_c(Settings::theme.disasm.Displacement);
-
-	static std::string formatFuncBase = 
-		"%s"_c(Settings::theme.disasm.Module) +
-		"."_c(Settings::theme.disasm.Delimeter) +
-		"%s"_c(Settings::theme.disasm.Function);
+	static const auto& settings = Settings::theme.disasm;
 
 	// parse the address normally
 	if (!resultGetModuleSymbol.has_value())
 	{
-		_snprintf_s(symbol, sizeof(symbol), regularAddress.c_str(), address);
-		return symbol;
+		return ImGui::TokenizedText(settings.AddressAbs, "%llX", address);
 	}
 
 	if (!resultGetModuleSymbol.has_symbol())
@@ -554,13 +535,21 @@ std::string FormatSymbolAddress(
 		auto pModule = resultGetModuleSymbol.Module();
 		if (address != pModule->base)
 		{
-			_snprintf_s(symbol, sizeof(symbol), formatProcMod.c_str(), pModule->moduleNameA.c_str(), address - pModule->base);
+			// format: module.dll+8C
+			ImGui::TokenizedText symbol(3);
+			symbol.push_back(pModule->moduleNameA, settings.Module);
+			symbol.push_back("+"s, settings.Delimeter);
+			symbol.push_back(settings.Displacement, "%llX", address - pModule->base);
+
 			if (isBaseOffset) *isBaseOffset = false;
+
+			return symbol;
 		}
 		else
 		{
-			_snprintf_s(symbol, sizeof(symbol), formatProcModBase.c_str(), pModule->moduleNameA.c_str(), address - pModule->base);
+			// format: module.dll
 			if (isBaseOffset) *isBaseOffset = true;
+			return ImGui::TokenizedText(pModule->moduleNameA, settings.Module);
 		}
 	}
 	else
@@ -568,6 +557,7 @@ std::string FormatSymbolAddress(
 		auto pModule = resultGetModuleSymbol.Module();
 		auto pSymbol = resultGetModuleSymbol.Symbol();
 
+		// strip the module name from "module.dll" to "module"
 		std::string modShortName = pModule->moduleNameA;
 		auto find = modShortName.rfind('.');
 		if (find != std::string::npos)
@@ -577,27 +567,37 @@ std::string FormatSymbolAddress(
 
 		if (offsetFromVA > 0)
 		{
-			_snprintf_s(symbol, sizeof(symbol), formatFunc.c_str(), modShortName.c_str(), pSymbol->name.c_str(), offsetFromVA);
+			// format: module.func+8C
+			ImGui::TokenizedText symbol(5);
+			symbol.push_back(modShortName, settings.Module);
+			symbol.push_back("."s, settings.Delimeter);
+			symbol.push_back(pSymbol->name, settings.Function);
+			symbol.push_back("+"s, settings.Delimeter);
+			symbol.push_back(settings.Displacement, "%llX", offsetFromVA);
+
 			if (isBaseOffset) *isBaseOffset = false;
+
+			return symbol;
 		}
 		else
 		{
-			_snprintf_s(symbol, sizeof(symbol), formatFuncBase.c_str(), modShortName.c_str(), pSymbol->name.c_str());
+			// format: module.func
+			ImGui::TokenizedText symbol(3);
+			symbol.push_back(modShortName, settings.Module);
+			symbol.push_back("."s, settings.Delimeter);
+			symbol.push_back(pSymbol->name, settings.Function);
+
 			if (isBaseOffset) *isBaseOffset = true;
+			return symbol;
 		}
 	}
-
-	return symbol;
 }
 
 
 // analyze the reference of the instruction (if it is a pointer e.g isRefPointer == true)
 void ViewDisassembler::AnalyzeInstructionReference(ViewInstructionData& insData)
 {
-	static std::string formatString = "\"%s\""_c(Settings::theme.disasm.String);
-	static std::string formatPointer = "[%llX]"_c(Settings::theme.disasm.AddressAbs);
-	static std::string formatDecimal = "%d"_c(Settings::theme.disasm.Displacement);
-	static char bufferFmt[1024];
+	static const auto& settings = Settings::theme.disasm;
 
 	auto resultRead = Engine::ReadMem<POINTER>(insData.refAddress);
 	if (resultRead.has_value())
@@ -618,39 +618,40 @@ void ViewDisassembler::AnalyzeInstructionReference(ViewInstructionData& insData)
 		}
 
 		// if it doesn't have a symbol, try to read it as a string
-		static char stringBuffer[64]{};
+		static char stringBuffer[64];
 		if (!Engine::ReadMem(insData.refAddress, stringBuffer, sizeof(stringBuffer) - 1).has_error())
 		{
-			// hardcoded 5 valid char to be defined as a string
+			// hardcoded 5 valid chars to be defined as a string
 
 			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
 			bool isValidWString = false;
-			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), 31) >= 5;
+			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), (sizeof(stringBuffer) - 1) / 2) >= 5;
 
 			// it is a string!
 			if (isValidString)
 			{
-				_snprintf_s(bufferFmt, sizeof(bufferFmt), formatString.c_str(), stringBuffer);
+				std::string comment(stringBuffer, sizeof(stringBuffer));
+				auto findLineBreak = comment.rfind('\n');
 
 				// strip \n out of the comment
-				std::string comment(bufferFmt);
-				if (auto find = comment.rfind('\n'); find != std::string::npos)
-					comment = comment.substr();
+				if (findLineBreak != std::string::npos)
+					comment = comment.substr(0, findLineBreak);
 
-				insData.comment = comment;
+				insData.comment.push_back(comment, settings.String);
 				return;
 			}
 			else if (isValidWString)
 			{
-				std::wstring wideString(reinterpret_cast<wchar_t*>(stringBuffer), 32);
-				_snprintf_s(bufferFmt, sizeof(bufferFmt), formatString.c_str(), common::BhString(wideString).c_str());
+
+				std::wstring wideComment(reinterpret_cast<wchar_t*>(stringBuffer), sizeof(stringBuffer) / 2);
+				auto findLineBreak = wideComment.rfind(L'\n');
 
 				// strip \n out of the comment
-				std::string comment(bufferFmt);
-				if (auto find = comment.rfind('\n'); find != std::string::npos)
-					comment = comment.substr();
+				if (findLineBreak != std::wstring::npos)
+					wideComment = wideComment.substr(0, findLineBreak);
 
-				insData.comment = comment;
+
+				insData.comment.push_back(common::BhString(wideComment), settings.String);
 				return;
 			}
 		}
@@ -659,21 +660,18 @@ void ViewDisassembler::AnalyzeInstructionReference(ViewInstructionData& insData)
 		resultRead = Engine::ReadMem<POINTER>(refPointer);
 		if (!resultRead.has_error())
 		{
-			_snprintf_s(bufferFmt, sizeof(bufferFmt), formatPointer.c_str(), refPointer);
-			insData.comment = bufferFmt;
+			insData.comment.push_back("[%llX]"s, settings.AddressAbs);
 			return;
 		}
 
 		// it it's not anything above, just format it as a decimal value
-		_snprintf_s(bufferFmt, sizeof(bufferFmt), formatDecimal.c_str(), refPointer);
-		insData.comment = bufferFmt;
+		insData.comment.push_back(settings.Displacement, "%lld", refPointer);
 	}
 }
 
 void ViewDisassembler::AnalyzeCrossReference()
 {
-	static char bufferFmt[1024];
-	std::string formatXRef = "XREF: %s "_c(Settings::theme.disasm.Xref);
+	static ImGui::TokenizedText xRefString("REF: "s, Settings::theme.disasm.Xref);
 
 	POINTER instructionStart = m_instructionList.front().address;
 	POINTER instructionEnd = m_instructionList.back().address;
@@ -710,9 +708,7 @@ void ViewDisassembler::AnalyzeCrossReference()
 				reference->refererIndexes.push_back(it - m_instructionList.begin());
 				//reference->refererAddress = it->address;
 
-				_snprintf_s(bufferFmt, sizeof(bufferFmt), formatXRef.c_str(), it->addressSymbol.c_str());
-
-				reference->comment += bufferFmt;
+				reference->comment += xRefString + it->addressSymbol;
 
 				m_referenceList.push_back(*it);
 			}
@@ -866,7 +862,7 @@ void ViewDisassembler::DisassembleRegion(const MemoryRegion& region, size_t buff
 			else
 			{
 				DWORD color = Settings::GetDisasmColor(operand.type);
-				insData.instruction += ImGuiCustomString(operand.value)(color);
+				insData.instruction += ImGui::TokenizedText(operand.value, color);
 			}
 		}
 
@@ -874,7 +870,7 @@ void ViewDisassembler::DisassembleRegion(const MemoryRegion& region, size_t buff
 		if (insData.isRefPointer) AnalyzeInstructionReference(insData);
 
 		DWORD color = Settings::GetDisasmColor(disasmData.mnemonic.type);
-		insData.mnemonic = ImGuiCustomString(disasmData.mnemonic.value)(color);
+		insData.mnemonic = ImGui::TokenizedText(disasmData.mnemonic.value, color);
 
 		instructionOffset += insData.length;
 	}
