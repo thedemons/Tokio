@@ -126,34 +126,37 @@ void Load();
 
 _NODISCARD _CONSTEXPR20 DWORD GetDisasmColor(DisasmOperandType tokenType) noexcept
 {
-	static const std::map<DisasmOperandType, DWORD> mapColor = {
-		{DisasmOperandType::Invalid         , theme.disasm.Invalid},
-		{DisasmOperandType::Delimeter       , theme.disasm.Delimeter},
-		{DisasmOperandType::ParenthesisOpen , theme.disasm.ParenthesisOpen},
-		{DisasmOperandType::ParenthesisClose, theme.disasm.ParenthesisClose},
-		{DisasmOperandType::Prefix          , theme.disasm.Prefix},
-		{DisasmOperandType::Mnemonic        , theme.disasm.Mnemonic},
-		{DisasmOperandType::Register        , theme.disasm.Register},
-		{DisasmOperandType::AddressAbs      , theme.disasm.AddressAbs},
-		{DisasmOperandType::AddressRel      , theme.disasm.AddressRel},
-		{DisasmOperandType::Displacement    , theme.disasm.Displacement},
-		{DisasmOperandType::Immediate       , theme.disasm.Immediate},
-		{DisasmOperandType::TypeCast        , theme.disasm.TypeCast},
-		{DisasmOperandType::Decorator       , theme.disasm.Decorator},
-		{DisasmOperandType::Literal         , theme.disasm.Literal},
+	// we use an array instead of std::map for a better performance
+	static const DWORD arrayColor[] = {
+		theme.disasm.Invalid,
+		0x00000000,				// white space
+		theme.disasm.Delimeter,
+		theme.disasm.ParenthesisOpen,
+		theme.disasm.ParenthesisClose,
+		theme.disasm.Prefix,
+		theme.disasm.Mnemonic,
+		theme.disasm.Register,
+		theme.disasm.AddressAbs,
+		theme.disasm.AddressRel,
+		theme.disasm.Displacement,
+		theme.disasm.Immediate,
+		theme.disasm.TypeCast,
+		theme.disasm.Decorator,
+		theme.disasm.Literal,
 
-		{DisasmOperandType::mneCall         , theme.disasm.mneCall},
-		{DisasmOperandType::mneSyscall      , theme.disasm.mneSyscall},
-		{DisasmOperandType::mneJump         , theme.disasm.mneJump},
-		{DisasmOperandType::mneJumpCondition, theme.disasm.mneJumpCondition},
-		{DisasmOperandType::mneReturn       , theme.disasm.mneReturn},
-		{DisasmOperandType::mneInt3         , theme.disasm.mneInt3},
+		theme.disasm.mneCall,
+		theme.disasm.mneSyscall,
+		theme.disasm.mneJump,
+		theme.disasm.mneJumpCondition,
+		theme.disasm.mneReturn,
+		theme.disasm.mneInt3,
 	};
 
-	auto find = mapColor.find(tokenType);
-	if (find == mapColor.end()) return theme.disasm.Invalid;
+	unsigned int index = static_cast<unsigned int>(tokenType);
 
-	return find->second;
+	assert(index >= 0 && index < sizeof(arrayColor));
+
+	return arrayColor[index];
 }
 
 
