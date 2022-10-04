@@ -49,6 +49,7 @@ private:
 	Desc m_desc;
 	bool m_isOpen = false;
 	bool m_closePopupQueue = false;
+	bool m_nextOpen = false;
 
 public:
 	void Setup(const Desc& desc);
@@ -58,15 +59,7 @@ public:
 	_CONSTEXPR20 void Open(void* OpenUserData = nullptr)
 	{
 		SetOpenUserData(OpenUserData);
-		if ((m_desc.WidgetFlags & PopupFlags::PopupModal) == PopupFlags::PopupModal)
-		{
-		
-			ImGui::OpenPopup(m_desc.name.c_str(), m_desc.OpenFlags);
-		}
-		else
-		{
-			ImGui::OpenPopupEx(m_desc.id, m_desc.OpenFlags);
-		}
+		m_nextOpen = true;
 	}
 
 	_CONSTEXPR20 void Close()
