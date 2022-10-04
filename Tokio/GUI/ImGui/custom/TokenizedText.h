@@ -12,15 +12,16 @@
 struct IMGUI_API ImGuiWindow;
 struct ImGuiContext;
 
+
 namespace ImGui
 {
 class TokenizedText
 {
-private:
+public:
     struct Token
     {
-        ImU32 color;
         std::string text;
+        ImU32 color;
         Token(const char* text, ImU32 color) : text(text), color(color) {}
         Token(const std::string& string, ImU32 color) : text(string), color(color) {}
 
@@ -28,6 +29,8 @@ private:
         Token(const char(&text)[Size], ImU32 color) : text(text, Size), color(color) {}
     };
 
+
+private:
     std::vector<Token> m_tokens;
 
     // MODIFIED ImGui::TextEx
@@ -65,6 +68,12 @@ public:
     TokenizedText(const char(&text)[Size], ImU32 color)
     {
         m_tokens.emplace_back(text, color);
+    }
+
+    // move the other tokenizedText to this
+    _CONSTEXPR20 void move(TokenizedText& other)
+    {
+        m_tokens = std::move(other.m_tokens);
     }
 
     template <size_t Size>
@@ -123,7 +132,7 @@ public:
     _CONSTEXPR20 TokenizedText operator+(const std::string& b)
     {
         TokenizedText c = *this;
-        c.push_back(b, ImGui::GetColorU32(ImGuiCol_Text));
+        push_back(b, ImGui::GetColorU32(ImGuiCol_Text));
 
         return c;
     }
@@ -132,7 +141,7 @@ public:
     _CONSTEXPR20 TokenizedText operator+(const char(&b)[Size])
     {
         TokenizedText c = *this;
-        c.push_back(b, ImGui::GetColorU32(ImGuiCol_Text));
+        push_back(b, ImGui::GetColorU32(ImGuiCol_Text));
 
         return c;
     }
@@ -140,7 +149,7 @@ public:
     _CONSTEXPR20 TokenizedText operator+(const char* b)
     {
         TokenizedText c = *this;
-        c.push_back(b, ImGui::GetColorU32(ImGuiCol_Text));
+        push_back(b, ImGui::GetColorU32(ImGuiCol_Text));
 
         return c;
     }
@@ -157,6 +166,11 @@ public:
         }
 
         m_tokens.insert(m_tokens.end(), b.m_tokens.begin(), b.m_tokens.end());
+    }
+
+    _CONSTEXPR20 void clear() noexcept
+    {
+        m_tokens.clear();
     }
 };
 }

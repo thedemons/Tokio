@@ -26,7 +26,7 @@ TokenizedText::TokenizedText(ImU32 color, const char* fmt, ...)
     va_start(args, fmt);
 
     ImGuiContext& g = *GImGui;
-    ImFormatStringV(g.TempBuffer.Data, g.TempBuffer.Size, fmt, args);
+    ImFormatStringV(g.TempBuffer.Data, static_cast<size_t>(g.TempBuffer.Size), fmt, args);
 
     va_end(args);
 
@@ -49,7 +49,7 @@ TokenizedText::TokenizedText(ImVec4 color, const char* fmt, ...)
     va_start(args, fmt);
 
     ImGuiContext& g = *GImGui;
-    ImFormatStringV(g.TempBuffer.Data, g.TempBuffer.Size, fmt, args);
+    ImFormatStringV(g.TempBuffer.Data, static_cast<size_t>(g.TempBuffer.Size), fmt, args);
 
     va_end(args);
 
@@ -79,7 +79,7 @@ void TokenizedText::push_back(ImVec4 color, const char* fmt, ...)
     va_start(args, fmt);
 
     ImGuiContext& g = *GImGui;
-    ImFormatStringV(g.TempBuffer.Data, g.TempBuffer.Size, fmt, args);
+    ImFormatStringV(g.TempBuffer.Data, static_cast<size_t>(g.TempBuffer.Size), fmt, args);
 
     va_end(args);
 
@@ -102,7 +102,7 @@ void TokenizedText::push_back(ImU32 color, const char* fmt, ...)
     va_start(args, fmt);
 
     ImGuiContext& g = *GImGui;
-    ImFormatStringV(g.TempBuffer.Data, g.TempBuffer.Size, fmt, args);
+    ImFormatStringV(g.TempBuffer.Data, static_cast<size_t>(g.TempBuffer.Size), fmt, args);
 
     va_end(args);
 
@@ -181,7 +181,7 @@ void TokenizedText::RenderToken(ImGuiContext& g, ImGuiWindow* window, ImFont* fo
         // MODIFIED: shortcut for RenderTextWrappedCustom
         if (text_begin != text_end)
         {
-            window->DrawList->AddText(g.Font, g.FontSize, bb.Min, token.color, text_begin, text_end, wrap_width);
+            window->DrawList->AddText(font, fontSize, bb.Min, token.color, text_begin, text_end, wrap_width);
         }
     }
     else
@@ -236,7 +236,7 @@ void TokenizedText::RenderToken(ImGuiContext& g, ImGuiWindow* window, ImFont* fo
                 text_size.x = ImMax(text_size.x, CalcTextSize(line, line_end).x);
 
                 // MODIFIED: shortcut for RenderText()
-                window->DrawList->AddText(g.Font, g.FontSize, pos, GetColorU32(ImGuiCol_Text), line, line_end);
+                window->DrawList->AddText(font, fontSize, pos, GetColorU32(ImGuiCol_Text), line, line_end);
 
                 line = line_end + 1;
                 line_rect.Min.y += line_height;
