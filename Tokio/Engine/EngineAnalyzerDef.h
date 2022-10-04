@@ -18,19 +18,19 @@ struct SubroutineInfo;
 // block of codes belongs to the subroutine
 struct SubroutineBlock
 {
-	// pointer to the next block, might be nullptr
-	const SubroutineBlock* pNextBlock = nullptr;
+	// index of the next block in SubroutineInfo
+	size_t iNextBlock = UPTR_UNDEFINED;
 
-	// pointer to the conditional block, might be mullptr
-	const SubroutineBlock* pConditionalBlock = nullptr;
+	// index of the next conditional block in SubroutineInfo
+	size_t iConditionalBlock = UPTR_UNDEFINED;
 
 	// the start index of its instructions in the root
 	// we don't want to each individual block to store its instructions
 	// while we could query from the root AnalyzeData
-	size_t insStartIndex = 0;
+	size_t insStartIndex = UPTR_UNDEFINED;
 
 	// the end index of its instructions in the root
-	size_t insEndIndex = 0;
+	size_t insEndIndex = UPTR_UNDEFINED;
 
 	// reference to the root AnalyzeData of this block
 	const AnalyzedData& root;
@@ -104,6 +104,7 @@ struct SubroutineInfo
 	{
 		return blocks.emplace_back(root, *this);
 	}
+
 };
 
 
@@ -129,6 +130,9 @@ struct AnalyzedInstruction
 	// the refAddress here is 0x7FFA1E370
 	POINTER referencedAddress = 0ull;
 
+	// the referenced index in the vector
+	size_t referencedIndex = UPTR_UNDEFINED;
+
 	// the main operation of the instruction (Mnemonic)
 	DisasmOperand mnemonic;
 
@@ -142,6 +146,9 @@ struct AnalyzedInstruction
 
 	// a pointer to the referenced instruction
 	AnalyzedInstruction* referencedInstruction = nullptr;
+
+	// if this instruction is a start of a block, this will be the index of the block in the SubroutineInfo
+	size_t iBlock = UPTR_UNDEFINED;
 
 	// the value of referencedAddress if is is a pointer (isRefPointer)
 	POINTER referencedValue = 0ull;
@@ -176,6 +183,16 @@ struct AnalyzedInstruction
 	ImGui::TokenizedText fmtOperand;
 
 	AnalyzedInstruction(const AnalyzedData& root) : root(root) {}
+
+	// for searching the vectory of analyzed instructions
+	bool operator==(const AnalyzedInstruction& v)
+	{
+		return address == v.address;
+	};
+	bool operator==(const POINTER& v)
+	{
+		return address == v;
+	};
 };
 
 // Output of the BaseAnalyzer
