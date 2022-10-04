@@ -118,6 +118,8 @@ void Table::HandlePopup()
 
 void Table::PopupRenderCallback(Popup* popup, void* OpenUserData, void* UserData)
 {
+	(void)popup; // mark as unused, supress /w4 warning
+
 	Table* pThis = static_cast<Table*>(UserData);
 
 	// why don't we have a popup render callback?
@@ -181,7 +183,7 @@ void Table::Render(size_t nMaxItem, ImVec2 Size)
 			{
 				sorts_specs->SpecsDirty = false;
 				Sort(
-					sorts_specs->Specs->ColumnIndex,
+					static_cast<size_t>(sorts_specs->Specs->ColumnIndex),
 					sorts_specs->Specs->SortDirection
 				);
 			}
