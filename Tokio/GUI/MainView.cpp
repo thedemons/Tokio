@@ -38,7 +38,7 @@ void Init()
 	Engine::OnDetachCallback(HandlerDetachProcess);
 
 	// AUTO ATTACH FOR DEBUG MODE ONLY
-	if (auto result = Engine::Attach(43572); result.has_error())
+	if (auto result = Engine::Attach(110224); result.has_error())
 		result.error().show();
 }
 
