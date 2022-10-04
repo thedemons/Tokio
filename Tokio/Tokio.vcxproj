@@ -226,6 +226,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="GUI\MainView.cpp" />
+    <ClCompile Include="GUI\ShortcutKey.cpp" />
     <ClCompile Include="GUI\Views\ViewAttachProc.cpp" />
     <ClCompile Include="GUI\Views\ViewDisassembler.cpp" />
     <ClCompile Include="GUI\Views\ViewSettings.cpp" />
@@ -235,6 +236,7 @@
     <ClCompile Include="GUI\Widgets\WTable.cpp" />
     <ClCompile Include="GUI\Widgets\WTextInput.cpp" />
     <ClCompile Include="MainApplication.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Tokio.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -258,7 +260,7 @@
     <ClInclude Include="GUI\ImGui\imstb_textedit.h" />
     <ClInclude Include="GUI\ImGui\misc\imgui_freetype.h" />
     <ClInclude Include="GUI\MainView.h" />
-    <ClInclude Include="GUI\Themes.hpp" />
+    <ClInclude Include="GUI\ShortcutKey.h" />
     <ClInclude Include="GUI\Views\BaseView.hpp" />
     <ClInclude Include="GUI\Views\ViewAttachProc.h" />
     <ClInclude Include="GUI\Views\ViewDisassembler.h" />
@@ -279,13 +281,16 @@
     <ClInclude Include="Resources\FontAwesome.h" />
     <ClInclude Include="Resources\FontAwesomeImpl.h" />
     <ClInclude Include="Serialize.hpp" />
-    <ClInclude Include="Settings.hpp" />
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="common_err.hpp" />
     <ClInclude Include="ThirdParty\Result.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="GUI\ImGui\Notice.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

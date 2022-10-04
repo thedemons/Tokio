@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "MainApplication.h"
 #include "GUI/MainView.h"
+#include "Settings.h"
 
-// ikr
 void MainLoop()
 {
 	MainView::Render();
@@ -17,13 +17,13 @@ int main()
 		return 1;
 	}
 
-	Settings::data.Load();
+	Settings::Load();
 
 	MainView::Init();
 
 	MainApplication::SetRenderCallback(MainLoop);
 	MainApplication::StartLoop();
 
-	Settings::data.Save();
+	//Settings::Save();
 	return 0;
 }

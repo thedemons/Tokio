@@ -132,6 +132,12 @@
     <ClCompile Include="Engine\Disassembler\BaseDisassembler.cpp">
       <Filter>Engine\Disassembler</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\ShortcutKey.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
@@ -143,7 +149,7 @@
     <ClInclude Include="common_err.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Settings.hpp">
+    <ClInclude Include="Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Serialize.hpp">
@@ -187,9 +193,6 @@
     </ClInclude>
     <ClInclude Include="GUI\Widgets\WTable.h">
       <Filter>GUI\Widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="GUI\Themes.hpp">
-      <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="common_helper.h">
       <Filter>Header Files</Filter>
@@ -266,10 +269,18 @@
     <ClInclude Include="common_result.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GUI\ShortcutKey.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="GUI\ImGui\Notice.md">
       <Filter>GUI\ImGui</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
