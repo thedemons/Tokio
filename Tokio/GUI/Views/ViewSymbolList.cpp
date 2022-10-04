@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "ViewSymbolList.h"
 #include "ViewDisassembler.h"
+#include "Settings.h"
 
 
 ViewSymbolList::SymbolTable::Execution
@@ -85,19 +86,16 @@ void ViewSymbolList::TablePopupRenderCallback(SymbolTable* table, ModuleNode* no
 		}
 
 		ImGui::Separator();
-		ImGui::MenuItem(ICON_WATCH_LIST      u8" Add to Watch List");
+		Settings::shortcuts.SymListCopyAddress.RenderInPopup();
 
-		if (ImGui::MenuItem(ICON_DISASSEMBLER    u8" Open in Disassembler"))
-		{
-			auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
-			if (disasmView.has_value())
-			{
-				disasmView.value().pView->GoToAddress(node->address);
-			}
-		}
+		ImGui::Separator();
+		Settings::shortcuts.SymListRefresh.RenderInPopup();
+		Settings::shortcuts.SymListAddToWatchList.RenderInPopup();
 
-		ImGui::MenuItem(ICON_MEMORY_VIEW     u8" Open in Memory View", "Ctrl+B");
-		ImGui::MenuItem(ICON_PE_VIEW         u8" Open in PE View");
+		ImGui::Separator();
+		Settings::shortcuts.SymListOpenInDisassembler.RenderInPopup();
+		Settings::shortcuts.SymListOpenInMemoryView.RenderInPopup();
+
 	}
 }
 
@@ -234,6 +232,20 @@ void ViewSymbolList::Render(bool& bOpen)
 		m_textFilter.Render();
 
 		m_table.Render(m_moduleList);
+
+		if (Settings::shortcuts.SymListOpenInDisassembler.IsPressedInWindow())
+		{
+			if (auto selectedItems = m_table.GetSelectedItems(); selectedItems.size() > 0)
+			{
+				auto* node = m_table.GetNodeAtIndex(selectedItems[0]);
+				auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
+				if (node && disasmView.has_value())
+				{
+					disasmView.value().pView->GoToAddress(node->address);
+				}
+			}
+		}
+
 		ImGui::End();
 	}
 	else
