@@ -460,7 +460,7 @@ public:
 		m_selected.clear();
 	}
 
-	_CONSTEXPR20 std::vector<size_t>& GetSelectedItems()
+	_NODISCARD _CONSTEXPR20 std::vector<size_t>& GetSelectedItems()
 	{
 		return m_selected;
 	}
@@ -477,7 +477,7 @@ public:
 		}
 	}
 
-	_CONSTEXPR20 size_t GetHoveredColumn() const
+	_NODISCARD _CONSTEXPR20 size_t GetHoveredColumn() const
 	{
 		return m_hoveredColumn;
 	}
@@ -528,7 +528,7 @@ public:
 	}
 
 	// Get the item x offset
-	_CONSTEXPR20 float GetItemOffset()
+	_NODISCARD _CONSTEXPR20 float GetItemOffset()
 	{
 		return m_nodeOffset + m_desc.ItemOffset;
 	}
@@ -549,11 +549,11 @@ public:
 		return result;
 	}
 
-	_CONSTEXPR20 UserNode* GetNodeAtIndex(size_t index)
+	_NODISCARD _CONSTEXPR20 UserNode* GetNodeAtIndex(size_t index)
 	{
 		if (m_currentNodeList == nullptr) return nullptr;
 
-		auto GetNodeRecursive =
+		static const auto GetNodeRecursive =
 		[](auto&& GetNodeRecursive, UserNode* node, size_t& recursiveIndex, size_t indexToFind) -> UserNode*
 		{
 			if (recursiveIndex++ == indexToFind) return node;
@@ -684,7 +684,9 @@ public:
 			if (m_desc.PopupRenderCallback) HandlePopup();
 		}
 
-		m_currentNodeList = nullptr;
+		// WARNING: For a reason, we store the pointer to the last frame nodes
+		//			This might, at some point, crash because the pointer is no longer valid
+		// m_currentNodeList = nullptr;
 	}
 
 };
