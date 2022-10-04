@@ -24,8 +24,8 @@ void Init()
 	BaseView* viewWatchList  = new ViewWatchList();
 	BaseView* viewAttachProc = new ViewAttachProc();
 	BaseView* viewModules    = new ViewSymbolList();
-	BaseView* viewDisasm     = new ViewDisassembler();
 	BaseView* viewSettings   = new ViewSettings();
+	BaseView* viewDisasm = new ViewDisassembler();
 
 	m_ViewList.push_back({ viewScanner   , viewScanner->isDefaultOpen()    });
 	m_ViewList.push_back({ viewWatchList , viewWatchList->isDefaultOpen()  });
@@ -38,7 +38,7 @@ void Init()
 	Engine::OnDetachCallback(HandlerDetachProcess);
 
 	// AUTO ATTACH FOR DEBUG MODE ONLY
-	if (auto result = Engine::Attach(110224); result.has_error())
+	if (auto result = Engine::Attach(198860); result.has_error())
 		result.error().show();
 }
 
