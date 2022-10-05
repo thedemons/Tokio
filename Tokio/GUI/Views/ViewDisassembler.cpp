@@ -31,7 +31,7 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	//		return Widgets::Table::Execution::Skip;
 	//	}
 	//}
-
+	//im_table->Columns[1].ItemWidth
 
 	// not readable address, draw a "??"
 	if (insData.isNotReadable)
@@ -49,6 +49,7 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 		return Widgets::Table::Execution::Continue;
 	}
 
+	// if the instruction is at the start at a module
 	if (insData.isAtBaseModule)
 	{
 		cursorOffset.y += 25.f;
@@ -56,51 +57,75 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 
 		insData.fmtAddress.Render(MainApplication::FontMonoBigBold);
 	}
-	else if (insData.isAtSubroutineStart)
-	{
-		cursorOffset.y += 15.f;
-		ImGui::Text("start_%llx", insData.address);
-	}
-	else if (insData.isAtSubroutineEnd)
-	{
-		cursorOffset.y += 15.f;
-		ImGui::Text("endp_%llx", insData.address);
-	}
-	else if (insData.referers.size() != 0)
-	{
-		auto refererIns = insData.referers[0];
-		if (refererIns->mnemonic.type == DisasmOperandType::mneJump ||
-			refererIns->mnemonic.type == DisasmOperandType::mneJumpCondition)
-		{
-			cursorOffset.y += 15.f;
-			ImGui::Text("loc_%llx", insData.address);
-		}
-	}
 
 	// draw symbolic address
 	// FIXME: is checking the size needed?
-	if (insData.fmtAddress.size() > 0 )
+
+	insData.fmtAddress.Render();
+
+	const SubroutineInfo* subroutine = insData.GetSubroutine();
+
+	if (subroutine != nullptr)
+	{
+		if (insData.isAtSubroutineStart)
+		{
+			ImVec4 subColor = ImGui::ColorConvertU32ToFloat4(Settings::theme.disasm.Subroutine);
+
+			ImGui::SameLine();
+			ImGui::TextColored(subColor, "sub_%llx start", insData.address);
+
+			insData.fmtAddress.Render();
+			ImGui::SameLine();
+			ImGui::TextColored(subColor, "blocks: %d", subroutine->blocks.size());
+
+			insData.fmtAddress.Render();
+			ImGui::SameLine();
+			ImGui::TextColored(subColor, "size: 0x%llX", subroutine->end - subroutine->start);
+
+
+			cursorOffset.y += 17.f*2.f;
+		}
+		else if (insData.referers.size() != 0)
+		{
+			auto refererIns = insData.referers[0];
+			if (refererIns->mnemonic.type == DisasmOperandType::mneJump ||
+				refererIns->mnemonic.type == DisasmOperandType::mneJumpCondition)
+			{
+				ImVec4 locColor = ImGui::ColorConvertU32ToFloat4(Settings::theme.disasm.mneJumpCondition);
+
+				ImGui::SameLine();
+				ImGui::TextColored(locColor, "loc_%llx", insData.address);
+				insData.fmtAddress.Render();
+
+				cursorOffset.y += 17.f;
+			}
+		}
+	}
+
+
+	//assert((!insData.isAtSubroutineEnd || (insData.isAtSubroutineEnd && subroutine != nullptr)) && "Why is it at the end of the subroutine but doesn't have a pointer to any subroutine?");
+	if (insData.isAtSubroutineEnd && subroutine)
 	{
 		insData.fmtAddress.Render();
-	}
-	else
-	{
-		ImGui::PushStyleColor(ImGuiCol_Text, Settings::theme.disasm.Address);
-		ImGui::Text("%llX", insData.address);
-		ImGui::PopStyleColor();
-	}
+		ImGui::SameLine();
 
-
-	// bytes
+		ImVec4 subColor = ImGui::ColorConvertU32ToFloat4(0xff00ff00);
+		ImGui::TextColored(subColor, "sub_%llx endp", subroutine->start);
+	}
+	
+	// bytes column
 	table->NextColumn();
 	ImGui::SetCursorPos(ImGui::GetCursorPos() + cursorOffset);
 
+
+	ImGui::PushStyleColor(ImGuiCol_Text, Settings::theme.disasm.Bytes);
 	for (size_t i = 0; i < insData.length; i++)
 	{
-		ImGui::Text("%02X", pThis->m_memoryBuffer[insData.bufferOffset + i]);
-		//ImGui::TextColored(ImVec4(ThemeSettings::disasm.Bytes), "%02X", insData.bytes[i]);
+		ImGui::Text( "%02X", pThis->m_memoryBuffer[insData.bufferOffset + i]);
 		ImGui::SameLine();
 	}
+	ImGui::PopStyleColor();
+
 
 	// mnemonic
 	table->NextColumn();
@@ -120,7 +145,6 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 		table->NextColumn();
 		insData.fmtComment.Render();
 	}
-
 	return Widgets::Table::Execution::Continue;
 };
 
@@ -148,12 +172,10 @@ void ViewDisassembler::TablePopupRenderCallback(Widgets::Table* table, size_t in
 	index = table->GetSelectedItems()[0];
 
 
-	Settings::shortcuts.DisasmCopyAddress.RenderInPopup();
-
-	ImGui::Separator();
 	Settings::shortcuts.DisasmGoToAdress.RenderInPopup();
-
+	Settings::shortcuts.DisasmCopyAddress.RenderInPopup();
 	ImGui::Separator();
+
 	Settings::shortcuts.DisasmFollowInstruction.RenderInPopup();
 	Settings::shortcuts.DisasmGoToReference.RenderInPopup();
 
@@ -213,13 +235,13 @@ ViewDisassembler::ViewDisassembler()
 
 	desc.Flags = ImGuiTableFlags_BordersOuter | // outer borders
 				 ImGuiTableFlags_SortTristate | // disable sort
-				 ImGuiTableFlags_Hideable     | // hide the columns
+				 //ImGuiTableFlags_Hideable     | // hide the columns
 				 ImGuiTableFlags_Resizable    | // resizable coulmns by default
 				 ImGuiTableFlags_Reorderable  ; // re-order the coulmns
 
 	m_table.Setup(desc);
 
-	m_table.AddColumn("Address", ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_WidthFixed, 120.f);
+	m_table.AddColumn("Address");
 	m_table.AddColumn("Bytes");
 	m_table.AddColumn("Opcode");
 	m_table.AddColumn("Comments");
@@ -318,7 +340,6 @@ void ViewDisassembler::RenderReferenceArrow()
 	//}
 
 	//draw_list->PopClipRect();
-
 }
 
 // FIXME: THIS CODE IS SO BAD
@@ -360,7 +381,12 @@ int ViewDisassembler::RenderScrollBar()
 			colorGrab = ImGui::ColorConvertFloat4ToU32(
 				style.Colors[bMouseDown ? ImGuiCol_ScrollbarGrabActive : ImGuiCol_ScrollbarGrabHovered]
 			);
-			if (bMouseDown && ImGui::IsMouseDragging(0)) m_scrollBarDragging = true;
+
+			if (bMouseDown && ImGui::IsMouseDragging(0))
+			{
+				m_scrollBarDragging = true;
+				m_scrollDragInterval = ImGui::GetTime();
+			}
 		}
 
 		draw_list->AddRectFilled(grabRect.Min, grabRect.Max, colorGrab, style.ScrollbarRounding);
@@ -396,11 +422,15 @@ int ViewDisassembler::RenderScrollBar()
 
 		// normalize the drag delta
 		dragDelta /= (scrollHeight / 2.f);
-		double timeInterval = abs(dragDelta);
-		if (currentTime - m_scrollDragInterval > 0.001f / timeInterval)
+		double timeInterval = 0.001f / abs(dragDelta);
+		if (currentTime - m_scrollDragInterval > timeInterval)
 		{
+			double fdelta = (currentTime - m_scrollDragInterval) / timeInterval;
 			m_scrollDragInterval = currentTime;
-			scrollDir = dragDelta > 0.f ? 1 : -1;
+
+			int delta = static_cast<int>(round(fdelta));
+
+			scrollDir = dragDelta > 0.f ? 1 * delta : -1 * delta;
 		}
 	}
 
@@ -425,6 +455,10 @@ void ViewDisassembler::HandleScrolling()
 	{
 		// not enough instructions in the list to goes backward, subtract the address instead
 		if (scrollDir < 0 && m_instructionOffset < -scrollDir)
+		{
+			m_pVirtualBase += scrollDir;
+		}
+		else if(scrollDir > 0 && m_instructionOffset + scrollDir > m_analyzedData.instructions.size() - 1)
 		{
 			m_pVirtualBase += scrollDir;
 		}
@@ -496,7 +530,60 @@ void ViewDisassembler::HandleShortcuts()
 			}
 		}
 	}
+
+	if (Settings::shortcuts.DisasmSwitchMode.IsPressedInWindow())
+	{
+
+		if (!m_isGraphMode)
+		{
+			auto& selected = m_table.GetSelectedItems();
+			if (selected.size() > 0)
+			{
+				POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
+				m_isGraphMode = m_graph.Init(selectedItemAddress, m_analyzedData);
+			}
+		}
+		else
+		{
+
+			m_isGraphMode = false;
+		}
+
+	}
 }
+
+
+//void ViewDisassembler::RenderGraph()
+//{
+//	//static ImVec2 graph_offset{ 0,0 };
+//	//static ImVec2 graph_offset_old = graph_offset;
+//	//static bool isDragging = false;
+//
+//	//if (!isDragging && ImGui::IsMouseDragging(0))
+//	//{
+//	//	graph_offset_old = graph_offset;
+//	//	isDragging = true;
+//	//}
+//	//else if (isDragging && !ImGui::IsMouseDragging(0))
+//	//{
+//	//	isDragging = false;
+//	//}
+//	//else if (isDragging)
+//	//{
+//	//	graph_offset = graph_offset_old + ImGui::GetMouseDragDelta(0);
+//	//}
+//	//SubroutineInfo& subroutine = m_analyzedData.subroutines[m_graphSubroutineIndex];
+//	//assert(subroutine.blocks.size() != 0);
+//
+//	//SubroutineBlock& firstBlock = subroutine.blocks[0];
+//
+//	//ImVec2 cursor = ImGui::GetWindowPos() + ImVec2(ImGui::GetWindowSize().x / 2, 100);
+//	//ImDrawList* dl = ImGui::GetWindowDrawList();
+//	//ImFont* font = MainApplication::FontMonoRegular;
+//
+//	//RenderNodeRecursive(subroutine, firstBlock, dl, font, font->FontSize, cursor + graph_offset);
+//
+//}
 
 void ViewDisassembler::Render(bool& bOpen)
 {
@@ -506,22 +593,29 @@ void ViewDisassembler::Render(bool& bOpen)
 	if (currentTime - m_timeLastRefresh > m_refreshInterval)
 	{
 		m_timeLastRefresh = currentTime;
-		//GoToAddress(m_pVirtualBase);
+		GoToAddress(m_pVirtualBase);
 	}
-	GoToAddress(m_pVirtualBase);
+	//GoToAddress(m_pVirtualBase);
 
 
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0.f, 0.f });
 	ImGui::Begin(Title().c_str(), &bOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PopStyleVar();
 
-	m_table.Render(m_analyzedData.instructions.size() - m_instructionOffset);
+	if (m_isGraphMode)
+	{
+		m_graph.Render();
+	}
+	else
+	{
+		m_table.Render(m_analyzedData.instructions.size() - m_instructionOffset);
 
-	RenderReferenceArrow();
+		RenderReferenceArrow();
+		HandleScrolling();
+	}
 
 	// must handle shortcuts before end window
 	HandleShortcuts();
-	HandleScrolling();
 
 	ImGui::End();
 
@@ -533,7 +627,7 @@ void ViewDisassembler::Render(bool& bOpen)
 void ViewDisassembler::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 {
 	UNUSED(targetProcess);
-	GoToAddress(0x7ffe10c9265c);
+	GoToAddress(0x7ffe09c11700);
 	//GoToAddress(targetProcess->baseModule->base);
 }
 
@@ -597,7 +691,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 			ImGui::TokenizedText symbol(5);
 			symbol.push_back(modShortName, settings.Module);
 			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Function);
+			symbol.push_back(pSymbol->name, settings.Symbol);
 			symbol.push_back("+"s, settings.Delimeter);
 			symbol.push_back(settings.Displacement, "%llX", offsetFromVA);
 
@@ -611,7 +705,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 			ImGui::TokenizedText symbol(3);
 			symbol.push_back(modShortName, settings.Module);
 			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Function);
+			symbol.push_back(pSymbol->name, settings.Symbol);
 
 			if (isBaseOffset) *isBaseOffset = true;
 			return symbol;
@@ -926,6 +1020,7 @@ void ViewDisassembler::Disassemble()
 			break;
 		}
 	}
+
 
 }
 

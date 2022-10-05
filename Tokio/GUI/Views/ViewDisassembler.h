@@ -8,6 +8,7 @@
 
 #include "Engine/EngineAnalyzerDef.h"
 #include "Engine/Analyzer/BaseAnalyzer.h"
+#include "GUI/Views/DisassemblerGraph.h"
 
 
 class ViewDisassembler : public BaseView
@@ -102,11 +103,16 @@ private:
 
 	bool m_isGraphMode = false;
 
+	DisassemblerGraph m_graph;
+
+
+	std::vector<POINTER> m_addressHistory;
+	size_t m_addressHistoryIndex = UPTR_UNDEFINED;
+
 private:
 	void HandleShortcuts();
 	void HandleScrolling();
 	void RenderReferenceArrow();
-	void RenderGraph();
 	void Disassemble();
 
 public:
