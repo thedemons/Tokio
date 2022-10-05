@@ -119,7 +119,8 @@ void FontMergeIcon()
     configAwesome.MergeMode = true;
     configAwesome.FontDataOwnedByAtlas = false; // don't free memory
     configAwesome.OversampleH = configAwesome.OversampleV = 1;
-    fontAtlas->AddFontFromMemoryTTF((void*)fa_solid_900, sizeof(fa_solid_900), 12.f, &configAwesome, rangesAwesome);
+    //fontAtlas->AddFontFromMemoryTTF((void*)fa_solid_900, sizeof(fa_solid_900), 12.f, &configAwesome, rangesAwesome);
+    fontAtlas->AddFontFromFileTTF("Fonts\\fa-solid-900.ttf", 14.0f, &configAwesome, rangesAwesome);
 
 }
 
@@ -308,8 +309,8 @@ void StartLoop()
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        g_pSwapChain->Present(0, 0); // Present without vsync
-        //g_pSwapChain->Present(1, 0); // Present with vsync
+        //g_pSwapChain->Present(0, 0); // Present without vsync
+        g_pSwapChain->Present(1, 0); // Present with vsync
     }
 
     // Cleanup
