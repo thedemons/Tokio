@@ -132,12 +132,13 @@ void TokenizedText::Render(ImFont* font)
 }
 
 // render in the drawlist, same as ImDrawList->AddText()
-void TokenizedText::Render(ImDrawList* drawList, ImVec2 pos, ImFont* font)
+void TokenizedText::Render(ImDrawList* drawList, ImVec2 pos, ImFont* font, float fontSize)
 {
     if (m_tokens.size() == 0) return;
 
     ImGuiContext& g = *GImGui;
     if (font == nullptr) font = g.Font;
+    if (fontSize == 0.f) fontSize = font->FontSize;
 
     // might implement it in the future
     float wrap_width = 0.f;
@@ -148,10 +149,11 @@ void TokenizedText::Render(ImDrawList* drawList, ImVec2 pos, ImFont* font)
         const char* text_begin = token.text.c_str();
         const char* text_end = text_begin + token.text.size();
 
-        const ImVec2 text_size = CalcTextSize(text_begin, text_end, false, wrap_width);
+        const ImVec2 text_size = font->CalcTextSizeA(font->FontSize, FLT_MAX, wrap_width, text_begin, text_end, 0);
 
-        //font->RenderText()
-        drawList->AddText(font, font->FontSize, currentPosition, token.color, text_begin, text_end);
+        ImVec4 clip_rect = drawList->_CmdHeader.ClipRect;
+        font->RenderText(drawList, fontSize, currentPosition, token.color, clip_rect, text_begin, text_end, 0.f, false);
+
         currentPosition.x += text_size.x;
     }
 }
@@ -266,5 +268,21 @@ void TokenizedText::RenderToken(ImGuiContext& g, ImGuiWindow* window, ImFont* fo
     }
 }
 
+_NODISCARD ImVec2 TokenizedText::CalcSize(ImFont* font, float size) const
+{
+    ImGuiContext& g = *GImGui;
+    if (font == nullptr) font = g.Font;
+    if (size == 0.f) size = font->FontSize;
+
+    ImVec2 textSize{ 0,0 };
+    for (const Token& token : m_tokens)
+    {
+        ImVec2 calcSize = font->CalcTextSizeA(size, FLT_MAX, 0.f, token.text.c_str(), token.text.c_str() + token.text.size());
+        textSize.x += calcSize.x;
+        if (calcSize.y > textSize.y) textSize.y = calcSize.y;
+    }
+
+    return textSize;
+}
 }
 

@@ -62,7 +62,7 @@ public:
     void Render(ImFont* font = nullptr);
 
     // render in the drawlist, same as ImDrawList->AddText()
-    void Render(ImDrawList* drawList, ImVec2 pos, ImFont* font = nullptr);
+    void Render(ImDrawList* drawList, ImVec2 pos, ImFont* font = nullptr, float fontSize = 0.f);
 
     template <size_t Size>
     TokenizedText(const char(&text)[Size], ImU32 color)
@@ -172,6 +172,8 @@ public:
     {
         m_tokens.clear();
     }
+
+    _NODISCARD ImVec2 CalcSize(ImFont* font = nullptr, float size = 0.f) const;
 };
 }
 
