@@ -22,7 +22,7 @@ private:
 	void AnalyzeCrossReferences(AnalyzedData& data);
 
 	//void AnalyzeSubroutineBlocks(AnalyzedData& data, SubroutineInfo& subroutine, size_t start_index);
-	void AnalyzeSubroutines(AnalyzedData& data);
+	void AnalyzeSubroutines(AnalyzedData& data, const std::vector<BYTE>& buffer);
 
 
 public:

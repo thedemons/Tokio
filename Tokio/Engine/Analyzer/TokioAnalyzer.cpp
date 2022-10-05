@@ -13,60 +13,116 @@ using namespace std::string_literals;
 namespace Engine
 {
 
-bool AnalyzeSubroutineBlocks(AnalyzedData& data, SubroutineInfo& subroutine, size_t start_index)
+bool AnalyzeSubroutineBlocks(
+	AnalyzedData& data,
+	SubroutineInfo& subroutine,
+	size_t start_index,
+	size_t prevCondBlockIndex = UPTR_UNDEFINED,
+	size_t prevBlockIndex = UPTR_UNDEFINED
+)
 {
 	AnalyzedInstruction& firstInstruction = data.instructions[start_index];
 	
 	// check if this instruction already has a block (already analyzed)
-	if (firstInstruction.iBlock != UPTR_UNDEFINED) return true;
+	if (firstInstruction.blockIndex != UPTR_UNDEFINED)
+	{
+		// this instruction belongs to another subroutine
+		if (firstInstruction.iSubroutine != UPTR_UNDEFINED)
+		{
+			// remove the linkage of the previous instruction
+			if (prevBlockIndex != UPTR_UNDEFINED)
+			{
+				SubroutineBlock& previousBlock = subroutine.blocks[prevBlockIndex];
+				previousBlock.nextBlockIndex = UPTR_UNDEFINED;
+				
+			}
+			if (prevCondBlockIndex != UPTR_UNDEFINED)
+			{
+				SubroutineBlock& previousBlock = subroutine.blocks[prevCondBlockIndex];
+				previousBlock.nextCondBlockIndex = UPTR_UNDEFINED;
+				
+			}
+		}
+		else
+		{
+			SubroutineBlock& thisBlock = subroutine.blocks[firstInstruction.blockIndex];
 
-	SubroutineBlock* thisBlock = &subroutine.AddBlock();
-	thisBlock->insStartIndex = start_index;
+			if (thisBlock.prevBlockIndex == UPTR_UNDEFINED)
+				thisBlock.prevBlockIndex = prevBlockIndex;
+
+			if (thisBlock.prevCondBlockIndex == UPTR_UNDEFINED)
+				thisBlock.prevCondBlockIndex = prevCondBlockIndex;
+		}
+
+		return true;
+	}
 
 	size_t thisBlockIndex = subroutine.blocks.size();
-	firstInstruction.iBlock = thisBlockIndex;
+	SubroutineBlock& thisBlock = subroutine.AddBlock();
 
-	for (size_t index = start_index; index < data.instructions.size() - 1; index++)
+	thisBlock.instructionIndex = start_index;
+	thisBlock.prevBlockIndex = prevBlockIndex;
+	thisBlock.prevCondBlockIndex = prevCondBlockIndex;
+
+	size_t index = start_index;
+
+	for (; index < data.instructions.size() - 1; index++)
 	{
 		AnalyzedInstruction& instruction = data.instructions[index];
 		AnalyzedInstruction& next_instruction = data.instructions[index + 1];
 
+		bool bIsInvalid =
+			instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
+			instruction.mnemonic.type == DisasmOperandType::Invalid ||
+			instruction.isNotReadable;
+
+		instruction.blockIndex = thisBlockIndex;
+
+		//printf("%llx:  ", instruction.address);
+		//for (auto& op : instruction.operands)
+		//{
+		//	printf("%s", op.value);
+		//}
+		//printf("\n");
+		
 		// if this instruction is a "ret"
 		if (instruction.mnemonic.type == DisasmOperandType::mneReturn)
 		{
-			thisBlock->insEndIndex = index + 1;
+			thisBlock.instructionCount = index - start_index + 1;
 			return true;
 		}
-		// if this is an "int3"
-		else if (instruction.mnemonic.type == DisasmOperandType::mneInt3)
+		else if (bIsInvalid)
 		{
-			thisBlock->insEndIndex = index + 1;
-			return true;
+			thisBlock.instructionCount = index - start_index + 1;
+			return false;
 		}
-		// if the next instruction has a block (already analyzed)
-		else if (next_instruction.iBlock != UPTR_UNDEFINED)
+		else if (next_instruction.iSubroutine != UPTR_UNDEFINED) 
 		{
-			// we set this block next index to the next instruction block index
-			thisBlock->iNextBlock = next_instruction.iBlock;
-			thisBlock->insEndIndex = index + 1;
-			return true;
+			thisBlock.instructionCount = index - start_index + 1;
+			return false;
 		}
 
 		// if the instruction was a jump without condition
 		if (instruction.mnemonic.type == DisasmOperandType::mneJump)
 		{
-			thisBlock->insEndIndex = index + 1;
+			thisBlock.instructionCount = index - start_index + 1;
 
 			// if the referenced index is valid
 			if (instruction.referencedIndex != UPTR_UNDEFINED)
 			{
 				// jump out of the subroutine, we should mark it as ended here
-				if (instruction.referencedIndex > index && next_instruction.mnemonic.type == DisasmOperandType::mneInt3) return true;
+				// FIXME <-- i added this FIXME a while ago and didn't remember what to fix..
 
+				bool bNextInvalid =
+					next_instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
+					next_instruction.mnemonic.type == DisasmOperandType::Invalid ||
+					next_instruction.isNotReadable;
+
+				if (instruction.referencedIndex > index && bNextInvalid) return true;
 
 				// analyzed the block that this instruction jumps to
-				thisBlock->iNextBlock = subroutine.blocks.size();
-				return AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex);
+				thisBlock.nextBlockIndex = subroutine.blocks.size();
+				return AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex, UPTR_UNDEFINED, thisBlockIndex);
 			}
 
 			// if the referenced index was invalid, there are multiple reasons why
@@ -77,95 +133,190 @@ bool AnalyzeSubroutineBlocks(AnalyzedData& data, SubroutineInfo& subroutine, siz
 		// if is is a jump with condition, there are two paths
 		else if (instruction.mnemonic.type == DisasmOperandType::mneJumpCondition)
 		{
-			thisBlock->insEndIndex = index + 1;
+			thisBlock.instructionCount = index - start_index + 1;
 
 			// if the referenced index is valid, it's probably isn't valid if it points to
 			// somewhere outside the analyzed range
 			if (instruction.referencedIndex != UPTR_UNDEFINED)
 			{
-				// analyzed the block that this instruction jumps to
-				thisBlock->iConditionalBlock = subroutine.blocks.size();
-				bool result = AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex);
+				bool bNextInvalid =
+					next_instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
+					next_instruction.mnemonic.type == DisasmOperandType::Invalid ||
+					next_instruction.isNotReadable;
 
+				// a conditional jump but its next instruction is invalid, this is not a subroutine
+				if (bNextInvalid) break;
+
+				// analyzed the block that this instruction jumps to
+				thisBlock.nextCondBlockIndex = subroutine.blocks.size();
+				bool result = AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex, thisBlockIndex);
+
+				// continue analyze the next instruction if everything is fine
 				if (!result) return false;
 			}
 
-			// notice that we don't use the pointer thisBlock here, because when we call
-			// AnalyzeSubroutineBlocks again (recursively), it might have emplace_back() 
-			// and thus make the thisBlock pointer invalid
-			subroutine.blocks[thisBlockIndex].iNextBlock = subroutine.blocks.size();
+			// don't analyze the next instruction if it was already analyzed
+			if (next_instruction.blockIndex != UPTR_UNDEFINED)
+			{
+				// we set this block next index to the next instruction block index
+				thisBlock.nextBlockIndex = next_instruction.blockIndex;
+				subroutine.blocks[next_instruction.blockIndex].prevBlockIndex = thisBlockIndex;
+				return true;
+			}
+			else
+			{
+				// notice that we don't use the pointer thisBlock here, because when we call
+				// AnalyzeSubroutineBlocks again (recursively), it might have emplace_back() 
+				// and thus make the thisBlock pointer invalid
+				subroutine.blocks[thisBlockIndex].nextBlockIndex = subroutine.blocks.size();
 
-			// continue analyze the next instruction
-			return AnalyzeSubroutineBlocks(data, subroutine, index + 1);
+				// continue analyze the next instruction
+				return AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
+			}
+		}
+		// or if it has any referer, i don't know how well this will work since other
+		// instructions outside the subroutine could refer to it, might need rework. FIXME!
+		else if (next_instruction.referers.size() > 0)
+		{
+			// create a new block on the next index
+			thisBlock.instructionCount = index - start_index + 1;
+			thisBlock.nextBlockIndex = subroutine.blocks.size();
+			return AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
 		}
 	}
 
+
 	// the end point was not found, either the subroutine was too big that it ended outside
 	// of the analyzed region, or simply isn't a subroutine
+
+	thisBlock.instructionCount = data.instructions.size() - start_index;
 	return false;
 }
 
-void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data)
+inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, size_t subroutineIndex)
+{
+	// find the start and end point of the subroutine simply by min max the blocks start/end index
+	subroutine.start = UPTR_UNDEFINED;
+	subroutine.end = 0;
+	size_t startidx = UPTR_UNDEFINED;
+	size_t endidx = UPTR_UNDEFINED;
+
+	for (auto& block : subroutine.blocks)
+	{
+		size_t end_index = block.instructionIndex + block.instructionCount - 1;
+		POINTER startAddr = data.instructions[block.instructionIndex].address;
+		POINTER endAddr = data.instructions[end_index].address;
+
+		if (startAddr < subroutine.start)
+		{
+			subroutine.start = startAddr;
+			startidx = block.instructionIndex;
+		}
+		if (endAddr > subroutine.end)
+		{
+			subroutine.end = endAddr;
+			endidx = end_index;
+		}
+	}
+
+	data.instructions[startidx].isAtSubroutineStart = true;
+	data.instructions[endidx].isAtSubroutineEnd = true;
+
+	// assign the subroutine to those instructions
+	for (size_t i = startidx; i <= endidx; i++)
+		data.instructions[i].iSubroutine = subroutineIndex;
+
+	return endidx;
+}
+
+// THIS IS A MESS FIXME-PLEASE
+void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, const std::vector<BYTE>& buffer)
 {
 
 	bool bLastInt3 = false;
+	bool bLastNull = false;
 	bool bLastUnreadable = false;
+	bool bLastSubroutineEnded = false;
 
 	for (size_t index = 0; index < data.instructions.size(); index++)
 	{
 		AnalyzedInstruction& instruction = data.instructions[index];
 		bool bIsInt3 = instruction.mnemonic.type == DisasmOperandType::mneInt3;
 
-		// case 1: check if the last instruction was int3 and this one is not
-		// case 2: check if the last instruction was unreadable and this one is not
-		// case 3: check if this instruction has a symbol and start at the offset 0 (isAtSubroutineStart)
-
-		if ((bLastInt3 && !bIsInt3) || (bLastUnreadable && !instruction.isNotReadable) || instruction.isAtSubroutineStart)
+		bool bIsNull = true;
+		for (size_t bufIndex = instruction.bufferOffset; bufIndex < instruction.bufferOffset + instruction.length; bufIndex++)
 		{
-			SubroutineInfo& subroutine = data.AddSubroutine();
-			if (AnalyzeSubroutineBlocks(data, subroutine, index) && subroutine.blocks.size() > 0)
+			if (buffer[bufIndex] != 0x00)
 			{
-				// find the start and end point of the subroutine simply by min max the blocks start/end index
-				subroutine.start = UPTR_UNDEFINED;
-				subroutine.end = 0;
-				size_t startidx = UPTR_UNDEFINED;
-				size_t endidx = UPTR_UNDEFINED;
-
-				for (auto& block : subroutine.blocks)
-				{
-					POINTER startAddr = data.instructions[block.insStartIndex].address;
-					POINTER endAddr = data.instructions[block.insEndIndex].address;
-
-					if (startAddr < subroutine.start)
-					{
-						subroutine.start = startAddr;
-						startidx = block.insStartIndex;
-					}
-					if (endAddr > subroutine.end)
-					{
-						subroutine.end = endAddr;
-						endidx = block.insEndIndex;
-					}
-				}
-
-				data.instructions[startidx].isAtSubroutineStart = true;
-				data.instructions[endidx].isAtSubroutineEnd = true;
-
-				index = endidx + 1;
-
-				bLastUnreadable = data.instructions[index].isNotReadable;
-				bLastInt3 = bIsInt3;
-				
-				continue;
-			}
-			else
-			{
-				data.subroutines.pop_back();
+				bIsNull = false;
+				break;
 			}
 		}
 
+		// case 1: check if the last instruction was int3 and this one is not
+		// case 2: check if the last instruction was null and this one is not
+		// case 3: check if the last instruction was unreadable and this one is not
+		// case 4: check if this instruction has a symbol and start at the offset 0 (isAtSubroutineStart)
+		// case 5: this is the instruction right after the last subroutine, and this is not null, not int3 and readable
+		//system("cls");
+
+		bool case5 = bLastSubroutineEnded && !bIsInt3 && !bIsNull && !instruction.isNotReadable;
+		if (case5 || (bLastInt3 && !bIsInt3) || (bLastNull && !bIsNull) || (bLastUnreadable && !instruction.isNotReadable) || instruction.isAtSubroutineStart)
+		{
+			size_t subroutineIndex = data.subroutines.size();
+			SubroutineInfo& subroutine = data.AddSubroutine();
+
+
+			if (AnalyzeSubroutineBlocks(data, subroutine, index) && subroutine.blocks.size() > 0)
+			{
+				bool bDestroySubroutine = false;
+
+				// if it only has one block, contains one single instruction, and that instruction is "ret"
+				// probably an invalid subroutine
+				if (subroutine.blocks.size() == 1)
+				{
+					const SubroutineBlock& firstBlock = subroutine.blocks[0];
+					if (firstBlock.instructionCount == 1)
+					{
+						const AnalyzedInstruction& ins = data.instructions[firstBlock.instructionIndex];
+						bDestroySubroutine = ins.mnemonic.type == DisasmOperandType::mneReturn;
+					}
+				}
+
+				if (!bDestroySubroutine)
+				{
+					index = InitSubroutine(data, subroutine, subroutineIndex);
+
+					// FIXME: THIS IS SO FUCKING DIRTY
+					bLastUnreadable = false;
+					bLastInt3 = false;
+					bLastNull = false;
+					bLastSubroutineEnded = true;
+					continue;
+				}
+			}
+
+			// we must clear the block assignment if this is not a subroutine
+			for (auto& block : subroutine.blocks)
+			{
+				for (size_t insIndex = block.instructionIndex; insIndex < block.instructionIndex + block.instructionCount; insIndex++)
+				{
+					auto& ins = data.instructions[insIndex];
+					ins.blockIndex = UPTR_UNDEFINED;
+					ins.iSubroutine = UPTR_UNDEFINED;
+				}
+			}
+
+			data.subroutines.pop_back();
+
+			// false subroutine symbol
+			instruction.isAtSubroutineStart = false;
+		}
+
+		bLastNull = bIsNull;
 		bLastInt3 = bIsInt3;
 		bLastUnreadable = instruction.isNotReadable;
+		bLastSubroutineEnded = false;
 	}
 }
 
@@ -180,7 +331,7 @@ void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data)
 	auto iterEnd = data.instructions.end();
 
 	// calculate the reference index, mainly used for jump and call pointer rendering
-	for (auto it = iterBegin; it != iterEnd; it++)
+	for (std::vector<AnalyzedInstruction>::iterator it = iterBegin; it != iterEnd; it++)
 	{
 		// if the reference address is in range of the current instructions
 		if (it->referencedAddress != 0 &&
@@ -283,7 +434,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 			ImGui::TokenizedText symbol(5);
 			symbol.push_back(pModule->moduleShortName, settings.Module);
 			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Function);
+			symbol.push_back(pSymbol->name, settings.Symbol);
 			symbol.push_back("+"s, settings.Delimeter);
 			symbol.push_back(settings.Displacement, "%llX", offsetFromVA);
 
@@ -298,7 +449,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 			ImGui::TokenizedText symbol(3);
 			symbol.push_back(pModule->moduleShortName, settings.Module);
 			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Function);
+			symbol.push_back(pSymbol->name, settings.Symbol);
 
 			if (isAtBaseModule) *isAtBaseModule = false;
 			if (isAtSubroutineStart) *isAtSubroutineStart = true;
@@ -436,6 +587,7 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 	invalidInstruction.isNotReadable = true;
 
 	// FIXME-PERFORMANCE: Using clear is bad, reduce performance about 20%, but we had to do it
+	outData.subroutines.clear();
 	outData.instructions.clear();
 	outData.instructions.resize(size, invalidInstruction);
 
@@ -509,7 +661,7 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 
 	if (bAnalyzeSubroutine)
 	{
-		AnalyzeSubroutines(outData);
+		AnalyzeSubroutines(outData, outBuffer);
 
 	}
 	
