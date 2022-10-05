@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Settings.h"
-
+#include "Resources/FontAwesomeImpl.h"
 
 namespace Settings
 {
@@ -15,24 +15,38 @@ void Load()
 {
 	SetDarkVSTheme();
 
-	shortcuts.DisasmCopyAddress          = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         };
-	shortcuts.DisasmGoToAdress           = { ImGuiKey_LeftCtrl, ImGuiKey_G, "Go to address"        };
-	shortcuts.DisasmFollowInstruction    = { ImGuiKey_LeftCtrl, ImGuiKey_E, "Follow address"       };
-	shortcuts.DisasmGoToReference        = { ImGuiKey_LeftCtrl, ImGuiKey_X, "Go to references"     };
-	shortcuts.DisasmAddToWatchList       = { ImGuiKey_LeftCtrl, ImGuiKey_T, "Add to watch list"    };
-	shortcuts.DisasmOpenInMemoryView     = { ImGuiKey_LeftCtrl, ImGuiKey_B, "Open in memory view"  };
-	shortcuts.DisasmSwitchMode           = { ImGuiKey_Space               , "Switch mode"          };
+	static ImGui::TokenizedText icon_copy               { ICON_FA_COPY            , 0xFF66D7FF };
+	static ImGui::TokenizedText icon_goto_address       { ICON_FA_LOCATION_ARROW  , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_follow_address     { ICON_FA_ARROW_FROM_TOP  , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_find_references    { ICON_FA_SEARCH          , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_add_to_watch_list  { ICON_FA_EYE             , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_open_in_memory_view{ ICON_FA_MEMORY          , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_switch_mode        { ICON_FA_LIGHT_SWITCH_OFF, 0xFFFFD766 };
+	static ImGui::TokenizedText icon_open_file_location { ICON_FA_FOLDER_OPEN     , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_freeze             { ICON_FA_SNOWFLAKE	      , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_power_off          { ICON_FA_POWER_OFF	      , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_attach_process     { ICON_FA_STEP_FORWARD	  , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_refresh            { ICON_FA_REDO	          , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_disassembler       { ICON_FA_MICROCHIP	      , 0xFFFFD766 };
 
-	shortcuts.SymListCopyAddress         = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         };
-	shortcuts.SymListRefresh             = { ImGuiKey_LeftCtrl, ImGuiKey_R, "Refresh symbols"      };
-	shortcuts.SymListAddToWatchList      = { ImGuiKey_LeftCtrl, ImGuiKey_T, "Add to watch list"    };
-	shortcuts.SymListOpenInMemoryView    = { ImGuiKey_LeftCtrl, ImGuiKey_B, "Open in memory view"  };
-	shortcuts.SymListOpenInDisassembler  = { ImGuiKey_LeftCtrl, ImGuiKey_D, "Open in disassembler" };
+	shortcuts.DisasmCopyAddress          = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         , &icon_copy                };
+	shortcuts.DisasmGoToAdress           = { ImGuiKey_LeftCtrl, ImGuiKey_G, "Go to address"        , &icon_goto_address        };
+	shortcuts.DisasmFollowInstruction    = { ImGuiKey_LeftCtrl, ImGuiKey_E, "Follow address"       , &icon_follow_address      };
+	shortcuts.DisasmGoToReference        = { ImGuiKey_LeftCtrl, ImGuiKey_X, "Find references"      , &icon_find_references     };
+	shortcuts.DisasmAddToWatchList       = { ImGuiKey_LeftCtrl, ImGuiKey_T, "Add to watch list"    , &icon_add_to_watch_list   };
+	shortcuts.DisasmOpenInMemoryView     = { ImGuiKey_LeftCtrl, ImGuiKey_B, "Open in memory view"  , &icon_open_in_memory_view };
+	shortcuts.DisasmSwitchMode           = { ImGuiKey_Space               , "Switch mode"          , &icon_switch_mode         };
 
-	shortcuts.AttachProcAttach           = { ImGuiKey_A       ,             "Attach process"       };
-	shortcuts.AttachProcOpenFileLocation = { ImGuiKey_LeftCtrl, ImGuiKey_E, "Open file location"   };
-	shortcuts.AttachProcSuspendProcess   = { ImGuiKey_LeftCtrl, ImGuiKey_Q, "Suspend process"      };
-	shortcuts.AttachProcKillProcess      = { ImGuiKey_LeftCtrl, ImGuiKey_W, "Kill process"         };
+	shortcuts.SymListCopyAddress         = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         , &icon_copy                };
+	shortcuts.SymListRefresh             = { ImGuiKey_LeftCtrl, ImGuiKey_R, "Refresh symbols"      , &icon_refresh             };
+	shortcuts.SymListAddToWatchList      = { ImGuiKey_LeftCtrl, ImGuiKey_T, "Add to watch list"    , &icon_add_to_watch_list   };
+	shortcuts.SymListOpenInMemoryView    = { ImGuiKey_LeftCtrl, ImGuiKey_B, "Open in memory view"  , &icon_open_in_memory_view };
+	shortcuts.SymListOpenInDisassembler  = { ImGuiKey_LeftCtrl, ImGuiKey_D, "Open in disassembler" , &icon_disassembler        };
+
+	shortcuts.AttachProcAttach           = { ImGuiKey_A       ,             "Attach process"       , &icon_attach_process      };
+	shortcuts.AttachProcOpenFileLocation = { ImGuiKey_LeftCtrl, ImGuiKey_E, "Open file location"   , &icon_open_file_location  };
+	shortcuts.AttachProcSuspendProcess   = { ImGuiKey_LeftCtrl, ImGuiKey_Q, "Suspend process"      , &icon_freeze              };
+	shortcuts.AttachProcKillProcess      = { ImGuiKey_LeftCtrl, ImGuiKey_W, "Kill process"         , &icon_power_off           };
 }
 
 void Theme::Serialize(SerializeStream & stream) const 
@@ -163,7 +177,8 @@ void SetDarkVSTheme()
 
 	theme.disasm.Address                   = 0xFFf2f2f2;
 	theme.disasm.Bytes                     = 0xFFcfcfcf;
-	theme.disasm.Function                  = 0xFFAADCDC;
+	theme.disasm.Symbol                    = 0xFFAADCDC;
+	theme.disasm.Subroutine                = 0xFF0A80FF;
 	theme.disasm.Module                    = 0xFFB0C94E;
 	theme.disasm.String                    = 0xFF859DD6;
 	theme.disasm.Xref                      = 0xFFB9EBEB;

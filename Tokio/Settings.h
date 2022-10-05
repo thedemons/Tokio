@@ -50,8 +50,9 @@ public:
 		                            // other color
 		ImU32 Address;              // regular address color
 		ImU32 Bytes;                // the bytes displayed in the bytes column
-		ImU32 Module;               // module color
-		ImU32 Function;             // Function color
+		ImU32 Module;               // module color, example: kernel32.dll
+		ImU32 Symbol;               // symbol color, example: ntdll."NtProtectVirtualMemory"
+		ImU32 Subroutine;           // subroutine color, example: "sub_7ffe71ab8c
 		ImU32 String;	            // string color for comments
 		ImU32 Xref;				    // cross-reference
 		ImU32 ReferenceHighLight;	// highlight color for references
@@ -155,7 +156,7 @@ _NODISCARD _CONSTEXPR20 DWORD GetDisasmColor(DisasmOperandType tokenType) noexce
 
 	unsigned int index = static_cast<unsigned int>(tokenType);
 
-	if (!(index >= 0 && index < (sizeof(arrayColor) / sizeof(DWORD)) - 1))
+	if (!(index >= 0 && index < (sizeof(arrayColor) / sizeof(DWORD)) ))
 	{
 		assert(false && "Why do we have an invalid tokenType?");
 		return theme.disasm.Invalid;
