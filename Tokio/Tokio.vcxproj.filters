@@ -153,6 +153,9 @@
     <ClCompile Include="Engine\Analyzer\TokioAnalyzer.cpp">
       <Filter>Engine\Analyzer</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\Views\DisassemblerGraph.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
@@ -295,6 +298,9 @@
     </ClInclude>
     <ClInclude Include="Engine\EngineAnalyzerDef.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Views\DisassemblerGraph.h">
+      <Filter>GUI\Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

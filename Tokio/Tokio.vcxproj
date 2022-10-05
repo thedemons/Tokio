@@ -234,6 +234,7 @@
     </ClCompile>
     <ClCompile Include="GUI\MainView.cpp" />
     <ClCompile Include="GUI\ShortcutKey.cpp" />
+    <ClCompile Include="GUI\Views\DisassemblerGraph.cpp" />
     <ClCompile Include="GUI\Views\ViewAttachProc.cpp" />
     <ClCompile Include="GUI\Views\ViewDisassembler.cpp" />
     <ClCompile Include="GUI\Views\ViewSettings.cpp" />
@@ -273,6 +274,7 @@
     <ClInclude Include="GUI\MainView.h" />
     <ClInclude Include="GUI\ShortcutKey.h" />
     <ClInclude Include="GUI\Views\BaseView.hpp" />
+    <ClInclude Include="GUI\Views\DisassemblerGraph.h" />
     <ClInclude Include="GUI\Views\ViewAttachProc.h" />
     <ClInclude Include="GUI\Views\ViewDisassembler.h" />
     <ClCompile Include="GUI\Views\ViewMemoryScan.cpp" />
