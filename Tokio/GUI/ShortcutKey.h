@@ -2,6 +2,7 @@
 #define TOKIO_GUI_SHORTCUT_H
 
 #include "imgui.hpp"
+#include "GUI/ImGui/custom/TokenizedText.h"
 
 class ShortcutKey
 {
@@ -18,17 +19,20 @@ private:
 	// shortcut description
 	std::string m_description;
 
+	// icon
+	ImGui::TokenizedText m_icon;
+
 	bool m_overridePress = false;
 
 	void UpdateName();
 public:
 	ShortcutKey();
-	ShortcutKey(const ImGuiKey press, const char* description = nullptr);
-	ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description = nullptr);
+	ShortcutKey(const ImGuiKey press, const char* description = nullptr, const ImGui::TokenizedText* icon = nullptr);
+	ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description = nullptr, const ImGui::TokenizedText* icon = nullptr);
 	
 	// NOTICE: if the item was clicked when rendering, the next 
 	// IsPressed() or IsPressedInWindow() call will return true
-	void RenderInPopup(bool bEnabled = true);
+	bool RenderInPopup(bool bEnabled = true);
 	void RenderEdittor();
 
 	// is the shortcut key was pressed

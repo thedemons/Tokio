@@ -7,24 +7,122 @@ ShortcutKey::ShortcutKey()
 
 }
 
-ShortcutKey::ShortcutKey(const ImGuiKey press, const char* description) : 
-	m_pressKey(press)
-{
-	m_description = description;
-	UpdateName();
-}
-
-ShortcutKey::ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description) : 
+ShortcutKey::ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description, const ImGui::TokenizedText* icon) :
 	m_holdKey(hold), m_pressKey(press)
 {
-	m_description = description;
+	if (description) m_description = description;
+	if (icon) m_icon = *icon;
+
 	UpdateName();
 }
 
-void ShortcutKey::RenderInPopup(bool bEnabled)
+ShortcutKey::ShortcutKey(const ImGuiKey press, const char* description, const ImGui::TokenizedText* icon) :
+	m_pressKey(press)
 {
-	if (ImGui::MenuItem(m_description.c_str(), m_name.c_str(), false, bEnabled))
-		m_overridePress = true;
+	if (description) m_description = description;
+	if (icon) m_icon = *icon;
+
+	UpdateName();
+}
+
+static bool IsRootOfOpenMenuSet()
+{
+	ImGuiContext& g = *GImGui;
+	ImGuiWindow* window = g.CurrentWindow;
+	if ((g.OpenPopupStack.Size <= g.BeginPopupStack.Size) || (window->Flags & ImGuiWindowFlags_ChildMenu))
+		return false;
+
+	// Initially we used 'upper_popup->OpenParentId == window->IDStack.back()' to differentiate multiple menu sets from each others
+	// (e.g. inside menu bar vs loose menu items) based on parent ID.
+	// This would however prevent the use of e.g. PuhsID() user code submitting menus.
+	// Previously this worked between popup and a first child menu because the first child menu always had the _ChildWindow flag,
+	// making  hovering on parent popup possible while first child menu was focused - but this was generally a bug with other side effects.
+	// Instead we don't treat Popup specifically (in order to consistently support menu features in them), maybe the first child menu of a Popup
+	// doesn't have the _ChildWindow flag, and we rely on this IsRootOfOpenMenuSet() check to allow hovering between root window/popup and first child menu.
+	// In the end, lack of ID check made it so we could no longer differentiate between separate menu sets. To compensate for that, we at least check parent window nav layer.
+	// This fixes the most common case of menu opening on hover when moving between window content and menu bar. Multiple different menu sets in same nav layer would still
+	// open on hover, but that should be a lesser problem, because if such menus are close in proximity in window content then it won't feel weird and if they are far apart
+	// it likely won't be a problem anyone runs into.
+	const ImGuiPopupData* upper_popup = &g.OpenPopupStack[g.BeginPopupStack.Size];
+	return (window->DC.NavLayerCurrent == upper_popup->ParentNavLayer && upper_popup->Window && (upper_popup->Window->Flags & ImGuiWindowFlags_ChildMenu));
+}
+
+
+bool ShortcutKey::RenderInPopup(bool bEnabled)
+{
+	//if (ImGui::MenuItem(m_description.c_str(), m_name.c_str(), false, bEnabled))
+	//	m_overridePress = true;
+
+
+	ImGuiWindow* window = ImGui::GetCurrentWindow();
+	if (window->SkipItems)
+		return false;
+
+	ImGuiContext& g = *GImGui;
+	ImGuiStyle& style = g.Style;
+	ImVec2 pos = window->DC.CursorPos;
+	ImVec2 icon_size = m_icon.CalcSize();
+	ImVec2 label_size = icon_size + ImGui::CalcTextSize(m_description.c_str(), m_description.c_str() + m_description.size(), false);
+
+	const bool menuset_is_open = IsRootOfOpenMenuSet();
+	ImGuiWindow* backed_nav_window = g.NavWindow;
+	if (menuset_is_open)
+		g.NavWindow = window;
+
+	// We've been using the equivalent of ImGuiSelectableFlags_SetNavIdOnHover on all Selectable() since early Nav system days (commit 43ee5d73),
+	// but I am unsure whether this should be kept at all. For now moved it to be an opt-in feature used by menus only.
+	bool pressed;
+	ImGui::PushID(this);
+	if (!bEnabled)
+		ImGui::BeginDisabled();
+
+	const ImGuiSelectableFlags selectable_flags = ImGuiSelectableFlags_SelectOnRelease | ImGuiSelectableFlags_SetNavIdOnHover;
+	const ImGuiMenuColumns* offsets = &window->DC.MenuColumns;
+	if (window->DC.LayoutType == ImGuiLayoutType_Horizontal)
+	{
+		// Mimic the exact layout spacing of BeginMenu() to allow MenuItem() inside a menu bar, which is a little misleading but may be useful
+		// Note that in this situation: we don't render the shortcut, we render a highlight instead of the selected tick mark.
+		float w = label_size.x;
+		window->DC.CursorPos.x += IM_FLOOR(style.ItemSpacing.x * 0.5f);
+		ImVec2 text_pos(window->DC.CursorPos.x + offsets->OffsetLabel, window->DC.CursorPos.y + window->DC.CurrLineTextBaseOffset);
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(style.ItemSpacing.x * 2.0f, style.ItemSpacing.y));
+		pressed = ImGui::Selectable("", false, selectable_flags, ImVec2(w, 0.0f));
+		ImGui::PopStyleVar();
+
+		m_icon.Render(g.CurrentWindow->DrawList, text_pos);
+		ImGui::RenderText(text_pos + ImVec2(icon_size.x, 0), m_description.c_str(), m_description.c_str() + m_description.size());
+
+		window->DC.CursorPos.x += IM_FLOOR(style.ItemSpacing.x * (-1.0f + 0.5f)); // -1 spacing to compensate the spacing added when Selectable() did a SameLine(). It would also work to call SameLine() ourselves after the PopStyleVar().
+	}
+	else
+	{
+		float icon_w = 0.0f;
+		float shortcut_w = ImGui::CalcTextSize(m_name.c_str(), m_name.c_str() + m_name.size()).x;
+		float checkmark_w = IM_FLOOR(g.FontSize * 1.20f);
+		float min_w = window->DC.MenuColumns.DeclColumns(icon_w, label_size.x, shortcut_w, checkmark_w); // Feedback for next frame
+		float stretch_w = ImMax(0.0f, ImGui::GetContentRegionAvail().x - min_w);
+		pressed = ImGui::Selectable("", false, selectable_flags | ImGuiSelectableFlags_SpanAvailWidth, ImVec2(min_w, 0.0f));
+
+		ImVec2 text_pos = pos + ImVec2(offsets->OffsetLabel, 0.0f);
+		m_icon.Render(g.CurrentWindow->DrawList, text_pos);
+		ImGui::RenderText(text_pos + ImVec2(icon_size.x ? 20.f : 0.f, 0), m_description.c_str(), m_description.c_str() + m_description.size());
+
+		if (shortcut_w > 0.0f)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, style.Colors[ImGuiCol_TextDisabled]);
+			ImGui::RenderText(pos + ImVec2(offsets->OffsetShortcut + stretch_w, 0.0f), m_name.c_str(), m_name.c_str() + m_name.size(), false);
+			ImGui::PopStyleColor();
+		}
+	}
+	IMGUI_TEST_ENGINE_ITEM_INFO(g.LastItemData.ID, label, g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable | (selected ? ImGuiItemStatusFlags_Checked : 0));
+	if (!bEnabled) ImGui::EndDisabled();
+
+	ImGui::PopID(); 
+
+	if (menuset_is_open) g.NavWindow = backed_nav_window;
+	if (pressed) m_overridePress = true;
+
+	return pressed;
 }
 
 void ShortcutKey::RenderEdittor()
