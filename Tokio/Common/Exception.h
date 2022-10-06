@@ -3,6 +3,7 @@
 
 #include <string>
 #include <exception>
+#include <stdarg.h>
 
 #define EXCEPT   // the function might throw an exception
 #define NULLABLE // the function might return null
@@ -42,13 +43,13 @@ public:
 
     _CONSTEXPR20 Exception& operator+=(const Exception& other) noexcept
     {
-        m_message += "\n\n" + other.m_message;
+        m_message += "\n" + other.m_message;
         return *this;
     }
 
     _CONSTEXPR20 Exception& operator+=(const char* message) noexcept
     {
-        m_message += "\n\n" + std::string(message);
+        m_message += "\n" + std::string(message);
         return *this;
     }
 
@@ -65,8 +66,6 @@ public:
 
 
 void Log(const char* fmt, ...);
-void Log(const Exception& e);
-void Log(const Exception& e, const char* fmt, ...);
 }
 
 
