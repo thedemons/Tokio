@@ -20,26 +20,25 @@ void HandlerDetachProcess();
 
 void Init()
 {
-	BaseView* viewScanner    = new ViewMemoryScan();
-	BaseView* viewWatchList  = new ViewWatchList();
-	BaseView* viewAttachProc = new ViewAttachProc();
-	BaseView* viewModules    = new ViewSymbolList();
-	BaseView* viewSettings   = new ViewSettings();
-	BaseView* viewDisasm = new ViewDisassembler();
-
-	m_ViewList.push_back({ viewScanner   , viewScanner->isDefaultOpen()    });
-	m_ViewList.push_back({ viewWatchList , viewWatchList->isDefaultOpen()  });
-	m_ViewList.push_back({ viewAttachProc, viewAttachProc->isDefaultOpen() });
-	m_ViewList.push_back({ viewModules   , viewModules->isDefaultOpen()    });
-	m_ViewList.push_back({ viewDisasm    , viewDisasm->isDefaultOpen()     });
-	m_ViewList.push_back({ viewSettings  , viewSettings->isDefaultOpen()   });
+	AddView<ViewMemoryScan>();
+	AddView<ViewWatchList>();
+	AddView<ViewAttachProc>();
+	AddView<ViewSymbolList>();
+	AddView<ViewSettings>();
+	AddView<ViewDisassembler>();
 
 	Engine::OnAttachCallback(HandlerAttachProcess);
 	Engine::OnDetachCallback(HandlerDetachProcess);
 
-	// AUTO ATTACH FOR DEBUG MODE ONLY
-	if (auto result = Engine::Attach(177508); result.has_error())
-		result.error().show();
+
+	try
+	{
+		Engine::Attach(177508);
+	}
+	catch (Tokio::Exception& e)
+	{
+		e.Log("Couldn't attach to the process");
+	}
 }
 
 void RenderMenuBar()
@@ -53,14 +52,20 @@ void RenderMenuBar()
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 3.f);
 
 		bOpenAttachProc |= ImGui::Button(u8"🖥");
-		bOpenSettings   |= ImGui::Button(ICON_SETTING);
-
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::BeginTooltip();
 			ImGui::Text("Attach Process");
 			ImGui::EndTooltip();
-			
+		}
+
+		bOpenSettings   |= ImGui::Button(ICON_SETTING);
+
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::BeginTooltip();
+			ImGui::Text("Open Settings");
+			ImGui::EndTooltip();
 		}
 
 		if (ImGui::BeginMenuEx("File", u8"123", true))
@@ -77,7 +82,7 @@ void RenderMenuBar()
 
 		if (ImGui::BeginMenu("Views"))
 		{
-			for (auto& view : m_ViewList)
+			for (auto& view : g_ViewList)
 			{
 				if (!view.pView->isClosable()) continue;
 				ImGui::MenuItem(view.pView->Title().c_str(), nullptr, &view.bOpen);
@@ -93,18 +98,12 @@ void RenderMenuBar()
 	// find the ViewAttachProc and open it
 	if (bOpenAttachProc)
 	{
-		auto viewAttachProc = FindViewByClass<ViewAttachProc>();
-
-		if (viewAttachProc.has_error()) viewAttachProc.error().show();
-		else viewAttachProc.value().bOpen = true;
+		SetViewOpen<ViewAttachProc>();
 	}
 
 	if (bOpenSettings)
 	{
-		auto viewSettings = FindViewByClass<ViewSettings>();
-
-		if (viewSettings.has_error()) viewSettings.error().show();
-		else viewSettings.value().bOpen = true;
+		SetViewOpen<ViewSettings>();
 	}
 }
 
@@ -149,7 +148,7 @@ void Render()
 	ImGui::End();
 
 	// render view windows
-	for (auto& view : m_ViewList)
+	for (auto& view : g_ViewList)
 	{
 		view.pView->Render(view.bOpen);
 	}
@@ -157,7 +156,7 @@ void Render()
 
 void HandlerAttachProcess(std::shared_ptr<ProcessData> target)
 {
-	for (auto& view : m_ViewList)
+	for (auto& view : g_ViewList)
 	{
 		view.pView->OnAttach(target);
 	}
@@ -165,7 +164,7 @@ void HandlerAttachProcess(std::shared_ptr<ProcessData> target)
 
 void HandlerDetachProcess()
 {
-	for (auto& view : m_ViewList)
+	for (auto& view : g_ViewList)
 	{
 		view.pView->OnDetach();
 	}

@@ -1,4 +1,6 @@
 #pragma once
+
+#include "Engine/EngineDef.h"
 class BaseView
 {
 protected:

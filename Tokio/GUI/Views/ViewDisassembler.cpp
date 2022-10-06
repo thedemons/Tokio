@@ -3,9 +3,10 @@
 #include "ViewDisassembler.h"
 
 #include "GUI/Widgets/Widgets.hpp"
+#include "Engine/Engine.h"
+#include "Common/SystemHelper.h"
 
 #include "Settings.h"
-#include "Engine/Engine.h"
 
 using namespace std::string_literals;
 
@@ -205,7 +206,7 @@ void ViewDisassembler::PopupNavigateRenderCallback(Widgets::Popup* popup, void* 
 
 	if (isEnter)
 	{
-		POINTER address = Engine::Symbol()->SymbolToAddress(pThis->m_popupNavigateTextInput.str_strip()).value();
+		POINTER address = Engine::Symbol()->SymbolToAddress(pThis->m_popupNavigateTextInput.str_strip());
 		popup->Close();
 		pThis->GoToAddress(address);
 		pThis->m_popupNavigateTextInput.Clear();
@@ -215,10 +216,7 @@ void ViewDisassembler::PopupNavigateRenderCallback(Widgets::Popup* popup, void* 
 
 ViewDisassembler::ViewDisassembler()
 {
-	m_title = ICON_DISASSEMBLER u8" Disassembler";
-
-	auto viewList = MainView::FindMultipleViewByClass<ViewDisassembler>();
-	if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
+	m_title = MainView::GetViewTitle<ViewDisassembler>(ICON_DISASSEMBLER u8" Disassembler");
 
 	Widgets::Table::Desc desc;
 	desc.Name = "##TableDisassembler";
@@ -511,8 +509,11 @@ void ViewDisassembler::HandleShortcuts()
 		auto& selectedItems = m_table.GetSelectedItems();
 		if (selectedItems.size() > 0)
 		{
-			if (auto result = common::BhClipboardCopy(GetInstructionAt(selectedItems[0]).address); result.has_error())
-				result.error().show();
+			POINTER address = GetInstructionAt(selectedItems[0]).address;
+			if (!Tokio::ClipboardCopy(address, true))
+			{
+				Tokio::Log("Copy address failed");
+			}
 		}
 	}
 
@@ -771,7 +772,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 //					wideComment = wideComment.substr(0, findLineBreak);
 //
 //
-//				insData.comment.push_back(common::BhString(wideComment), settings.String);
+//				insData.comment.push_back(Tokio::String(wideComment), settings.String);
 //				return;
 //			}
 //		}
@@ -1002,26 +1003,27 @@ void ViewDisassembler::Disassemble()
 
 	POINTER startAddress = m_pVirtualBase - 512;
 
-	auto resultAnalyze = Engine::Analyze(startAddress, 1024, true, m_memoryBuffer, m_analyzedData);
-	if (resultAnalyze != common::errcode::Success)
+	try
 	{
-		//common::err(resultAnalyze).show();
-		//assert(false && "Analyze failed");
-		m_instructionOffset = 32;
-		return;
-	}
+		Engine::Analyze(startAddress, 1024, true, m_memoryBuffer, m_analyzedData);
 
-	// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
-	for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
-	{
-		if (m_analyzedData.instructions[m_instructionOffset].address > m_pVirtualBase)
+		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
+		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
 		{
-			m_instructionOffset--;
-			break;
+			if (m_analyzedData.instructions[m_instructionOffset].address > m_pVirtualBase)
+			{
+				m_instructionOffset--;
+				break;
+			}
 		}
 	}
+	catch (Tokio::Exception& e)
+	{
+		m_analyzedData.instructions.clear();
+		m_analyzedData.subroutines.clear();
 
-
+		e.Log("View disassembler failed to analyze");
+	}
 }
 
 void ViewDisassembler::GoToAddress(POINTER address)

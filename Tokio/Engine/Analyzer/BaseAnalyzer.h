@@ -7,7 +7,6 @@
 #include "Engine/Symbol/BaseSymbol.h"
 #include "Engine/Disassembler/BaseDisassembler.h"
 
-#include "common_result.hpp"
 #include <memory>
 
 struct AnalyzedData;
@@ -40,7 +39,13 @@ public:
 	// bDisectSubroutine: true to disect subroutine, if false, the subroutines vector will have a size of zero, only the instructions are analyzed
 	// outBuffer:		  the output buffer contains read memory
 	// outData:			  the output analyzed data	
-	_NODISCARD virtual common::errcode Analyze(POINTER address, size_t size, bool bDisectSubroutine, std::vector<BYTE>& outBuffer, AnalyzedData& outData) = 0;
+	_NODISCARD virtual void Analyze(
+		POINTER address,
+		size_t size,
+		bool bDisectSubroutine,
+		std::vector<byte_t>& outBuffer,
+		AnalyzedData& outData
+	) EXCEPT = 0;
 
 };
 

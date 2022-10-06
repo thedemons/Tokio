@@ -10,7 +10,7 @@ BaseDisassembler::BaseDisassembler(const std::shared_ptr<ProcessData>& target) :
 
 }
 
-void BaseDisassembler::UpdateSettings()
+void BaseDisassembler::UpdateSettings() noexcept
 {
 
 }

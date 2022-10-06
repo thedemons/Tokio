@@ -1,34 +1,48 @@
 #include "stdafx.h"
 #include "Win32Memory.hpp"
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <processthreadsapi.h>
+#include <wow64apiset.h>
+#include <handleapi.h>
+
 namespace Engine
 {
 
-Win32Memory::~Win32Memory()
+Win32Memory::~Win32Memory() noexcept
 {
 	Detach();
 }
 
-_NODISCARD auto Win32Memory::Attach(DWORD pid)->SafeResult(std::shared_ptr<ProcessData>)
+_NODISCARD std::shared_ptr<ProcessData>
+Win32Memory::Attach(PID pid) EXCEPT
 {
 	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
-	WINAPI_FAILIFN(hProc, AttachProcessFailed);
+	if (hProc == nullptr)
+	{
+		static const std::string except_openproc_failed("Win32Memory OpenProcess failed");
+		throw Tokio::Exception(except_openproc_failed, Tokio::Exception::Type::WinAPI);
+	}
 
 	m_target = std::make_shared<ProcessData>();
 	m_target->handle = hProc;
 	m_target->pid = pid;
 
-	BOOL getArchResult = IsWow64Process(m_target->handle, &m_target->is32bit);
+	BOOL result = FALSE;
+	BOOL getArchResult = IsWow64Process(m_target->handle, &result);
 	if (!getArchResult)
 	{
 		Detach();
-		WINAPI_THROW(CannotGetTargetProcesArchitecture);
+		static const std::string except_getarch_failed("Win32Memory cannot get the target process architecture");
+		throw Tokio::Exception(except_getarch_failed, Tokio::Exception::Type::WinAPI);
 	}
 
+	m_target->is32bit = static_cast<bool>(result);
 	return m_target;
 }
 
-void Win32Memory::Detach()
+void Win32Memory::Detach() noexcept
 {
 	if (m_target == nullptr) return;
 
@@ -38,40 +52,49 @@ void Win32Memory::Detach()
 	m_target.reset();
 }
 
-_NODISCARD auto Win32Memory::Read(POINTER src, void* dest, size_t size)->SafeResult(void)
+_NODISCARD size_t Win32Memory::Read(
+	POINTER src,
+	void* dest,
+	size_t size
+) const noexcept
 {
+	// TODO: Error logging
 	SIZE_T bytesRead = 0;
-	BOOL readResult = ReadProcessMemory(m_target->handle, reinterpret_cast<LPCVOID>(src), dest, size, &bytesRead);
+	ReadProcessMemory(m_target->handle, reinterpret_cast<LPCVOID>(src), dest, size, &bytesRead);
 
-	WINAPI_FAILIFN(readResult, ReadProcessMemoryFailed);
-	WINAPI_FAILIFN(bytesRead == size, ReadProcessMemoryNotEnoughByte);
-
-	return {};
+	return bytesRead;
 }
 
-_NODISCARD auto Win32Memory::Write(POINTER dest, const void* src, size_t size)->SafeResult(void)
+_NODISCARD size_t Win32Memory::Write(
+	POINTER dest,
+	const void* src,
+	size_t size
+) const noexcept
 {
+	// TODO: Error logging
 	SIZE_T bytesWritten = 0;
-	BOOL writeResult = WriteProcessMemory(m_target->handle, reinterpret_cast<LPVOID>(dest), src, size, &bytesWritten);
+	WriteProcessMemory(m_target->handle, reinterpret_cast<LPVOID>(dest), src, size, &bytesWritten);
 
-	WINAPI_FAILIFN(writeResult, ReadProcessMemoryFailed);
-	WINAPI_FAILIFN(bytesWritten == size, WriteProcessMemoryNotEnoughByte);
-
-	return {};
+	return bytesWritten;
 }
 
-_NODISCARD auto Win32Memory::VirtualQuery(POINTER address)->SafeResult(VirtualMemoryInfo)
+_NODISCARD VirtualMemoryInfo Win32Memory::VirtualQuery(
+	POINTER address
+) const EXCEPT
 {
 	MEMORY_BASIC_INFORMATION info;
 	size_t result = ::VirtualQueryEx(m_target->handle, reinterpret_cast<LPCVOID>(address), &info, sizeof(info));
-	WINAPI_FAILIFN(result != 0, VirtualQueryFailed);
 
-	assert(result == sizeof(info));
+	if (result != sizeof(info))
+	{
+		static const std::string except_virtual_query_failed("Win32Memory cannot query virtual memory information");
+		throw Tokio::Exception(except_virtual_query_failed, Tokio::Exception::WinAPI);
+	}
 
 	VirtualMemoryInfo  memInfo;
 	memInfo.base = reinterpret_cast<POINTER>(info.BaseAddress);
 	memInfo.size = info.RegionSize;
-	//memInfo.protect    = info.Protect;
+
 	switch (info.Protect)
 	{
 		case PAGE_NOACCESS:

@@ -10,13 +10,28 @@ class Win32Memory : public BaseMemory
 {
 private:
 public:
+	~Win32Memory() noexcept;
 
-	~Win32Memory();
-	_NODISCARD auto Attach(DWORD pid)->SafeResult(std::shared_ptr<ProcessData>) override;
-	void Detach() override;
-	_NODISCARD auto Read(POINTER src, void* dest, size_t size)->SafeResult(void) override;
-	_NODISCARD auto Write(POINTER dest, const void* src, size_t size)->SafeResult(void) override;
-	_NODISCARD auto VirtualQuery(POINTER address)->SafeResult(VirtualMemoryInfo) override;
+	_NODISCARD std::shared_ptr<ProcessData>
+	Attach(PID pid) EXCEPT override;
+
+	void Detach() noexcept override;
+
+	_NODISCARD size_t Read(
+		POINTER src,
+		void* dest,
+		size_t size
+	) const noexcept override;
+
+	_NODISCARD size_t Write(
+		POINTER dest,
+		const void* src, 
+		size_t size
+	) const noexcept override;
+
+	_NODISCARD VirtualMemoryInfo VirtualQuery(
+		POINTER address
+	) const EXCEPT override;
 
 };
 }

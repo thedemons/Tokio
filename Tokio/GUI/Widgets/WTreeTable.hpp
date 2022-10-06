@@ -2,6 +2,8 @@
 #include "Widgets.hpp"
 #include "WPopup.h"
 
+#include "Common/TypeDef.h"
+
 namespace Widgets
 {
 

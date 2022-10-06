@@ -4,7 +4,9 @@
 namespace Engine
 {
 
-BaseSymbol::BaseSymbol(const std::shared_ptr<ProcessData>& target) : m_target(target) {}
+BaseSymbol::BaseSymbol(const std::shared_ptr<ProcessData>& target) EXCEPT : m_target(target)
+{
+}
 
 // sort symbols, ascending order
 // this also calculate the symbol size
@@ -50,7 +52,7 @@ void BaseSymbol::UpdateModules(const std::vector<ProcessModule>& modules)
 }
 
 // find next address, remember that the addresses passed into this function must be sorted
-_NODISCARD auto BaseSymbol::AddressSymbolWalkNext(SymbolWalkContext& context, POINTER address) -> ResultGetSymbol
+_NODISCARD ResultGetSymbol BaseSymbol::AddressSymbolWalkNext(SymbolWalkContext& context, POINTER address) const noexcept
 {
 	// FIXME: THIS COULD BE OPTIMIZED FURTHER BY SAVING THE INDEX OF THE NEAREST MODULE
 

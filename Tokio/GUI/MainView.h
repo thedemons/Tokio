@@ -1,9 +1,10 @@
 #pragma once
 #ifndef TOKIO_MAIN_VIEW_H
 #define TOKIO_MAIN_VIEW_H
-#include "../MainApplication.h"
-#include "Engine/EngineDef.h"
+
+#include "MainApplication.h"
 #include "Views/BaseView.hpp"
+#include "Common/Exception.h"
 
 namespace MainView
 {
@@ -20,30 +21,78 @@ struct TemplateWindowData
 	bool bOpen = false;
 };
 
-inline std::vector<ViewWindowData> m_ViewList;
+inline std::vector<ViewWindowData> g_ViewList;
 
 void Init();
 void Render();
 
+// gee look at this nested template hell...
 template <typename ViewType>
-auto FindViewByClass() -> SafeResult(TemplateWindowData<ViewType>&)
+std::vector<std::reference_wrapper<TemplateWindowData<ViewType>>> 
+FindViewsByClass() noexcept
 {
-	for (auto& view : m_ViewList)
-		if (dynamic_cast<ViewType*>(view.pView)) return reinterpret_cast<TemplateWindowData<ViewType>&>(view);
+	std::vector<std::reference_wrapper<TemplateWindowData<ViewType>>> result;
 
-	return cpp::fail(common::err(common::errcode::CannotFindTheViewWindow));
-};
-
-template <typename ViewType>
-auto FindMultipleViewByClass() -> std::vector<ViewType*>
-{
-	std::vector<ViewType*> result;
-
-	for (auto& view : m_ViewList)
-		if (dynamic_cast<ViewType*>(view.pView)) result.push_back(static_cast<ViewType*>(view.pView));
-
+	for (auto& view : g_ViewList)
+	{
+		if (dynamic_cast<ViewType*>(view.pView))
+		{
+			result.push_back(reinterpret_cast<TemplateWindowData<ViewType>&>(view));
+		}
+	}
 	return result;
 };
+
+// get the numbered view name
+// for instance: "Disassembler 3" if there are already two other windows opened
+template <typename ViewType>
+std::string GetViewTitle(const std::string& title) noexcept
+{
+	auto otherViews = FindViewsByClass<ViewType>();
+	if (otherViews.size() == 0) return title;
+
+	std::string copy = title;
+	copy += " " + std::to_string(otherViews.size() + 1);
+	return copy;
+}
+
+// open a specific view, pass UPTR_UNDEFINED to open all views found
+template <typename ViewType>
+void SetViewOpen(size_t index = 0, bool bOpen = true) noexcept
+{
+	auto views = FindViewsByClass<ViewType>();
+	if (views.size() == 0)
+	{
+		Tokio::Log("Failed to find any view?");
+	}
+	else
+	{
+		if (index == UPTR_UNDEFINED)
+		{
+			for (auto& view : views)
+			{
+				view.get().bOpen = bOpen;
+			}
+		}
+		else if (index < views.size())
+		{
+			views[index].get().bOpen = bOpen;
+		}
+		else
+		{
+			Tokio::Log("The view index to open was wrong");
+		}
+	}
+}
+
+template <typename ViewType>
+TemplateWindowData<ViewType>& AddView() noexcept
+{
+	auto& view = g_ViewList.emplace_back(ViewWindowData{ new ViewType(), false });
+	view.bOpen = view.pView->isDefaultOpen();
+
+	return reinterpret_cast<TemplateWindowData<ViewType>&>(view);
+}
 
 }
 

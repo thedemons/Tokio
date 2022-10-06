@@ -4,18 +4,22 @@
 #include "GUI/Widgets/Widgets.hpp"
 
 #include "Engine/Engine.h"
+#include "Common/Exception.h"
+#include "Common/StringHelper.h"
+#include "Common/PathHelper.h"
+#include "Common/SystemHelper.h"
 
 namespace ViewAttachProcUtils
 {
 
-std::unordered_map<HICON, ID3D11ShaderResourceView*> m_iconIndices;
-std::unordered_map<HWND, ID3D11ShaderResourceView*> m_windowIcons;
-std::unordered_map<std::wstring, ID3D11ShaderResourceView*> m_fileIcons;
+std::map<HICON, ID3D11ShaderResourceView*> m_iconIndices;
+std::map<WindowHandle, ID3D11ShaderResourceView*> m_windowIcons;
+std::map<std::wstring, ID3D11ShaderResourceView*> m_fileIcons;
 
 // Thanks to the author of this awesome library, it helps me alot
 // https://github.com/dfranx/ImFileDialog/blob/main/ImFileDialog.h
 
-auto GetTextureFromBitmap(void* buffer, UINT width, UINT height)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetTextureFromBitmap(void* buffer, UINT width, UINT height) NULLABLE
 {
 	D3D11_SUBRESOURCE_DATA subResource;
 	subResource.pSysMem = buffer;
@@ -35,7 +39,7 @@ auto GetTextureFromBitmap(void* buffer, UINT width, UINT height)->SafeResult(ID3
 
 	ID3D11Texture2D* pTexture = nullptr;
 	HRESULT hr = MainApplication::g_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
-	DX_FAILIFN(hr, NoMessage);
+	if (hr != S_OK) return nullptr;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
@@ -51,13 +55,13 @@ auto GetTextureFromBitmap(void* buffer, UINT width, UINT height)->SafeResult(ID3
 	if (hr != S_OK)
 	{
 		pTexture->Release();
-		DX_FAILIFN(hr, NoMessage);
+		if (hr != S_OK) return nullptr;
 	}
 
 	return pResource;
 }
 
-auto GetFileHIcon(const std::wstring& path)->SafeResult(HICON)
+HICON GetFileHIcon(const std::wstring& path) NULLABLE
 {
 
 	DWORD attrs = 0;
@@ -72,11 +76,10 @@ auto GetFileHIcon(const std::wstring& path)->SafeResult(HICON)
 	SHFILEINFOW fileInfo = { 0 };
 	SHGetFileInfoW(path.c_str(), attrs, &fileInfo, sizeof(SHFILEINFOW), flags);
 
-	RESULT_FAILIFN_NM(fileInfo.hIcon != nullptr);
 	return fileInfo.hIcon;
 }
 
-auto GetTextureFromHIcon(const HICON hIcon)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetTextureFromHIcon(const HICON hIcon) NULLABLE
 {
 	// check if hFileIcon is already loaded
 	auto findIcon = m_iconIndices.find(hIcon);
@@ -84,11 +87,11 @@ auto GetTextureFromHIcon(const HICON hIcon)->SafeResult(ID3D11ShaderResourceView
 
 	// Get the icon info 
 	ICONINFO iconInfo = { 0 };
-	WINAPI_FAILIFN_NM(GetIconInfo(hIcon, &iconInfo));
+	if (!GetIconInfo(hIcon, &iconInfo)) return nullptr;
 
 	// get bitmap info
 	DIBSECTION ds;
-	WINAPI_FAILIFN_NM(GetObjectW(iconInfo.hbmColor, sizeof(ds), &ds));
+	if (!GetObjectW(iconInfo.hbmColor, sizeof(ds), &ds)) return nullptr;
 
 	UINT width = ds.dsBm.bmWidth;
 	UINT height = ds.dsBm.bmHeight;
@@ -98,53 +101,50 @@ auto GetTextureFromHIcon(const HICON hIcon)->SafeResult(ID3D11ShaderResourceView
 	LONG byteSize = width * height * (ds.dsBm.bmBitsPixel / 8);
 
 	// copy bitmap to the buffer
-	std::vector<BYTE> bitmapBuffer(static_cast<size_t>(byteSize));
+	std::vector<byte_t> bitmapBuffer(static_cast<size_t>(byteSize));
 	LONG resultGetBm = GetBitmapBits(iconInfo.hbmColor, byteSize, bitmapBuffer.data());
-	RESULT_FAILIFN_NM(resultGetBm);
+	if (resultGetBm == 0) return nullptr;
 
 
 	// create the texture
-	auto resultGTFI = GetTextureFromBitmap(bitmapBuffer.data(), width, height);
-	RESULT_FAILIFN_NM(resultGTFI.has_value());
+	auto texture = GetTextureFromBitmap(bitmapBuffer.data(), width, height);
+	if (texture == nullptr) return nullptr;
 
 	// cache the icon
-	m_iconIndices[hIcon] = resultGTFI.value();
+	m_iconIndices[hIcon] = texture;
 
-	return resultGTFI.value();
+	return texture;
 }
 
-auto GetFileIconTexture(const std::wstring& path)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetFileIconTexture(const std::wstring& path) NULLABLE
 {
 	// return the stored texture if we have loaded it already
 	auto findIcon = m_fileIcons.find(path);
 	if (findIcon != m_fileIcons.end()) return findIcon->second;
 
-	auto resultGHI = GetFileHIcon(path);
-	RESULT_FAILIFN_NM(resultGHI.has_value());
+	HICON hFileIcon = GetFileHIcon(path);
+	if (hFileIcon == nullptr) return nullptr;
 
-	HICON hFileIcon = resultGHI.value();
+	auto texture = GetTextureFromHIcon(hFileIcon);
+	if (texture == nullptr) return nullptr;
 
-	auto resultGTFHI = GetTextureFromHIcon(hFileIcon);
-	RESULT_FAILIFN_NM(resultGTFHI.has_value());
-
-	auto texture = resultGTFHI.value();
 	m_fileIcons[path] = texture;
 
 	return texture;
 }
 
-auto GetWindowIconTexture(const HWND hwnd)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetWindowIconTexture(WindowHandle hwnd) NULLABLE
 {
 	// return the stored texture if we have loaded it already
 	auto findIcon = m_windowIcons.find(hwnd);
 	if (findIcon != m_windowIcons.end()) return findIcon->second;
 
-	HICON hIcon = reinterpret_cast<HICON>(GetClassLongPtrW(hwnd, -14));
+	HICON hFileIcon = reinterpret_cast<HICON>(GetClassLongPtrW(static_cast<HWND>(hwnd), -14));
+	if (hFileIcon == nullptr) return nullptr;
 
-	auto resultGTFHI = GetTextureFromHIcon(hIcon);
-	RESULT_FAILIFN_NM(resultGTFHI.has_value());
+	auto texture = GetTextureFromHIcon(hFileIcon);
+	if (texture == nullptr) return nullptr;
 
-	auto texture = resultGTFHI.value();
 	m_windowIcons[hwnd] = texture;
 
 	return texture;
@@ -332,15 +332,16 @@ void ViewAttachProc::TableInputCallback(Widgets::Table* table, size_t index, voi
 		if (ImGui::IsMouseDoubleClicked(0))
 		{
 			DWORD pid = pThis->m_processList[index].pid;
-			auto resultAttach = Engine::Attach(pid);
-			if (resultAttach.has_error())
+			try
 			{
-				resultAttach.error().show();
-			}
-			else
-			{
+				Engine::Attach(pid);
 				ImGui::CloseCurrentPopup();
 			}
+			catch (Tokio::Exception& e)
+			{
+				e.Log("Couldn't attach to the process");
+			}
+
 		}
 	}
 }
@@ -364,9 +365,9 @@ void ViewAttachProc::TablePopupRenderCallback(Widgets::Table* table, size_t inde
 
 	if (ImGui::Selectable(ICON_FILEFOLDER u8" Open file location"))
 	{
-		if (auto result = common::BhOpenFileInExplorer(procData.wpath); result.has_error())
+		if (!Tokio::OpenFileInExplorer(procData.wpath))
 		{
-			result.error().show();
+			Tokio::Log("Could not open file in explorer: %s", procData.path.c_str());
 		}
 	}
 
@@ -395,7 +396,7 @@ void ViewAttachProc::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 	else
 	{
 		std::string filter = std::string(data->Buf, static_cast<size_t>(data->BufTextLen));
-		filter = common::BhStringLower(filter);
+		filter = Tokio::StringLower(filter);
 
 		for (auto& procData : pThis->m_processList)
 			procData.isHidden = pThis->IsItemFiltered(procData, filter);
@@ -502,7 +503,7 @@ bool ViewAttachProc::IsItemFiltered(const ProcessListData& data, const std::stri
 	// return true if the text passed the filter
 	const auto checkStr = [=](const std::string& text) -> bool
 	{
-		std::string textLower = common::BhStringLower(text);
+		std::string textLower = Tokio::StringLower(text);
 		auto find = textLower.find(filter);
 		return find != std::string::npos;
 	};
@@ -541,12 +542,17 @@ void ViewAttachProc::SelectProcessByPid(DWORD pid)
 
 void ViewAttachProc::GetProcessList()
 {
-	auto procList = common::BhGetAllProcess();
-	if (procList.has_error())
+	std::map<PID, ProcessEntry> procList;
+	try
 	{
-		procList.error().show(L"Cannot get process list");
+		procList = Tokio::GetAllProcess();
+	}
+	catch (Tokio::Exception& e)
+	{
+		e.Log("Could not get the process list");
 		return;
 	}
+
 
 	// remember the current selected process in the table
 	DWORD oldSelectedPID = 0;
@@ -560,7 +566,7 @@ void ViewAttachProc::GetProcessList()
 	m_table.ClearSelectedItems();
 
 	// push these processes into m_processList
-	for (auto& [pid, entry] : procList.value())
+	for (auto& [pid, entry] : procList)
 	{
 
 		// check if we have a cached data for this pid
@@ -573,8 +579,8 @@ void ViewAttachProc::GetProcessList()
 		ProcessListData& procData = m_processList.emplace_back();
 		procData.pid = pid;
 		procData.entry = entry;
-		procData.wname = entry.szExeFile;
-		procData.name = common::BhString(procData.wname);
+		procData.wname = entry.szExe;
+		procData.name = Tokio::String(procData.wname);
 		procData.creationTime = 0;
 
 		// get the full file path of process
@@ -582,8 +588,8 @@ void ViewAttachProc::GetProcessList()
 		{
 			// get full file path
 			{
-				DWORD sizeRequired = BHMAX_PATH;
-				procData.wpath.resize(BHMAX_PATH);
+				DWORD sizeRequired = 1024;
+				procData.wpath.resize(sizeRequired);
 
 				QueryFullProcessImageNameW(hProc, 0, procData.wpath.data(), &sizeRequired);
 
@@ -592,10 +598,8 @@ void ViewAttachProc::GetProcessList()
 				// get the file icon
 				if (sizeRequired > 0)
 				{
-					procData.path = common::BhString(procData.wpath);
-
-					auto fileIcon = ViewAttachProcUtils::GetFileIconTexture(procData.wpath);
-					if (fileIcon.has_value()) procData.icon = fileIcon.value();
+					procData.path = Tokio::String(procData.wpath);
+					procData.icon = ViewAttachProcUtils::GetFileIconTexture(procData.wpath);
 				}
 			}
 
@@ -615,23 +619,18 @@ void ViewAttachProc::GetProcessList()
 	}
 
 	// find their associated hwnd
-	auto windowList = common::BhGetAllWindows();
-	if (windowList.has_error())
+	try
 	{
-		windowList.error().show(L"Cannot get window list");
-	}
-	else
-	{
-		auto& winList = windowList.value();
+		auto windowList = Tokio::GetAllWindows();
 		for (auto& procData : m_processList)
 		{
 
-			for (auto& winData : winList)
+			for (auto& winData : windowList)
 			{
 				if (winData.pid != procData.pid) continue;
 				if (winData.title.size() == 0) continue;
 
-				// MIGHT WANNA DISABLE THIS!!
+				// FIXME: MIGHT WANNA DISABLE THIS!!
 				// skip system's non-relavant windows
 				if (winData.title == L"MSCTFIME UI" || winData.title == L"Default IME") continue;
 
@@ -640,15 +639,15 @@ void ViewAttachProc::GetProcessList()
 
 				window.pid = procData.pid;
 				window.hwnd = winData.hwnd;
-				window.title = common::BhString(winData.title);
-				window.classname = common::BhString(winData.classname);
-				window.unique_title = Widgets::GetUniqueName(window.title, window.pid + window.hwnd);
+				window.title = Tokio::String(winData.title);
+				window.classname = Tokio::String(winData.classname);
+				window.unique_title = Widgets::GetUniqueName(window.title, window.hwnd);
 				window.hidden_title = std::string("##hidden_") + window.unique_title;
 
 				// get window icon
 				auto windowIcon = ViewAttachProcUtils::GetWindowIconTexture(window.hwnd);
-				if (windowIcon.has_value())
-					window.icon = windowIcon.value();
+				if (windowIcon != nullptr)
+					window.icon = windowIcon;
 				else
 					window.icon = procData.icon;
 			}
@@ -669,6 +668,10 @@ void ViewAttachProc::GetProcessList()
 				std::sort(procData.windows.begin(), procData.windows.end(), sortWindow);
 			}
 		}
+	}
+	catch (Tokio::Exception& e)
+	{
+		e.Log("Cannot get window list");
 	}
 
 	// manually trigger the sort because we

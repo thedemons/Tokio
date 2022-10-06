@@ -3,10 +3,7 @@
 #define TOKIO_ENGINE_ENGINEDEF_H
 #include <string>
 #include <vector>
-#include <Windows.h>
-
-// We want to use an unsigned __int64 for the virtual remote address
-typedef unsigned __int64 POINTER;
+#include "Common/TypeDef.h"
 
 // ================================== MEMORY DEFINITIONS ==================================
  
@@ -67,7 +64,7 @@ struct ProcessModule;
 
 struct ModuleSymbol
 {
-	UINT ordinal   {0}   ;		// ordinal index
+	dword_t ordinal   {0}   ;		// ordinal index
 	POINTER offset {0}   ;	    // offset from the base
 	size_t size	   {0}   ;		// size of the subroutine
 	std::string name     ;	    // symbol name
@@ -259,7 +256,7 @@ public:
 // ================================== DISASSEMBLER DEFINITIONS ==================================
 
 // The type of the operand
-enum class DisasmOperandType : UINT
+enum class DisasmOperandType : dword_t
 {
 	Invalid,          // An invalid token
 	WhiteSpace,       // A whitespace character.
@@ -290,7 +287,7 @@ enum class DisasmOperandType : UINT
 _NODISCARD _CONSTEXPR20 bool IsOperandMnemonic(DisasmOperandType type)
 {
 	return (type == DisasmOperandType::Mnemonic) ||
-		static_cast<UINT>(type) >= static_cast<UINT>(DisasmOperandType::mneCall);
+		static_cast<dword_t>(type) >= static_cast<dword_t>(DisasmOperandType::mneCall);
 }
 
 
@@ -344,17 +341,17 @@ struct DisasmInstruction
 struct ProcessData
 {
 	// process id
-	DWORD pid{ 0 };
+	dword_t pid{ 0 };
 
 	// process handle for memory operation
-	HANDLE handle{ 0 };
+	ProcessHandle handle{ 0 };
 
 	// all loaded modules
 	std::vector<ProcessModule> modules;
 
 	// is the process x86 or x64
 	// TODO: Make an architecture enum
-	BOOL is32bit = false;
+	bool is32bit = false;
 
 	// the base image module
 	ProcessModule* baseModule = nullptr;

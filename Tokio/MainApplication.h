@@ -2,6 +2,7 @@
 #ifndef TOKIO_MAINWINDOW_H
 #define TOKIO_MAINWINDOW_H
 
+#include "Common/Exception.h"
 
 #include "imgui.hpp"
 
@@ -45,10 +46,6 @@ namespace MainApplication
 
 typedef void(* PRenderCallBack)();
 
-
-inline WNDCLASSEX wndClass;
-inline HWND hWnd;
-
 inline ID3D11Device* g_pd3dDevice = nullptr;
 inline IDXGISwapChain* g_pSwapChain = nullptr;
 inline ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
@@ -71,7 +68,7 @@ inline ImFont* FontMonoItalicThin    = nullptr;
 inline ImFont* FontMonoItalicRegular = nullptr;
 inline ImFont* FontMonoItalicBold    = nullptr;
 
-auto Init() noexcept -> cpp::result<void, common::err>;
+void Init() EXCEPT;
 void SetRenderCallback(PRenderCallBack callback);
 void StartLoop();
 

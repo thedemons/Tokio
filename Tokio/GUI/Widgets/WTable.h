@@ -9,6 +9,7 @@
 
 #include "WPopup.h"
 #include "WidgetsFlags.hpp"
+#include "Common/TypeDef.h"
 
 namespace Widgets
 {
