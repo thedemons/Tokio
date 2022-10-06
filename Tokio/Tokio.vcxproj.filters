@@ -93,9 +93,6 @@
     <ClCompile Include="GUI\ImGui\misc\imgui_freetype.cpp">
       <Filter>GUI\ImGui\misc</Filter>
     </ClCompile>
-    <ClCompile Include="common_helper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Disassembler\ZydisDisassembler.cpp">
       <Filter>Engine\Disassembler</Filter>
     </ClCompile>
@@ -162,15 +159,21 @@
     <ClCompile Include="Common\Exception.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Common\StringHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\PathHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\SystemHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\Result.hpp">
       <Filter>Third-Party</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common_err.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Settings.h">
@@ -217,9 +220,6 @@
     </ClInclude>
     <ClInclude Include="GUI\Widgets\WTable.h">
       <Filter>GUI\Widgets</Filter>
-    </ClInclude>
-    <ClInclude Include="common_helper.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUI\Widgets\WTextInput.h">
       <Filter>GUI\Widgets</Filter>
@@ -284,12 +284,6 @@
     <ClInclude Include="GUI\Views\ViewSettings.h">
       <Filter>GUI\Views</Filter>
     </ClInclude>
-    <ClInclude Include="common.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common_result.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\ShortcutKey.h">
       <Filter>GUI</Filter>
     </ClInclude>
@@ -309,6 +303,18 @@
       <Filter>GUI\Views</Filter>
     </ClInclude>
     <ClInclude Include="Common\Exception.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\StringHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\PathHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\SystemHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\TypeDef.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

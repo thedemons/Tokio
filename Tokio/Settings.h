@@ -6,6 +6,7 @@
 #include "Serialize.hpp"
 #include "Engine/EngineDef.h"
 #include "GUI/ShortcutKey.h"
+#include "Common/TypeDef.h"
 
 namespace Settings
 {
@@ -126,10 +127,10 @@ extern ShortCuts shortcuts;
 
 void Load();
 
-_NODISCARD _CONSTEXPR20 DWORD GetDisasmColor(DisasmOperandType tokenType) noexcept
+_NODISCARD _CONSTEXPR20 dword_t GetDisasmColor(DisasmOperandType tokenType) noexcept
 {
 	// we use an array instead of std::map for a better performance
-	static const DWORD arrayColor[] = {
+	static const dword_t arrayColor[] = {
 		theme.disasm.Invalid,
 		0x00000000,				// white space
 		theme.disasm.Delimeter,
@@ -156,7 +157,7 @@ _NODISCARD _CONSTEXPR20 DWORD GetDisasmColor(DisasmOperandType tokenType) noexce
 
 	unsigned int index = static_cast<unsigned int>(tokenType);
 
-	if (!(index >= 0 && index < (sizeof(arrayColor) / sizeof(DWORD)) ))
+	if (!(index >= 0 && index < (sizeof(arrayColor) / sizeof(dword_t)) ))
 	{
 		assert(false && "Why do we have an invalid tokenType?");
 		return theme.disasm.Invalid;

@@ -2,6 +2,7 @@
 #include "MainApplication.h"
 #include "GUI/MainView.h"
 #include "Settings.h"
+#include "Common/Exception.h"
 
 void MainLoop()
 {
@@ -10,20 +11,22 @@ void MainLoop()
 
 int main()
 {
-	auto initResult = MainApplication::Init();
-	if (initResult.has_error())
+	try
 	{
-		initResult.error().show(L"Cannot initialize window");
-		return 1;
+		MainApplication::Init();
+		Settings::Load();
+
+		MainView::Init();
+
+		MainApplication::SetRenderCallback(MainLoop);
+		MainApplication::StartLoop();
+		//Settings::Save();
+
+	}
+	catch (Tokio::Exception& e)
+	{
+		e.Log("Critical error");
 	}
 
-	Settings::Load();
-
-	MainView::Init();
-
-	MainApplication::SetRenderCallback(MainLoop);
-	MainApplication::StartLoop();
-
-	//Settings::Save();
 	return 0;
 }

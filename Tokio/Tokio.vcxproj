@@ -95,6 +95,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <AdditionalOptions>/D _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,6 +120,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <AdditionalOptions>/D _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,6 +145,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <AdditionalOptions>/D _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,6 +170,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <AdditionalOptions>/D _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -180,7 +184,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Common\Exception.cpp" />
-    <ClCompile Include="common_helper.cpp" />
+    <ClCompile Include="Common\PathHelper.cpp" />
+    <ClCompile Include="Common\StringHelper.cpp" />
+    <ClCompile Include="Common\SystemHelper.cpp" />
     <ClCompile Include="Engine\Analyzer\BaseAnalyzer.cpp" />
     <ClCompile Include="Engine\Analyzer\TokioAnalyzer.cpp" />
     <ClCompile Include="Engine\Disassembler\BaseDisassembler.cpp" />
@@ -249,10 +255,11 @@
     <ClCompile Include="Tokio.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common.hpp" />
     <ClInclude Include="Common\Exception.h" />
-    <ClInclude Include="common_helper.h" />
-    <ClInclude Include="common_result.hpp" />
+    <ClInclude Include="Common\PathHelper.h" />
+    <ClInclude Include="Common\SystemHelper.h" />
+    <ClInclude Include="Common\StringHelper.h" />
+    <ClInclude Include="Common\TypeDef.h" />
     <ClInclude Include="Engine\Analyzer\BaseAnalyzer.h" />
     <ClInclude Include="Engine\Analyzer\TokioAnalyzer.h" />
     <ClInclude Include="Engine\Disassembler\BaseDisassembler.h" />
@@ -297,7 +304,6 @@
     <ClInclude Include="Serialize.hpp" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="common_err.hpp" />
     <ClInclude Include="ThirdParty\Result.hpp" />
   </ItemGroup>
   <ItemGroup>

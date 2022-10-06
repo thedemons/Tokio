@@ -2,12 +2,14 @@
 #include "MainApplication.h"
 #include "Resources/FontAwesome.h"
 #include "Resources/FontAwesomeImpl.h"
-//#include <dwmapi.h>
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API void ImGui_ImplWin32_EnableAlphaCompositing(void* hwnd);
 namespace MainApplication
 {
+WNDCLASSEX wndClass;
+HWND hWnd;
 PRenderCallBack RenderCallback;
 
 void CreateRenderTarget();
@@ -20,7 +22,7 @@ LRESULT WINAPI WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 
 
-auto Init() noexcept -> cpp::result<void, common::err>
+void Init() EXCEPT
 {
     wndClass.cbSize = sizeof(WNDCLASSEXW);
     wndClass.style = CS_CLASSDC;
@@ -37,8 +39,10 @@ auto Init() noexcept -> cpp::result<void, common::err>
     SetLastError(0);
 
     ATOM wndCUnique = ::RegisterClassExW(&wndClass);
-    WINAPI_FAILIFN(wndCUnique, RegisterWndClassFailed);
-
+    if (!wndCUnique)
+    {
+        throw Tokio::Exception("Register class failed");
+    }
 
     hWnd = ::CreateWindowExW(
         NULL, wndClass.lpszClassName,
@@ -51,8 +55,8 @@ auto Init() noexcept -> cpp::result<void, common::err>
     //MARGINS margins{ -1, -1, -1, -1 };
     //DwmExtendFrameIntoClientArea(hWnd, &margins);
 
-    WINAPI_FAILIFN(hWnd, RegisterWndClassFailed);
-    RESULT_FAILIFN(CreateDeviceD3D(), CreateD3DDeviceFailed);
+    if (!hWnd) throw Tokio::Exception("Create window failed");
+    if (!CreateDeviceD3D()) throw Tokio::Exception("Create Direct3D device failed");
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -96,8 +100,6 @@ auto Init() noexcept -> cpp::result<void, common::err>
 
     ::ShowWindow(hWnd, SW_SHOWDEFAULT);
     ::UpdateWindow(hWnd);
-
-    return {};
 }
 
 
