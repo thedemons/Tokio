@@ -3,9 +3,10 @@
 #include "ViewDisassembler.h"
 
 #include "GUI/Widgets/Widgets.hpp"
+#include "Engine/Engine.h"
+#include "Common/SystemHelper.h"
 
 #include "Settings.h"
-#include "Engine/Engine.h"
 
 using namespace std::string_literals;
 
@@ -508,8 +509,11 @@ void ViewDisassembler::HandleShortcuts()
 		auto& selectedItems = m_table.GetSelectedItems();
 		if (selectedItems.size() > 0)
 		{
-			if (auto result = common::BhClipboardCopy(GetInstructionAt(selectedItems[0]).address); result.has_error())
-				result.error().show();
+			POINTER address = GetInstructionAt(selectedItems[0]).address;
+			if (!Tokio::ClipboardCopy(address, true))
+			{
+				Tokio::Log("Copy address failed");
+			}
 		}
 	}
 
@@ -768,7 +772,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 //					wideComment = wideComment.substr(0, findLineBreak);
 //
 //
-//				insData.comment.push_back(common::BhString(wideComment), settings.String);
+//				insData.comment.push_back(Tokio::String(wideComment), settings.String);
 //				return;
 //			}
 //		}

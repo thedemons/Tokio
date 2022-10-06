@@ -95,7 +95,7 @@ private:
 	size_t m_instructionOffset = 0;
 
 	// the buffer to store read memory
-	std::vector<BYTE> m_memoryBuffer;
+	std::vector<byte_t> m_memoryBuffer;
 
 
 	bool m_scrollBarDragging = false;

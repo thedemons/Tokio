@@ -4,6 +4,8 @@
 #include "ViewDisassembler.h"
 #include "Settings.h"
 
+#include "Common/StringHelper.h"
+
 
 ViewSymbolList::SymbolTable::Execution
 ViewSymbolList::TableRenderCallback(
@@ -156,12 +158,12 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 
 
 		std::string filter = std::string(data->Buf, static_cast<size_t>(data->BufTextLen));
-		filter = common::BhStringLower(filter);
+		filter = Tokio::StringLower(filter);
 
 		for (auto& modData : pThis->m_moduleList)
 		{
 			// check if the module pass the filter, if it does, show all its symbols
-			std::string lowerName = common::BhStringLower(modData.moduleNameA);
+			std::string lowerName = Tokio::StringLower(modData.moduleNameA);
 			modData.isHidden = (lowerName.find(filter) == std::string::npos);
 
 			if (!modData.isHidden)
@@ -177,7 +179,7 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 
 			for (auto& symbolData : modData.Childs())
 			{
-				std::string functionLowerName = common::BhStringLower(symbolData.functionName);
+				std::string functionLowerName = Tokio::StringLower(symbolData.functionName);
 
 				// hide it if couldn't find the filter in its name
 				symbolData.isHidden = (functionLowerName.find(filter) == std::string::npos);
@@ -251,18 +253,18 @@ void ViewSymbolList::Render(bool& bOpen)
 
 		m_table.Render(m_moduleList);
 
-		//if (Settings::shortcuts.SymListOpenInDisassembler.IsPressedInWindow())
-		//{
-		//	if (auto selectedItems = m_table.GetSelectedItems(); selectedItems.size() > 0)
-		//	{
-		//		auto* node = m_table.GetNodeAtIndex(selectedItems[0]);
-		//		auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
-		//		if (node && disasmView.has_value())
-		//		{
-		//			disasmView.value().pView->GoToAddress(node->address);
-		//		}
-		//	}
-		//}
+		if (Settings::shortcuts.SymListOpenInDisassembler.IsPressedInWindow())
+		{
+			if (auto selectedItems = m_table.GetSelectedItems(); selectedItems.size() > 0)
+			{
+				auto* node = m_table.GetNodeAtIndex(selectedItems[0]);
+				auto disasmView = MainView::FindViewsByClass<ViewDisassembler>();
+				if (node && disasmView.size() > 0)
+				{
+					disasmView[0].get().pView->GoToAddress(node->address);
+				}
+			}
+		}
 
 		ImGui::End();
 	}

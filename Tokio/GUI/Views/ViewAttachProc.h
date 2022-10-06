@@ -5,6 +5,9 @@
 #include "GUI/MainView.h"
 #include "GUI/Widgets/WTable.h"
 #include "GUI/Widgets/WTextInput.h"
+#include "Common/TypeDef.h"
+
+#include <map>
 
 class ViewAttachProc : public BaseView
 {
@@ -24,8 +27,8 @@ private:
 private: // members
 	struct WindowData
 	{
-		HWND hwnd = 0;								// window handle
-		DWORD pid = 0;								// associated process
+		PID pid = 0;								// associated process
+		WindowHandle hwnd = 0;					    // window handle
 		std::string title;							// window title
 		std::string classname;						// window class name
 		std::string unique_title; 					// for tree node rendering
@@ -35,13 +38,13 @@ private: // members
 
 	struct ProcessListData
 	{
-		DWORD pid = 0;								// process pid
+		PID pid = 0;								// process pid
 		std::string  name;							// process name
 		std::string  path;							// file path
 		std::wstring wname;							// wide process name
 		std::wstring wpath;							// wide file path
 		uint64_t creationTime = 0;					// creation time
-		PROCESSENTRY32W entry{};					// just in case
+		ProcessEntry entry;			    // just in case
 		
 		std::vector<WindowData> windows;			// associated windows
 		ID3D11ShaderResourceView* icon = nullptr;	// process icon texture
@@ -58,7 +61,7 @@ private: // members
 	double m_timeLastRefresh = 0.f;					// last refresh time, for refreshing the process list every x ms
 	double m_refreshInterval = 1111.f;					// refresh every 1000ms
 
-	std::unordered_map<DWORD, ProcessListData> m_processCache;
+	std::map<DWORD, ProcessListData> m_processCache;
 
 public:
 	ViewAttachProc();
