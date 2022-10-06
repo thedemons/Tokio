@@ -304,7 +304,6 @@
     <ClInclude Include="Serialize.hpp" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="ThirdParty\Result.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="GUI\ImGui\Notice.md" />
