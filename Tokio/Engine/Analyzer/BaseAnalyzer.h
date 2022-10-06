@@ -7,7 +7,6 @@
 #include "Engine/Symbol/BaseSymbol.h"
 #include "Engine/Disassembler/BaseDisassembler.h"
 
-#include "common_result.hpp"
 #include <memory>
 
 struct AnalyzedData;
@@ -44,7 +43,7 @@ public:
 		POINTER address,
 		size_t size,
 		bool bDisectSubroutine,
-		std::vector<BYTE>& outBuffer,
+		std::vector<byte_t>& outBuffer,
 		AnalyzedData& outData
 	) EXCEPT = 0;
 

@@ -7,7 +7,7 @@ namespace Engine
 // Read memory of the region that may cross a no-read-access page
 void BaseMemory::ReadMemSafe(
 	POINTER address,
-	BYTE* buffer,
+	byte_t* buffer,
 	size_t size,
 	std::vector<MemoryReadRegion>& regions
 ) const noexcept

@@ -17,7 +17,7 @@ protected:
 public:
 	// attach to a process
 	_NODISCARD virtual std::shared_ptr<ProcessData>
-	Attach(DWORD pid) EXCEPT = 0;
+	Attach(PID pid) EXCEPT = 0;
 	
 	// detach the already-attached process
 	virtual void Detach() noexcept = 0;
@@ -39,7 +39,7 @@ public:
 	// Read memory of the region that may cross a no-read-access page
 	virtual void ReadMemSafe(
 		POINTER address,
-		BYTE* buffer,
+		byte_t* buffer,
 		size_t size,
 		std::vector<MemoryReadRegion>& regions
 	) const noexcept;
@@ -73,13 +73,13 @@ public:
 	}
 
 	// get the target process pid
-	_NODISCARD virtual _CONSTEXPR20 DWORD GetPID() const noexcept
+	_NODISCARD virtual _CONSTEXPR20 PID GetPID() const noexcept
 	{
 		return m_target->pid;
 	}
 
 	// get a handle to the target process
-	_NODISCARD virtual _CONSTEXPR20 HANDLE GetHandle() const noexcept
+	_NODISCARD virtual _CONSTEXPR20 ProcessHandle GetHandle() const noexcept
 	{
 		return m_target->handle;
 	}

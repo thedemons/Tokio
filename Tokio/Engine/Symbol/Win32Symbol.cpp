@@ -1,7 +1,13 @@
 #pragma once
 #include "stdafx.h"
 #include "Win32Symbol.h"
+#include "Common/StringHelper.h"
+#include "Common/PathHelper.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <TlHelp32.h>
+#include <Psapi.h>
 // PE Header structs ===================================================
 
 // PE_SECTION_HEADER* pFirstSectionHeader = 
@@ -280,7 +286,7 @@ struct PE_EXPORT_DIRECTORY
 namespace Engine
 {
 template <typename NtHeaderType>
-_NODISCARD auto ParseNtHeader(void* pBase, ProcessModule& procMod)->SafeResult(void)
+void ParseNtHeader(void* pBase, ProcessModule& procMod) EXCEPT
 {
 
 	auto* pByteBase = reinterpret_cast<BYTE*>(pBase);
@@ -292,7 +298,10 @@ _NODISCARD auto ParseNtHeader(void* pBase, ProcessModule& procMod)->SafeResult(v
 	DWORD dirVirtualAddr = pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
 	POINTER RVA_offset = pNtHeader->GetRVAOffset(pByteBase, dirVirtualAddr);
 
-	RESULT_FAILIFN(RVA_offset, SymbolEngineFailedToFindRelativeVirtualAddress);
+	if (RVA_offset == 0)
+	{
+		throw Tokio::Exception("Win32Symbol ParseNtHeader Failed to get the RVA offset of module: %s", procMod.modulePathA.c_str());
+	}
 
 	//auto* pDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + dirVirtualAddr);
 	auto* pExportDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + dirVirtualAddr);
@@ -317,11 +326,9 @@ _NODISCARD auto ParseNtHeader(void* pBase, ProcessModule& procMod)->SafeResult(v
 		data.ordinal = ordinal;
 		data.name = name;
 	}
-
-	return {};
 }
 
-_NODISCARD auto GetPEInfo(ProcessModule& procMod)->SafeResult(void)
+void GetPEInfo(ProcessModule& procMod) EXCEPT
 {
 	// open the file
 	HANDLE hSrcFile = CreateFileW(
@@ -330,14 +337,23 @@ _NODISCARD auto GetPEInfo(ProcessModule& procMod)->SafeResult(void)
 		nullptr, OPEN_EXISTING, 0, nullptr
 	);
 
-	WINAPI_FAILIFN(hSrcFile != INVALID_HANDLE_VALUE, CannotParseImagePEHeader);
+	if (hSrcFile == INVALID_HANDLE_VALUE)
+	{
+		throw Tokio::Exception("Win32Symbol GetPEInfo failed to create the file %s", procMod.moduleNameA.c_str());
+	}
 
 	// map the file into memory
 	HANDLE hMapSrcFile = CreateFileMappingW(hSrcFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
-	WINAPI_FAILIFN(hMapSrcFile != nullptr, CannotParseImagePEHeader);
+	if (hMapSrcFile == nullptr)
+	{
+		throw Tokio::Exception("Win32Symbol GetPEInfo failed to map the file %s", procMod.moduleNameA.c_str());
+	}
 
 	void* pVoidBase = MapViewOfFile(hMapSrcFile, FILE_MAP_READ, 0, 0, 0);
-	WINAPI_FAILIFN(pVoidBase != nullptr, CannotParseImagePEHeader);
+	if (pVoidBase == nullptr)
+	{
+		throw Tokio::Exception("Win32Symbol GetPEInfo failed to map view of the file %s", procMod.moduleNameA.c_str());
+	}
 
 	BYTE* pBase = static_cast<BYTE*>(pVoidBase);
 	auto* pDosHeader = static_cast<PE_DOS_HEADER*>(pVoidBase);
@@ -348,7 +364,7 @@ _NODISCARD auto GetPEInfo(ProcessModule& procMod)->SafeResult(void)
 	if (pNtHeaderMagic->IsNotSupported())
 	{
 		UnmapViewOfFile(pVoidBase);
-		RESULT_THROW(TheImageFileFormatIsNotSupported);
+		throw Tokio::Exception("Win32Symbol GetPEInfo the file has an unsupported architecture %s", procMod.moduleNameA.c_str());
 	}
 
 	// for 32 bit process
@@ -356,20 +372,16 @@ _NODISCARD auto GetPEInfo(ProcessModule& procMod)->SafeResult(void)
 	{
 		// strip 4 bytes of the address if the module is 32-bit
 		procMod.base &= 0xFFFFFFFFull;
-
-		auto parseResult = ParseNtHeader<PE_NT_HEADER_32>(pVoidBase, procMod);
-		//if (parseResult.has_error()) parseResult.error().show();
+		ParseNtHeader<PE_NT_HEADER_32>(pVoidBase, procMod);
 	}
 	// for 64 bit process
 	else
 	{
-		auto parseResult = ParseNtHeader<PE_NT_HEADER_64>(pVoidBase, procMod);
-		//if (parseResult.has_error()) parseResult.error().show();
+		ParseNtHeader<PE_NT_HEADER_64>(pVoidBase, procMod);
 	}
 
 	UnmapViewOfFile(pVoidBase);
-
-	return {};
+	CloseHandle(hMapSrcFile);
 }
 
 Win32Symbol::Win32Symbol(const std::shared_ptr<ProcessData>& target) EXCEPT : BaseSymbol(target)
@@ -409,8 +421,8 @@ _NODISCARD bool Win32Symbol::Tlhelp32RetrieveModuleList() noexcept
 		procMod.size = static_cast<size_t>(modEntry.modBaseSize);
 		procMod.moduleNameW = modEntry.szModule;
 		procMod.modulePathW = modEntry.szExePath;
-		procMod.moduleNameA = common::BhString(procMod.moduleNameW);
-		procMod.modulePathA = common::BhString(procMod.modulePathW);
+		procMod.moduleNameA = Tokio::String(procMod.moduleNameW);
+		procMod.modulePathA = Tokio::String(procMod.modulePathW);
 
 		procMod.moduleShortName = procMod.moduleNameA;
 		auto findDot = procMod.moduleShortName.rfind('.');
@@ -438,7 +450,7 @@ _NODISCARD bool Win32Symbol::K32RetrieveModuleList() noexcept
 	BOOL result =
 		K32EnumProcessModulesEx(
 			m_target->handle,
-			m_bufferModule.data(),
+			reinterpret_cast<HMODULE*>(m_bufferModule.data()),
 			cbCurrentSize,
 			&cbSizeNeeded,
 			LIST_MODULES_ALL
@@ -457,7 +469,7 @@ _NODISCARD bool Win32Symbol::K32RetrieveModuleList() noexcept
 		result =
 			K32EnumProcessModulesEx(
 				m_target->handle,
-				m_bufferModule.data(),
+				reinterpret_cast<HMODULE*>(m_bufferModule.data()),
 				cbCurrentSize,
 				&cbSizeNeeded,
 				LIST_MODULES_64BIT
@@ -493,7 +505,7 @@ _NODISCARD bool Win32Symbol::K32RetrieveModuleList() noexcept
 		if (
 			K32GetModuleFileNameExW(
 				m_target->handle,
-				hModule,
+				static_cast<HMODULE>(hModule),
 				m_bufferModulePath.data(),
 				cbBufferModule
 			)
@@ -504,9 +516,9 @@ _NODISCARD bool Win32Symbol::K32RetrieveModuleList() noexcept
 			size_t length = wcsnlen_s(m_bufferModulePath.c_str(), m_bufferModulePath.size());
 
 			modData.modulePathW = std::wstring(m_bufferModulePath.c_str(), length);
-			modData.modulePathA = common::BhString(modData.modulePathW);
-			modData.moduleNameW = common::BhPathGetTrail(modData.modulePathW);
-			modData.moduleNameA = common::BhString(modData.moduleNameW);
+			modData.modulePathA = Tokio::String(modData.modulePathW);
+			modData.moduleNameW = Tokio::PathGetTrail(modData.modulePathW);
+			modData.moduleNameA = Tokio::String(modData.moduleNameW);
 
 		}
 		else
@@ -520,7 +532,7 @@ _NODISCARD bool Win32Symbol::K32RetrieveModuleList() noexcept
 		if (
 			K32GetModuleInformation(
 				m_target->handle,
-				hModule,
+				static_cast<HMODULE>(hModule),
 				&moduleInfo,
 				sizeof(moduleInfo)
 			)
@@ -552,10 +564,12 @@ std::vector<ProcessModule>& Win32Symbol::Update() EXCEPT
 	// loop through the module list and retrieve its symbols
 	for (auto& procMod : m_target->modules)
 	{
-		if (auto result = GetPEInfo(procMod); result.has_error())
+		try
 		{
-			result.error().show();
-			continue;
+			GetPEInfo(procMod);
+		}
+		catch (Tokio::Exception& e) {
+			e.Log("Failed to get the pe header info of module %s\n", procMod.modulePathA.c_str());
 		}
 	}
 

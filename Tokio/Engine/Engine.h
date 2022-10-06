@@ -44,7 +44,7 @@ typedef void (*LPON_ATTACH_CALLBACK)(std::shared_ptr<ProcessData>);
 typedef void (*LPON_DETACH_CALLBACK)();
 
 // Attach to a process
-void Attach(DWORD pid) EXCEPT;
+void Attach(PID pid) EXCEPT;
 
 // Detach target process
 void Detach() noexcept;
@@ -58,7 +58,7 @@ _NODISCARD _CONSTEXPR20 bool IsAttached() noexcept
 // Is the target process 32 bit
 _NODISCARD _CONSTEXPR20 bool Is32Bit() noexcept
 {
-	assert(g_Target != nullptr);
+	//assert(g_Target != nullptr);
 	return g_Target->is32bit;
 }
 
@@ -94,46 +94,41 @@ _NODISCARD _CONSTEXPR20 std::shared_ptr<BaseSymbol> Symbol() noexcept
 
 _NODISCARD _CONSTEXPR20 size_t ReadMem(POINTER src, void* dest, size_t size) noexcept
 {
-	assert(g_Memory != nullptr);
+	//assert(g_Memory != nullptr);
 	return g_Memory->Read(src, dest, size);
 }
 
 // Read memory of the region that may cross a no-read-access page
 _CONSTEXPR20 void ReadMemSafe(
 	POINTER address,
-	BYTE* buffer,
+	byte_t* buffer,
 	size_t size,
 	std::vector<MemoryReadRegion>& regions
 ) noexcept
 {
-	assert(g_Memory != nullptr);
 	return g_Memory->ReadMemSafe(address, buffer, size, regions);
 }
 
 _NODISCARD _CONSTEXPR20 size_t WriteMem(POINTER dest, const void* src, size_t size) noexcept
 {
-	assert(g_Memory != nullptr);
 	return g_Memory->Write(dest, src, size);
 }
 
 template <typename Type>
 _NODISCARD _CONSTEXPR20 Type ReadMem(POINTER address) EXCEPT
 {
-	assert(g_Memory != nullptr);
 	return g_Memory->Read<Type>(address);
 }
 
 template <typename Type>
 _NODISCARD _CONSTEXPR20 size_t WriteMem(POINTER address, const Type& value) noexcept
 {
-	assert(g_Memory != nullptr);
 	return g_Memory->Write<Type>(address, value);
 }
 
 // query information of a virtual address
 _NODISCARD _CONSTEXPR20 VirtualMemoryInfo VirtualQuery(POINTER address) EXCEPT
 {
-	assert(g_Memory != nullptr);
 	return g_Memory->VirtualQuery(address);
 }
 
@@ -148,11 +143,10 @@ _NODISCARD _CONSTEXPR20 void Analyze(
 	POINTER address,
 	size_t size,
 	bool bDisectSubroutine,
-	std::vector<BYTE>& outBuffer,
+	std::vector<byte_t>& outBuffer,
 	AnalyzedData& outData
 ) EXCEPT
 {
-	assert(g_Analyzer != nullptr);
 	return g_Analyzer->Analyze(address, size, bDisectSubroutine, outBuffer, outData);
 }
 

@@ -462,7 +462,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 
 void TokioAnalyzer::AnalyzeRegion(
 	const MemoryReadRegion& region,
-	const std::vector<BYTE>& buffer,
+	const std::vector<byte_t>& buffer,
 	const size_t bufferOffset,
 	size_t& instructionIndex,
 	AnalyzedData& data
@@ -487,7 +487,7 @@ void TokioAnalyzer::AnalyzeRegion(
 			AnalyzedInstruction& instruction = data.instructions[instructionIndex++];
 
 			// color of the mnemonic base on its type
-			DWORD mnemonicColor = Settings::GetDisasmColor(disasmData.mnemonic.type);
+			dword_t mnemonicColor = Settings::GetDisasmColor(disasmData.mnemonic.type);
 
 			// get the symbol data from this instruction address
 			auto resultGetSymbol = m_symbol->AddressSymbolWalkNext(walkContext, disasmData.address);
@@ -540,7 +540,7 @@ void TokioAnalyzer::AnalyzeRegion(
 				// it's just a regular operand
 				else
 				{
-					DWORD operandColor = Settings::GetDisasmColor(operand.type);
+					dword_t operandColor = Settings::GetDisasmColor(operand.type);
 					instruction.fmtOperand.push_back(operand.value, operandColor);
 				}
 			}
@@ -564,7 +564,7 @@ _NODISCARD void TokioAnalyzer::Analyze(
 	POINTER address,
 	size_t size,
 	bool bAnalyzeSubroutine,
-	std::vector<BYTE>& outBuffer,
+	std::vector<byte_t>& outBuffer,
 	AnalyzedData& outData
 ) EXCEPT
 {

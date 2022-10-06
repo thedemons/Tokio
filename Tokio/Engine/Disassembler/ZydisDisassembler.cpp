@@ -152,7 +152,7 @@ ZyanStatus ZydisDisassembler::ZydisHookAddressFormatter(
 _NODISCARD std::vector<DisasmInstruction>
 ZydisDisassembler::Disassemble(
     POINTER virtualAddress, 
-    const BYTE* pOpCodes,
+    const byte_t* pOpCodes,
     size_t size
 ) const EXCEPT
 {

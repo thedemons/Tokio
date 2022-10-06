@@ -1,7 +1,11 @@
 #include "stdafx.h"
 #include "Win32Memory.hpp"
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 #include <processthreadsapi.h>
+#include <wow64apiset.h>
+#include <handleapi.h>
 
 namespace Engine
 {
@@ -12,7 +16,7 @@ Win32Memory::~Win32Memory() noexcept
 }
 
 _NODISCARD std::shared_ptr<ProcessData>
-Win32Memory::Attach(DWORD pid) EXCEPT
+Win32Memory::Attach(PID pid) EXCEPT
 {
 	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, false, pid);
 	if (hProc == nullptr)
@@ -25,7 +29,8 @@ Win32Memory::Attach(DWORD pid) EXCEPT
 	m_target->handle = hProc;
 	m_target->pid = pid;
 
-	BOOL getArchResult = IsWow64Process(m_target->handle, &m_target->is32bit);
+	BOOL result = FALSE;
+	BOOL getArchResult = IsWow64Process(m_target->handle, &result);
 	if (!getArchResult)
 	{
 		Detach();
@@ -33,6 +38,7 @@ Win32Memory::Attach(DWORD pid) EXCEPT
 		throw Tokio::Exception(except_getarch_failed, Tokio::Exception::Type::WinAPI);
 	}
 
+	m_target->is32bit = static_cast<bool>(result);
 	return m_target;
 }
 
@@ -79,13 +85,11 @@ _NODISCARD VirtualMemoryInfo Win32Memory::VirtualQuery(
 	MEMORY_BASIC_INFORMATION info;
 	size_t result = ::VirtualQueryEx(m_target->handle, reinterpret_cast<LPCVOID>(address), &info, sizeof(info));
 
-	if (result == 0)
+	if (result != sizeof(info))
 	{
 		static const std::string except_virtual_query_failed("Win32Memory cannot query virtual memory information");
 		throw Tokio::Exception(except_virtual_query_failed, Tokio::Exception::WinAPI);
 	}
-
-	assert(result == sizeof(info));
 
 	VirtualMemoryInfo  memInfo;
 	memInfo.base = reinterpret_cast<POINTER>(info.BaseAddress);

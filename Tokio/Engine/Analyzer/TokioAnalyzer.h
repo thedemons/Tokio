@@ -13,14 +13,14 @@ class TokioAnalyzer : public BaseAnalyzer
 private:
 	_NODISCARD void AnalyzeRegion(
 		const MemoryReadRegion& region,
-		const std::vector<BYTE>& buffer,
+		const std::vector<byte_t>& buffer,
 		const size_t bufferOffset,
 		size_t& instructionIndex,
 		AnalyzedData& data
 	) EXCEPT;
 
 	void AnalyzeCrossReferences(AnalyzedData& data);
-	void AnalyzeSubroutines(AnalyzedData& data, const std::vector<BYTE>& buffer);
+	void AnalyzeSubroutines(AnalyzedData& data, const std::vector<byte_t>& buffer);
 
 public:
 	// address:		      the virtual address in the target process
@@ -32,7 +32,7 @@ public:
 		POINTER address,
 		size_t size,
 		bool bAnalyzeSubroutine,
-		std::vector<BYTE>& outBuffer,
+		std::vector<byte_t>& outBuffer,
 		AnalyzedData& outData
 	) EXCEPT override;
 };

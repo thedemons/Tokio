@@ -10,7 +10,7 @@ class Win32Symbol : public BaseSymbol
 {
 private:
 	std::wstring m_bufferModulePath;
-	std::vector<HMODULE> m_bufferModule{ 256 };
+	std::vector<ModuleHandle> m_bufferModule{ 256 };
 
 	// try using kernel32 api
 	_NODISCARD bool K32RetrieveModuleList() noexcept;

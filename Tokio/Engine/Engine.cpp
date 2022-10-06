@@ -17,7 +17,7 @@ namespace Engine
 LPON_ATTACH_CALLBACK pAttachCallback = nullptr;
 LPON_DETACH_CALLBACK pDetachCallback = nullptr;
 
-void Attach(DWORD pid) EXCEPT
+void Attach(PID pid) EXCEPT
 {
 	// detach the current target before attaching to a new process
 	if (g_Target != nullptr) Detach();

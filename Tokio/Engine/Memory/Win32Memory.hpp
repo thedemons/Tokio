@@ -13,7 +13,7 @@ public:
 	~Win32Memory() noexcept;
 
 	_NODISCARD std::shared_ptr<ProcessData>
-	Attach(DWORD pid) EXCEPT override;
+	Attach(PID pid) EXCEPT override;
 
 	void Detach() noexcept override;
 

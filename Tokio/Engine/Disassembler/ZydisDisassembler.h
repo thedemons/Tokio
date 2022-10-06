@@ -78,7 +78,6 @@ private:
 
 	_NODISCARD _CONSTEXPR20 DisasmOperandType GetOperandType(ZydisTokenType tokenType) const noexcept
 	{
-		assert(tokenType >= 0 && tokenType < 15 );
 		return m_arrayTokenType[tokenType];
 	}
 
@@ -97,7 +96,7 @@ public:
 	// pOpCodes		  : Pointer to the opcode buffer to be disassemble
 	// size			  : Size of the buffer
 	_NODISCARD std::vector<DisasmInstruction>
-	Disassemble(POINTER virtualAddress, const BYTE* pOpCodes, size_t size) const EXCEPT override;
+	Disassemble(POINTER virtualAddress, const byte_t* pOpCodes, size_t size) const EXCEPT override;
 
 	void UpdateSettings() noexcept override;
 };
