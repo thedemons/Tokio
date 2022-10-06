@@ -8,26 +8,25 @@ namespace Engine
 {
 class Win32Symbol : public BaseSymbol
 {
-	using BaseSymbol::BaseSymbol;
 private:
 	std::wstring m_bufferModulePath;
 	std::vector<HMODULE> m_bufferModule{ 256 };
 
 	// try using kernel32 api
-	_NODISCARD auto K32RetrieveModuleList() -> SafeResult(void);
+	_NODISCARD bool K32RetrieveModuleList() noexcept;
 
 	// try using tlhelp32 api
-	_NODISCARD auto Tlhelp32RetrieveModuleList() -> SafeResult(void);
+	_NODISCARD bool Tlhelp32RetrieveModuleList() noexcept;
 
 public:
-
-	_NODISCARD auto Update() -> SafeResult(std::vector<ProcessModule>&) override;
+	Win32Symbol(const std::shared_ptr<ProcessData>& target) EXCEPT;
+	std::vector<ProcessModule>& Update() EXCEPT override;
 
 	// format and address into module.function+0xxxx
-	_NODISCARD auto AddressToSymbol(POINTER address)->SafeResult(std::string) override;
+	_NODISCARD bool AddressToSymbol(POINTER address, std::string& symbol, size_t size = 512) const noexcept override;
 
 	// return an adddress from a symbol such as module.function+0xxxx
-	_NODISCARD auto SymbolToAddress(const std::string& symbol)->SafeResult(POINTER) override;
+	_NODISCARD POINTER SymbolToAddress(const std::string& symbol) const noexcept override;
 };
 
 }

@@ -55,6 +55,9 @@
     <Filter Include="Engine\Analyzer">
       <UniqueIdentifier>{19038aef-5df2-4c95-850a-9730fbf0d6fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{6eaf9a60-14c6-4ded-a6d3-06c137d0d851}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -155,6 +158,9 @@
     </ClCompile>
     <ClCompile Include="GUI\Views\DisassemblerGraph.cpp">
       <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\Exception.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +307,9 @@
     </ClInclude>
     <ClInclude Include="GUI\Views\DisassemblerGraph.h">
       <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\Exception.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

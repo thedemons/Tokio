@@ -460,127 +460,129 @@ ImGui::TokenizedText FormatSymbolAddress(
 
 
 
-common::errcode TokioAnalyzer::AnalyzeRegion(
+void TokioAnalyzer::AnalyzeRegion(
 	const MemoryReadRegion& region,
 	const std::vector<BYTE>& buffer,
 	const size_t bufferOffset,
 	size_t& instructionIndex,
 	AnalyzedData& data
-)
+) EXCEPT
 {
-	auto disasmResult = m_disassembler->Disasm(region.start, buffer.data() + bufferOffset, region.size);
-	if (disasmResult.has_error())
-	{
-		assert(false && "Disassemble failed?");
-		return common::errcode::AnalyzerFailedToDisassemble;
-	}
+	try
+	{	
+		// disassemble the region first
+		std::vector<DisasmInstruction> disasmInstructions = 
+			m_disassembler->Disassemble(region.start, buffer.data() + bufferOffset, region.size);
 
-	std::vector<DisasmInstruction>& disasmInstructions = disasmResult.value();
-	size_t insBufferOffset = bufferOffset;
+		size_t insBufferOffset = bufferOffset;
 
-	// init symbol walk context, this is for the address, which is in ascending order
-	// it helps a lot with the performance to do this way, look at the function
-	// if you ever forget how the fuck does it work
-	auto walkContext = m_symbol->AddressSymbolWalkInit();
+		// init symbol walk context, this is for the address, which is in ascending order
+		// it helps a lot with the performance to do this way, look at the function
+		// if you ever forget how the fuck does it work
+		auto walkContext = m_symbol->AddressSymbolWalkInit();
 
-	// loop through all the disassembled instructions
-	for (DisasmInstruction& disasmData : disasmInstructions)
-	{
-		AnalyzedInstruction& instruction = data.instructions[instructionIndex++];
-
-		// color of the mnemonic base on its type
-		DWORD mnemonicColor = Settings::GetDisasmColor(disasmData.mnemonic.type);
-
-		// get the symbol data from this instruction address
-		auto resultGetSymbol = m_symbol->AddressSymbolWalkNext(walkContext, disasmData.address);
-
-		// copy the result from disasmData
-		instruction.address           = disasmData.address;
-		instruction.length            = disasmData.length;
-
-		instruction.mnemonic          = std::move(disasmData.mnemonic);
-
-		instruction.bufferOffset      = insBufferOffset;
-
-		instruction.referencedAddress = disasmData.referencedAddress;
-		instruction.isRefPointer      = disasmData.isRefPointer;
-
-		instruction.operands          = std::move(disasmData.operands);
-		instruction.isNotReadable = false;
-
-		// format the address for the instruction
-		//instruction.fmtMnemonic.clear();
-		instruction.fmtMnemonic.push_back(disasmData.mnemonic.value, mnemonicColor);
-
-		instruction.fmtAddress = std::move(FormatSymbolAddress(
-			disasmData.address,
-			resultGetSymbol,
-			&instruction.isAtBaseModule,
-			&instruction.isAtSubroutineStart
-		));
-
-		// clear all the formatted text
-		//instruction.fmtOperand.clear();
-		//instruction.fmtComment.clear();
-
-		// here we parse the tokenized operands into colored text
-		for (auto& operand : instruction.operands)
+		// loop through all the disassembled instructions
+		for (DisasmInstruction& disasmData : disasmInstructions)
 		{
-			// skip the mnemonic and invalid operands (the mnemonic is already at the instruction.mnemonic)
-			if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
+			AnalyzedInstruction& instruction = data.instructions[instructionIndex++];
 
-			if (operand.type == DisasmOperandType::WhiteSpace)
+			// color of the mnemonic base on its type
+			DWORD mnemonicColor = Settings::GetDisasmColor(disasmData.mnemonic.type);
+
+			// get the symbol data from this instruction address
+			auto resultGetSymbol = m_symbol->AddressSymbolWalkNext(walkContext, disasmData.address);
+
+			// copy the result from disasmData
+			instruction.address           = disasmData.address;
+			instruction.length            = disasmData.length;
+
+			instruction.mnemonic          = std::move(disasmData.mnemonic);
+
+			instruction.bufferOffset      = insBufferOffset;
+
+			instruction.referencedAddress = disasmData.referencedAddress;
+			instruction.isRefPointer      = disasmData.isRefPointer;
+
+			instruction.operands          = std::move(disasmData.operands);
+			instruction.isNotReadable = false;
+
+			// format the address for the instruction
+			//instruction.fmtMnemonic.clear();
+			instruction.fmtMnemonic.push_back(disasmData.mnemonic.value, mnemonicColor);
+
+			instruction.fmtAddress = std::move(FormatSymbolAddress(
+				disasmData.address,
+				resultGetSymbol,
+				&instruction.isAtBaseModule,
+				&instruction.isAtSubroutineStart
+			));
+
+			// clear all the formatted text
+			//instruction.fmtOperand.clear();
+			//instruction.fmtComment.clear();
+
+			// here we parse the tokenized operands into colored text
+			for (auto& operand : instruction.operands)
 			{
-				instruction.fmtOperand.push_back(" "s, 0x00000000);
+				// skip the mnemonic and invalid operands (the mnemonic is already at the instruction.mnemonic)
+				if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
+
+				if (operand.type == DisasmOperandType::WhiteSpace)
+				{
+					instruction.fmtOperand.push_back(" "s, 0x00000000);
+				}
+				// it has a reference address, find a symbol for it
+				else if (instruction.referencedAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
+				{
+					auto resultGetRefSymbol = m_symbol->AddressToModuleSymbol(instruction.referencedAddress);
+					instruction.fmtOperand += FormatSymbolAddress(instruction.referencedAddress, resultGetRefSymbol);
+				}
+				// it's just a regular operand
+				else
+				{
+					DWORD operandColor = Settings::GetDisasmColor(operand.type);
+					instruction.fmtOperand.push_back(operand.value, operandColor);
+				}
 			}
-			// it has a reference address, find a symbol for it
-			else if (instruction.referencedAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
-			{
-				auto resultGetRefSymbol = m_symbol->AddressToModuleSymbol(instruction.referencedAddress);
-				instruction.fmtOperand += FormatSymbolAddress(instruction.referencedAddress, resultGetRefSymbol);
-			}
-			// it's just a regular operand
-			else
-			{
-				DWORD operandColor = Settings::GetDisasmColor(operand.type);
-				instruction.fmtOperand.push_back(operand.value, operandColor);
-			}
+
+			// if it's is something like `mov rax, [0x12345]`
+			//if (instruction.isRefPointer) AnalyzeInstructionReference(insData);
+
+
+			insBufferOffset += instruction.length;
 		}
 
-		// if it's is something like `mov rax, [0x12345]`
-		//if (instruction.isRefPointer) AnalyzeInstructionReference(insData);
-
-
-		insBufferOffset += instruction.length;
 	}
-
-	return {};
+	catch (Tokio::Exception& e)
+	{
+		e += "TokioAnalyzer failed to analyed region";
+		throw e;
+	}
 }
 
-_NODISCARD common::errcode TokioAnalyzer::Analyze(
+_NODISCARD void TokioAnalyzer::Analyze(
 	POINTER address,
 	size_t size,
 	bool bAnalyzeSubroutine,
 	std::vector<BYTE>& outBuffer,
 	AnalyzedData& outData
-)
+) EXCEPT
 {
+	
+	static const std::string except_zero("The size to analyze was zero");
+	static const std::string except_read_failed("Failed to read memory");
 
 	if (size == 0)
 	{
 		assert(size != 0 && "The size to analyze was zero, what happened?");
-
-		// IMPROVEMENT: return no error anyway, might change this in the future
-		return {};
+		throw Tokio::Exception(except_zero);
 	}
-	
-
-	POINTER startAddress = address;
-	size_t bufferSize = size;
 
 	outBuffer.resize(size);
+
+
 	std::vector<MemoryReadRegion> regions;
-	m_memory->ReadMemSafe(startAddress, outBuffer.data(), bufferSize, regions);
+	m_memory->ReadMemSafe(address, outBuffer.data(), size, regions);
 
 	// invalidate all of the instructions
 	AnalyzedInstruction invalidInstruction(outData);
@@ -597,22 +599,19 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 	{
 		for (auto& instruction : outData.instructions)
 		{
-			instruction.address = startAddress++;
+			instruction.address = address++;
 		}
 
-		return common::errcode::AnalyzerFailedToReadMemory;
+		throw Tokio::Exception(except_read_failed);
 	}
 
-	
-
+	// loop through the buffer, if it's not readable then push invalid instructions, else disassemble it
+	size_t offset = address;
+	size_t instructionIndex = 0;
 
 	auto regionIter = regions.begin();
 
-	// loop through the buffer, if it's not readable then push invalid instructions, else disassemble it
-	size_t offset = startAddress;
-	size_t instructionIndex = 0;
-
-	while (offset < startAddress + bufferSize)
+	while (offset < address + size)
 	{
 		// the address was not readable
 		if (offset < regionIter->start)
@@ -633,12 +632,7 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 		// disassemble valid region
 		else
 		{
-			auto resultAnalyzeRegion = AnalyzeRegion(*regionIter, outBuffer, regionIter->start - startAddress, instructionIndex, outData);
-			if (resultAnalyzeRegion != common::errcode::Success)
-			{
-				//assert(false && "Failed to analyze region");
-				return resultAnalyzeRegion;
-			}
+			AnalyzeRegion(*regionIter, outBuffer, regionIter->start - address, instructionIndex, outData);
 
 			offset += regionIter->size;
 			if (++regionIter == regions.end()) break;
@@ -647,7 +641,7 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 
 	// there are more bytes left after disassembling valid regions
 	// push invalid instructions
-	for (; offset < startAddress + bufferSize; offset++)
+	for (; offset < address + size; offset++)
 	{
 		AnalyzedInstruction& ins = outData.instructions[instructionIndex++];
 		ins.address = offset;
@@ -662,11 +656,7 @@ _NODISCARD common::errcode TokioAnalyzer::Analyze(
 	if (bAnalyzeSubroutine)
 	{
 		AnalyzeSubroutines(outData, outBuffer);
-
 	}
-	
-
-	return common::errcode::Success;
 }
 
 

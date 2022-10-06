@@ -37,9 +37,15 @@ void Init()
 	Engine::OnAttachCallback(HandlerAttachProcess);
 	Engine::OnDetachCallback(HandlerDetachProcess);
 
-	// AUTO ATTACH FOR DEBUG MODE ONLY
-	if (auto result = Engine::Attach(177508); result.has_error())
-		result.error().show();
+
+	try
+	{
+		Engine::Attach(177508);
+	}
+	catch (Tokio::Exception& e)
+	{
+		e.Log("Couldn't attach to the process");
+	}
 }
 
 void RenderMenuBar()

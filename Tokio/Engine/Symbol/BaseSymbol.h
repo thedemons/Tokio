@@ -3,7 +3,7 @@
 #define TOKIO_ENGINE_BASESYMBOL_H
 
 #include "Engine/EngineDef.h"
-#include "common_result.hpp"
+#include "Common/Exception.h"
 
 #include <memory>
 #include <vector>
@@ -30,31 +30,31 @@ protected:
 	void UpdateModules(const std::vector<ProcessModule>& modules);
 
 public:
-	BaseSymbol(const std::shared_ptr<ProcessData>& target);
+	BaseSymbol(const std::shared_ptr<ProcessData>& target) EXCEPT;
 
 	// update the module and symbol list of the
 	// target process, also return a reference back to the caller
 	// NOTICE: Any inherited class of BaseSymbol must call UpdateModules()
 	//		   after retrieving the symbols to finalize the internal vector m_sortedModules
-	virtual _NODISCARD auto Update() -> SafeResult(std::vector<ProcessModule>&) = 0;
+	virtual std::vector<ProcessModule>& Update() EXCEPT = 0;
 
 	// format and address into module.function+0xxxx
-	virtual _NODISCARD auto AddressToSymbol(POINTER address) -> SafeResult(std::string) = 0;
+	_NODISCARD virtual bool AddressToSymbol(POINTER address, std::string& symbol, size_t size = 512) const noexcept = 0;
 
 	// return an adddress from a symbol such as module.function+0xxxx
-	virtual _NODISCARD auto SymbolToAddress(const std::string& symbol) -> SafeResult(POINTER) = 0;
+	_NODISCARD virtual POINTER SymbolToAddress(const std::string& symbol) const noexcept = 0;
 
 	// intialize a symbol walk for sorted address
-	virtual _NODISCARD _CONSTEXPR20 auto AddressSymbolWalkInit() -> SymbolWalkContext
+	_NODISCARD virtual _CONSTEXPR20 SymbolWalkContext AddressSymbolWalkInit() const noexcept
 	{
 		return SymbolWalkContext(m_sortedModules);
 	}
 
 	// find next address, remember that the addresses passed into this function must be sorted
-	virtual _NODISCARD auto AddressSymbolWalkNext(SymbolWalkContext& context, POINTER address)->ResultGetSymbol;
+	_NODISCARD virtual ResultGetSymbol AddressSymbolWalkNext(SymbolWalkContext& context, POINTER address) const noexcept;
 
 	// helper function for a single AddressSymbolWalkInit && AddressSymbolWalkNext
-	virtual _NODISCARD _CONSTEXPR20 auto AddressToModuleSymbol(POINTER address) -> ResultGetSymbol
+	_NODISCARD _CONSTEXPR20 virtual ResultGetSymbol AddressToModuleSymbol(POINTER address) const noexcept
 	{
 		SymbolWalkContext context(m_sortedModules);
 		return AddressSymbolWalkNext(context, address);

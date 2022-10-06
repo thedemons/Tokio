@@ -372,15 +372,24 @@ _NODISCARD auto GetPEInfo(ProcessModule& procMod)->SafeResult(void)
 	return {};
 }
 
-_NODISCARD auto Win32Symbol::Tlhelp32RetrieveModuleList()->SafeResult(void)
+Win32Symbol::Win32Symbol(const std::shared_ptr<ProcessData>& target) EXCEPT : BaseSymbol(target)
+{
+	Update();
+}
+
+_NODISCARD bool Win32Symbol::Tlhelp32RetrieveModuleList() noexcept
 {
 	//DWORD snapFlags = TH32CS_SNAPMODULE;
 	//if (m_target->is32bit) snapFlags |= TH32CS_SNAPMODULE32;
+
 	DWORD snapFlags = TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32;
-
-
 	HANDLE hSnap = CreateToolhelp32Snapshot(snapFlags, m_target->pid);
-	WINAPI_FAILIFN_NM(hSnap != INVALID_HANDLE_VALUE);
+
+	if (hSnap == INVALID_HANDLE_VALUE)
+	{
+		Tokio::Log("Win32Symbol CreateToolhelp32Snapshot failed");
+		return false;
+	}
 
 	MODULEENTRY32W modEntry{ 0 };
 	modEntry.dwSize = sizeof(MODULEENTRY32W);
@@ -390,7 +399,7 @@ _NODISCARD auto Win32Symbol::Tlhelp32RetrieveModuleList()->SafeResult(void)
 	if (!Module32FirstW(hSnap, &modEntry))
 	{
 		CloseHandle(hSnap);
-		WINAPI_THROW(NoMessage);
+		return false;
 	}
 
 	do
@@ -413,15 +422,14 @@ _NODISCARD auto Win32Symbol::Tlhelp32RetrieveModuleList()->SafeResult(void)
 	} while (Module32NextW(hSnap, &modEntry));
 
 	CloseHandle(hSnap);
-	return {};
+	return true;
 }
 
 // TODO: This function is too long, split it into multiple functions
-_NODISCARD auto Win32Symbol::K32RetrieveModuleList()->SafeResult(void)
+_NODISCARD bool Win32Symbol::K32RetrieveModuleList() noexcept
 {
 	// init 256 module, if it wasn't enough we will allocate more
 	if (m_bufferModule.size() == 0) m_bufferModule.resize(256);
-
 
 	DWORD cbSizeNeeded = 0;
 	DWORD cbCurrentSize = static_cast<DWORD>(m_bufferModule.size() * sizeof(HMODULE));
@@ -436,7 +444,11 @@ _NODISCARD auto Win32Symbol::K32RetrieveModuleList()->SafeResult(void)
 			LIST_MODULES_ALL
 		);
 
-	WINAPI_FAILIFN(result, EnumProcessModulesFailed);
+	if (!result)
+	{
+		Tokio::Log("Win32Symbol K32EnumProcessModulesEx failed");
+		return false;
+	}
 
 	// the m_bufferModule size is not enough didn't have enough space, create more
 	if (cbSizeNeeded > cbCurrentSize)
@@ -451,7 +463,11 @@ _NODISCARD auto Win32Symbol::K32RetrieveModuleList()->SafeResult(void)
 				LIST_MODULES_64BIT
 			);
 
-		WINAPI_FAILIFN(result, EnumProcessModulesFailed);
+		if (!result)
+		{
+			Tokio::Log("Win32Symbol K32EnumProcessModulesEx the second time failed");
+			return false;
+		}
 	}
 
 	size_t moduleCount = static_cast<size_t>(cbSizeNeeded) / sizeof(HMODULE);
@@ -513,19 +529,27 @@ _NODISCARD auto Win32Symbol::K32RetrieveModuleList()->SafeResult(void)
 			modData.size = moduleInfo.SizeOfImage;
 			modData.entryPoint = reinterpret_cast<POINTER>(moduleInfo.EntryPoint);
 		}
-
+		else
+		{
+			Tokio::Log("Win32Symbol K32GetModuleInformation failed");
+		}
 	}
 
-	return {};
+	return true;
 }
 
-_NODISCARD auto Win32Symbol::Update() -> SafeResult(std::vector<ProcessModule>&)
+std::vector<ProcessModule>& Win32Symbol::Update() EXCEPT
 {
-	if (auto result = Tlhelp32RetrieveModuleList(); result.has_error())
+	if (!Tlhelp32RetrieveModuleList())
 	{
-		return cpp::fail(common::err(result.error()));
+		if (!K32RetrieveModuleList())
+		{
+			static const std::string except_message("Win32Symbol couldn't retrieve the module list");
+			throw Tokio::Exception(except_message);
+		}
 	}
 
+	// loop through the module list and retrieve its symbols
 	for (auto& procMod : m_target->modules)
 	{
 		if (auto result = GetPEInfo(procMod); result.has_error())
@@ -535,7 +559,7 @@ _NODISCARD auto Win32Symbol::Update() -> SafeResult(std::vector<ProcessModule>&)
 		}
 	}
 
-	// the base module is always at the front
+	// the base module is always at index zero
 	m_target->baseModule = &m_target->modules.front();
 
 	UpdateModules(m_target->modules);
@@ -544,22 +568,28 @@ _NODISCARD auto Win32Symbol::Update() -> SafeResult(std::vector<ProcessModule>&)
 
 
 // format and address into module.function+xxxx
-_NODISCARD auto Win32Symbol::AddressToSymbol(POINTER address) -> SafeResult(std::string)
+_NODISCARD bool Win32Symbol::AddressToSymbol(POINTER address, std::string& symbol, size_t size) const noexcept
 {
 	auto walkContext = AddressSymbolWalkInit();
 	auto resultGetModuleSymbol = AddressSymbolWalkNext(walkContext, address);
 
-	if (!resultGetModuleSymbol.has_value()) RESULT_THROW(NoMessage);
+	if (!resultGetModuleSymbol.has_value()) return false;
 
-	static char symbol[1024];
+	int len = 0;
+	symbol.resize(size);
 
 	if (!resultGetModuleSymbol.has_symbol())
 	{
 		auto procMod = resultGetModuleSymbol.Module();
-		if (address == procMod->base) return procMod->moduleNameA;
-
-		sprintf_s(symbol, "%s+%llX", procMod->moduleNameA.c_str(), address - procMod->base);
-		return symbol;
+		if (address == procMod->base)
+		{
+			symbol = procMod->moduleNameA;
+			return true;
+		}
+		else
+		{
+			len = sprintf_s(symbol.data(), size, "%s+%llX", procMod->moduleNameA.c_str(), address - procMod->base);
+		}
 	}
 	else
 	{
@@ -571,8 +601,10 @@ _NODISCARD auto Win32Symbol::AddressToSymbol(POINTER address) -> SafeResult(std:
 
 		if (offsetFromVA > 0)
 		{
-			sprintf_s(
-				symbol, "%s.%s+%llX",
+			len = sprintf_s(
+				symbol.data(),
+				symbol.size(),
+				"%s.%s+%llX",
 				pModule->moduleNameA.c_str(),
 				pSymbol->name.c_str(),
 				offsetFromVA
@@ -580,15 +612,18 @@ _NODISCARD auto Win32Symbol::AddressToSymbol(POINTER address) -> SafeResult(std:
 		}
 		else
 		{
-			sprintf_s(symbol, "%s.%s", pModule->moduleNameA.c_str(), pSymbol->name.c_str());
+			len = sprintf_s(symbol.data(), size, "%s.%s", pModule->moduleNameA.c_str(), pSymbol->name.c_str());
 		}
 
-		return symbol;
+		symbol.resize(static_cast<size_t>(len));
 	}
+
+	symbol.resize(static_cast<size_t>(len));
+	return true;
 }
 
 // return an adddress from a symbol such as module.function+0xxxx
-_NODISCARD auto Win32Symbol::SymbolToAddress(const std::string& symbol) -> SafeResult(POINTER)
+_NODISCARD POINTER Win32Symbol::SymbolToAddress(const std::string& symbol) const noexcept
 {
 	// TODO-IMPLEMENT
 	POINTER x;

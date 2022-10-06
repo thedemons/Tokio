@@ -205,7 +205,7 @@ void ViewDisassembler::PopupNavigateRenderCallback(Widgets::Popup* popup, void* 
 
 	if (isEnter)
 	{
-		POINTER address = Engine::Symbol()->SymbolToAddress(pThis->m_popupNavigateTextInput.str_strip()).value();
+		POINTER address = Engine::Symbol()->SymbolToAddress(pThis->m_popupNavigateTextInput.str_strip());
 		popup->Close();
 		pThis->GoToAddress(address);
 		pThis->m_popupNavigateTextInput.Clear();
@@ -1002,26 +1002,27 @@ void ViewDisassembler::Disassemble()
 
 	POINTER startAddress = m_pVirtualBase - 512;
 
-	auto resultAnalyze = Engine::Analyze(startAddress, 1024, true, m_memoryBuffer, m_analyzedData);
-	if (resultAnalyze != common::errcode::Success)
+	try
 	{
-		//common::err(resultAnalyze).show();
-		//assert(false && "Analyze failed");
-		m_instructionOffset = 32;
-		return;
-	}
+		Engine::Analyze(startAddress, 1024, true, m_memoryBuffer, m_analyzedData);
 
-	// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
-	for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
-	{
-		if (m_analyzedData.instructions[m_instructionOffset].address > m_pVirtualBase)
+		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
+		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
 		{
-			m_instructionOffset--;
-			break;
+			if (m_analyzedData.instructions[m_instructionOffset].address > m_pVirtualBase)
+			{
+				m_instructionOffset--;
+				break;
+			}
 		}
 	}
+	catch (Tokio::Exception& e)
+	{
+		m_analyzedData.instructions.clear();
+		m_analyzedData.subroutines.clear();
 
-
+		e.Log("View disassembler failed to analyze");
+	}
 }
 
 void ViewDisassembler::GoToAddress(POINTER address)

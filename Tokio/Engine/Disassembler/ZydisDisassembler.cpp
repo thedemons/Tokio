@@ -48,7 +48,7 @@ void ZydisDisassembler::InitFormatter()
     ZydisFormatterInit(m_formatter, fmtStyle);
 }
 
-void ZydisDisassembler::UpdateSettings()
+void ZydisDisassembler::UpdateSettings() noexcept
 {
     auto& settings = Settings::disasm;
 
@@ -85,9 +85,9 @@ ZydisDisassembler::~ZydisDisassembler()
 
 struct ZydisCallbackUserData
 {
-    ZydisDisassembler* pThis      { nullptr };
-    DisasmInstruction* disasmData { nullptr };
-    ZyanU8 id_refaddress          {   204u  }; // 204 is the default for unused operand, i don't know why
+    const ZydisDisassembler* pThis { nullptr };
+    DisasmInstruction* disasmData  { nullptr };
+    ZyanU8 id_refaddress           {   204u  }; // 204 is the default for unused operand, i don't know why
 };
 
 DisasmOperandType ZydisDisassembler::GetOperandMnemonicType(ZydisMnemonic mnemonic) const noexcept
@@ -149,7 +149,12 @@ ZyanStatus ZydisDisassembler::ZydisHookAddressFormatter(
     return UserData->pThis->default_print_address_absolute(formatter, buffer, context);
 }
 
-_NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size)->SafeResult(std::vector<DisasmInstruction>)
+_NODISCARD std::vector<DisasmInstruction>
+ZydisDisassembler::Disassemble(
+    POINTER virtualAddress, 
+    const BYTE* pOpCodes,
+    size_t size
+) const EXCEPT
 {
 
     static char buffer[256];
@@ -176,8 +181,8 @@ _NODISCARD auto ZydisDisassembler::Disasm(POINTER pVirtualBase, const BYTE* pOpC
     
     size_t instructionIndex = 0;
 
-    POINTER pVirtualPointer = pVirtualBase;
-    POINTER pVirtualEnd = pVirtualBase + size;
+    POINTER pVirtualPointer = virtualAddress;
+    POINTER pVirtualEnd = virtualAddress + size;
 
     while (pVirtualPointer < pVirtualEnd)
     {

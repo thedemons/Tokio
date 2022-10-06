@@ -332,15 +332,16 @@ void ViewAttachProc::TableInputCallback(Widgets::Table* table, size_t index, voi
 		if (ImGui::IsMouseDoubleClicked(0))
 		{
 			DWORD pid = pThis->m_processList[index].pid;
-			auto resultAttach = Engine::Attach(pid);
-			if (resultAttach.has_error())
+			try
 			{
-				resultAttach.error().show();
-			}
-			else
-			{
+				Engine::Attach(pid);
 				ImGui::CloseCurrentPopup();
 			}
+			catch (Tokio::Exception& e)
+			{
+				e.Log("Couldn't attach to the process");
+			}
+
 		}
 	}
 }

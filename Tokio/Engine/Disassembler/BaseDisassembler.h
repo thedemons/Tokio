@@ -2,8 +2,7 @@
 #define TOKIO_ENGINE_BASEDISASSEMBLER_H
 
 #include "Engine/EngineDef.h"
-#include "common_result.hpp"
-
+#include "Common/Exception.h"
 #include <memory>
 
 namespace Engine
@@ -16,14 +15,15 @@ protected:
 public:
 	BaseDisassembler(const std::shared_ptr<ProcessData>& target);
 
-	// pVirtualBase : The starting point of the memory in the target process
-	// pOpCodes		: Pointer to the opcode buffer to be disassemble
-	// size			: Size of the buffer
-	_NODISCARD virtual auto Disasm(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size)->SafeResult(std::vector<DisasmInstruction>) = 0;
+	// virtualAddress : The starting point of the memory in the target process
+	// pOpCodes		  : Pointer to the opcode buffer to be disassemble
+	// size			  : Size of the buffer
+	_NODISCARD virtual std::vector<DisasmInstruction>
+	Disassemble(POINTER virtualAddress, const BYTE* pOpCodes, size_t size) const EXCEPT = 0;
 
 	// The user interface will call this function to refresh the new settings
 	// any inherited disassembler of this class should handle settings changes
-	virtual void UpdateSettings();
+	virtual void UpdateSettings() noexcept;
 };
 }
 

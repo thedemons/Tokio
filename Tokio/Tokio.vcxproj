@@ -179,6 +179,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\Exception.cpp" />
     <ClCompile Include="common_helper.cpp" />
     <ClCompile Include="Engine\Analyzer\BaseAnalyzer.cpp" />
     <ClCompile Include="Engine\Analyzer\TokioAnalyzer.cpp" />
@@ -249,6 +250,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.hpp" />
+    <ClInclude Include="Common\Exception.h" />
     <ClInclude Include="common_helper.h" />
     <ClInclude Include="common_result.hpp" />
     <ClInclude Include="Engine\Analyzer\BaseAnalyzer.h" />

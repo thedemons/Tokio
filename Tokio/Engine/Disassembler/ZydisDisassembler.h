@@ -93,12 +93,13 @@ public:
 	ZydisDisassembler(const std::shared_ptr<ProcessData>& target);
 	~ZydisDisassembler();
 
-	// pVirtualBase : The starting point of the memory in the target process
-	// pOpCodes		: Pointer to the opcode buffer to be disassemble
-	// size			: Size of the buffer
-	virtual auto Disasm(POINTER pVirtualBase, const BYTE* pOpCodes, size_t size)->SafeResult(std::vector<DisasmInstruction>) override;
+	// virtualAddress : The starting point of the memory in the target process
+	// pOpCodes		  : Pointer to the opcode buffer to be disassemble
+	// size			  : Size of the buffer
+	_NODISCARD std::vector<DisasmInstruction>
+	Disassemble(POINTER virtualAddress, const BYTE* pOpCodes, size_t size) const EXCEPT override;
 
-	virtual void UpdateSettings() override;
+	void UpdateSettings() noexcept override;
 };
 }
 

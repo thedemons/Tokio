@@ -44,88 +44,94 @@ typedef void (*LPON_ATTACH_CALLBACK)(std::shared_ptr<ProcessData>);
 typedef void (*LPON_DETACH_CALLBACK)();
 
 // Attach to a process
-_NODISCARD auto Attach(DWORD pid)->SafeResult(std::shared_ptr<ProcessData>);
+void Attach(DWORD pid) EXCEPT;
 
 // Detach target process
-void Detach();
+void Detach() noexcept;
 
 // Is attached to any process
-_NODISCARD _CONSTEXPR20 bool IsAttached()
+_NODISCARD _CONSTEXPR20 bool IsAttached() noexcept
 {
 	return g_Target != nullptr;
 }
 
 // Is the target process 32 bit
-_NODISCARD _CONSTEXPR20 bool Is32Bit()
+_NODISCARD _CONSTEXPR20 bool Is32Bit() noexcept
 {
 	assert(g_Target != nullptr);
 	return g_Target->is32bit;
 }
 
 // Return a shared pointer of the target process
-_NODISCARD _CONSTEXPR20 std::shared_ptr<ProcessData> Target()
+_NODISCARD _CONSTEXPR20 std::shared_ptr<ProcessData> Target() noexcept
 {
 	return g_Target;
 }
 
 // return a shared pointer to the memory engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseMemory> Memory()
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseMemory> Memory() noexcept
 {
 	return g_Memory;
 }
 
 // return a shared pointer to the disassembler engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDisassembler> Disassembler()
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDisassembler> Disassembler() noexcept
 {
 	return g_Disassembler;
 }
 
 // return a shared pointer to the analyzer engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseAnalyzer> Analyzer()
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseAnalyzer> Analyzer() noexcept
 {
 	return g_Analyzer;
 }
 
 // return a shared pointer to the disassembler engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseSymbol> Symbol()
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseSymbol> Symbol() noexcept
 {
 	return g_Symbol;
 }
 
-_NODISCARD _CONSTEXPR20 auto ReadMem(POINTER src, void* dest, size_t size)->SafeResult(void)
+_NODISCARD _CONSTEXPR20 size_t ReadMem(POINTER src, void* dest, size_t size) noexcept
 {
 	assert(g_Memory != nullptr);
 	return g_Memory->Read(src, dest, size);
 }
 
 // Read memory of the region that may cross a no-read-access page
-_CONSTEXPR20 void ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions)
+_CONSTEXPR20 void ReadMemSafe(
+	POINTER address,
+	BYTE* buffer,
+	size_t size,
+	std::vector<MemoryReadRegion>& regions
+) noexcept
 {
 	assert(g_Memory != nullptr);
 	return g_Memory->ReadMemSafe(address, buffer, size, regions);
 }
 
-_NODISCARD _CONSTEXPR20 auto WriteMem(POINTER dest, const void* src, size_t size) -> SafeResult(void) {
+_NODISCARD _CONSTEXPR20 size_t WriteMem(POINTER dest, const void* src, size_t size) noexcept
+{
 	assert(g_Memory != nullptr);
 	return g_Memory->Write(dest, src, size);
 }
 
 template <typename Type>
-_NODISCARD _CONSTEXPR20 auto ReadMem(POINTER address)->SafeResult(Type) 
+_NODISCARD _CONSTEXPR20 Type ReadMem(POINTER address) EXCEPT
 {
 	assert(g_Memory != nullptr);
 	return g_Memory->Read<Type>(address);
 }
 
 template <typename Type>
-_NODISCARD _CONSTEXPR20 auto WriteMem(POINTER address, Type value)->SafeResult(void) 
+_NODISCARD _CONSTEXPR20 size_t WriteMem(POINTER address, const Type& value) noexcept
 {
 	assert(g_Memory != nullptr);
 	return g_Memory->Write<Type>(address, value);
 }
 
 // query information of a virtual address
-_NODISCARD _CONSTEXPR20 auto VirtualQuery(POINTER address)->SafeResult(VirtualMemoryInfo)
+_NODISCARD _CONSTEXPR20 VirtualMemoryInfo VirtualQuery(POINTER address) EXCEPT
 {
 	assert(g_Memory != nullptr);
 	return g_Memory->VirtualQuery(address);
@@ -138,17 +144,21 @@ _NODISCARD _CONSTEXPR20 auto VirtualQuery(POINTER address)->SafeResult(VirtualMe
 // bDisectSubroutine: true to disect subroutine, if false, the subroutines vector will have a size of zero, only the instructions are analyzed
 // outBuffer:		  the output buffer contains read memory
 // outData:			  the output analyzed data	
-_NODISCARD _CONSTEXPR20 common::errcode
-Analyze(POINTER address, size_t size, bool bDisectSubroutine, std::vector<BYTE>& outBuffer, AnalyzedData& outData)
+_NODISCARD _CONSTEXPR20 void Analyze(
+	POINTER address,
+	size_t size,
+	bool bDisectSubroutine,
+	std::vector<BYTE>& outBuffer,
+	AnalyzedData& outData
+) EXCEPT
 {
 	assert(g_Analyzer != nullptr);
 	return g_Analyzer->Analyze(address, size, bDisectSubroutine, outBuffer, outData);
 }
 
-_NODISCARD
 
-void OnAttachCallback(LPON_ATTACH_CALLBACK callback);
-void OnDetachCallback(LPON_DETACH_CALLBACK callback);
+void OnAttachCallback(LPON_ATTACH_CALLBACK callback) noexcept;
+void OnDetachCallback(LPON_DETACH_CALLBACK callback) noexcept;
 
 }
 

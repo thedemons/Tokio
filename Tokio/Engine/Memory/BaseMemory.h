@@ -3,7 +3,7 @@
 #define TOKIO_ENGINE_BASEMEMORY_H
 
 #include "Engine/EngineDef.h"
-#include "common_result.hpp"
+#include "Common/Exception.h"
 
 #include <memory>
 
@@ -15,43 +15,74 @@ protected:
 	std::shared_ptr<ProcessData> m_target;
 
 public:
+	// attach to a process
+	_NODISCARD virtual std::shared_ptr<ProcessData>
+	Attach(DWORD pid) EXCEPT = 0;
+	
+	// detach the already-attached process
+	virtual void Detach() noexcept = 0;
 
-	_NODISCARD virtual auto Attach(DWORD pid)->SafeResult(std::shared_ptr<ProcessData>) = 0;
-	virtual void Detach() = 0;
+	// read memory into a buffer
+	_NODISCARD virtual size_t Read(
+		POINTER src,
+		void* dest,
+		size_t size
+	) const noexcept = 0;
 
-	_NODISCARD virtual auto Read(POINTER src, void* dest, size_t size)->SafeResult(void) = 0;
-	_NODISCARD virtual auto Write(POINTER dest, const void* src, size_t size)->SafeResult(void) = 0;
+	// write to the target process memory
+	_NODISCARD virtual size_t Write(
+		POINTER dest,
+		const void* src,
+		size_t size
+	) const noexcept = 0;
 
-	_NODISCARD virtual auto VirtualQuery(POINTER address) -> SafeResult(VirtualMemoryInfo) = 0;
+	// Read memory of the region that may cross a no-read-access page
+	virtual void ReadMemSafe(
+		POINTER address,
+		BYTE* buffer,
+		size_t size,
+		std::vector<MemoryReadRegion>& regions
+	) const noexcept;
 
+	// query virtual memory information from the target process
+	_NODISCARD virtual VirtualMemoryInfo VirtualQuery(
+		POINTER address
+	) const EXCEPT = 0;
+
+	// template for quick reading
 	template <typename Type>
-	_NODISCARD auto Read(POINTER address)->SafeResult(Type)
+	_NODISCARD Type Read(POINTER address) const EXCEPT 
 	{
 		Type value;
-		auto result = Read(address, &value, static_cast<size_t>(sizeof(Type)));
-		if (result.has_error()) RESULT_FORWARD(result);
+		size_t readSize = Read(address, &value, sizeof(Type));
+
+		if (readSize != sizeof(Type))
+		{
+			throw Tokio::Exception("Memory engine didn't"
+				" read enough size for template typename Type");
+		}
 
 		return value;
 	}
 
+	// template for quick writing
 	template <typename Type>
-	_NODISCARD auto Write(POINTER address, Type value)->SafeResult(void)
+	_NODISCARD size_t Write(POINTER address, const Type& value) const noexcept
 	{
-		return Write(address, &value, static_cast<size_t>(sizeof(Type)));
+		return Write(address, &value, sizeof(Type));
 	}
 
-	_NODISCARD virtual _CONSTEXPR20 DWORD GetPID()
+	// get the target process pid
+	_NODISCARD virtual _CONSTEXPR20 DWORD GetPID() const noexcept
 	{
 		return m_target->pid;
 	}
 
-	_NODISCARD virtual _CONSTEXPR20 HANDLE GetHandle()
+	// get a handle to the target process
+	_NODISCARD virtual _CONSTEXPR20 HANDLE GetHandle() const noexcept
 	{
 		return m_target->handle;
 	}
-	
-	// Read memory of the region that may cross a no-read-access page
-	virtual void ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions);
 };
 }
 

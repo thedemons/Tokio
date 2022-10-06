@@ -5,18 +5,26 @@ namespace Engine
 {
 
 // Read memory of the region that may cross a no-read-access page
-void BaseMemory::ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::vector<MemoryReadRegion>& regions)
+void BaseMemory::ReadMemSafe(
+	POINTER address,
+	BYTE* buffer,
+	size_t size,
+	std::vector<MemoryReadRegion>& regions
+) const noexcept
 {
-	auto resultQuery = VirtualQuery(address);
+	VirtualMemoryInfo memInfo;
 
-	if (resultQuery.has_error())
+	try
 	{
-		//assert(false && "ViewDisassembler could not query the start address information");
-		//RESULT_FORWARD(resultQuery);
+		memInfo =  VirtualQuery(address);
+	}
+	catch (Tokio::Exception& e)
+	{
+		e.Log("ReadMemSafe couldn't query virtual memory information\n");
 		return;
 	}
 
-	VirtualMemoryInfo& memInfo = resultQuery.value();
+
 	POINTER endAddress = memInfo.base + memInfo.size;
 	size_t offset = endAddress - address;
 
@@ -29,31 +37,28 @@ void BaseMemory::ReadMemSafe(POINTER address, BYTE* buffer, size_t size, std::ve
 		if (endAddress >= address + size)
 		{
 			region.start = address;
-			region.size = size;
+			region.size = Read(address, buffer, size);
 
-			if (auto resultRead = Read(address, buffer, size); resultRead.has_error())
+			if (region.size != size)
 			{
-				resultRead.error().show();
-				assert(false && "The memory was readable but still couldn't read it");
-				//RESULT_FORWARD(resultRead);
+				Tokio::Log("ReadMemSafe only read %d/%d bytes\n", region.size, size);
 			}
 		}
 		else
 		{
+			size_t readSize = endAddress - address;
 			region.start = address;
-			region.size = endAddress - address;
+			region.size = Read(address, buffer, readSize);
 
-			if (auto resultRead = Read(address, buffer, region.size); resultRead.has_error())
+			if (region.size != readSize)
 			{
-				resultRead.error().show();
-				assert(false && "The memory was readable but still couldn't read it");
-				//RESULT_FORWARD(resultRead);
+				Tokio::Log("ReadMemSafe only read %d/%d bytes\n", region.size, readSize);
 			}
 
 			return ReadMemSafe(endAddress, buffer + region.size, size - offset, regions);
 		}
 	}
-	// there is still readable region left
+	// there are still readable regions left
 	else if (endAddress <= address + size)
 	{
 		return ReadMemSafe(endAddress, buffer + offset, size - offset, regions);
