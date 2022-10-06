@@ -197,11 +197,7 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 
 ViewSymbolList::ViewSymbolList()
 {
-	m_title = ICON_SYMBOL_LIST u8" Symbol List";
-
-	auto viewList = MainView::FindMultipleViewByClass<ViewSymbolList>();
-	if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
-
+	m_title = MainView::GetViewTitle<ViewSymbolList>(ICON_SYMBOL_LIST u8" Symbol List");
 
 	SymbolTable::Desc desc;
 	desc.Name = "##TableModuleList";
@@ -255,18 +251,18 @@ void ViewSymbolList::Render(bool& bOpen)
 
 		m_table.Render(m_moduleList);
 
-		if (Settings::shortcuts.SymListOpenInDisassembler.IsPressedInWindow())
-		{
-			if (auto selectedItems = m_table.GetSelectedItems(); selectedItems.size() > 0)
-			{
-				auto* node = m_table.GetNodeAtIndex(selectedItems[0]);
-				auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
-				if (node && disasmView.has_value())
-				{
-					disasmView.value().pView->GoToAddress(node->address);
-				}
-			}
-		}
+		//if (Settings::shortcuts.SymListOpenInDisassembler.IsPressedInWindow())
+		//{
+		//	if (auto selectedItems = m_table.GetSelectedItems(); selectedItems.size() > 0)
+		//	{
+		//		auto* node = m_table.GetNodeAtIndex(selectedItems[0]);
+		//		auto disasmView = MainView::FindViewByClass<ViewDisassembler>();
+		//		if (node && disasmView.has_value())
+		//		{
+		//			disasmView.value().pView->GoToAddress(node->address);
+		//		}
+		//	}
+		//}
 
 		ImGui::End();
 	}

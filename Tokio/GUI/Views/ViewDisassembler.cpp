@@ -215,10 +215,7 @@ void ViewDisassembler::PopupNavigateRenderCallback(Widgets::Popup* popup, void* 
 
 ViewDisassembler::ViewDisassembler()
 {
-	m_title = ICON_DISASSEMBLER u8" Disassembler";
-
-	auto viewList = MainView::FindMultipleViewByClass<ViewDisassembler>();
-	if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
+	m_title = MainView::GetViewTitle<ViewDisassembler>(ICON_DISASSEMBLER u8" Disassembler");
 
 	Widgets::Table::Desc desc;
 	desc.Name = "##TableDisassembler";

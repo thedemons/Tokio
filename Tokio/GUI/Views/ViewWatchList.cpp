@@ -6,10 +6,7 @@
 
 ViewWatchList::ViewWatchList()
 {
-	m_title = ICON_WATCH_LIST u8" Watch List";
-
-	auto viewList = MainView::FindMultipleViewByClass<ViewWatchList>();
-	if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
+	m_title = MainView::GetViewTitle<ViewWatchList>(ICON_WATCH_LIST u8" Watch List");
 }
 
 void ViewWatchList::Render(bool& bOpen)

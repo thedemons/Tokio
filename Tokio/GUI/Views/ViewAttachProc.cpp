@@ -4,6 +4,7 @@
 #include "GUI/Widgets/Widgets.hpp"
 
 #include "Engine/Engine.h"
+#include "Common/Exception.h"
 
 namespace ViewAttachProcUtils
 {
@@ -15,7 +16,7 @@ std::unordered_map<std::wstring, ID3D11ShaderResourceView*> m_fileIcons;
 // Thanks to the author of this awesome library, it helps me alot
 // https://github.com/dfranx/ImFileDialog/blob/main/ImFileDialog.h
 
-auto GetTextureFromBitmap(void* buffer, UINT width, UINT height)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetTextureFromBitmap(void* buffer, UINT width, UINT height) NULLABLE
 {
 	D3D11_SUBRESOURCE_DATA subResource;
 	subResource.pSysMem = buffer;
@@ -35,7 +36,7 @@ auto GetTextureFromBitmap(void* buffer, UINT width, UINT height)->SafeResult(ID3
 
 	ID3D11Texture2D* pTexture = nullptr;
 	HRESULT hr = MainApplication::g_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
-	DX_FAILIFN(hr, NoMessage);
+	if (hr != S_OK) return nullptr;
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
@@ -51,13 +52,13 @@ auto GetTextureFromBitmap(void* buffer, UINT width, UINT height)->SafeResult(ID3
 	if (hr != S_OK)
 	{
 		pTexture->Release();
-		DX_FAILIFN(hr, NoMessage);
+		if (hr != S_OK) return nullptr;
 	}
 
 	return pResource;
 }
 
-auto GetFileHIcon(const std::wstring& path)->SafeResult(HICON)
+HICON GetFileHIcon(const std::wstring& path) NULLABLE
 {
 
 	DWORD attrs = 0;
@@ -72,11 +73,10 @@ auto GetFileHIcon(const std::wstring& path)->SafeResult(HICON)
 	SHFILEINFOW fileInfo = { 0 };
 	SHGetFileInfoW(path.c_str(), attrs, &fileInfo, sizeof(SHFILEINFOW), flags);
 
-	RESULT_FAILIFN_NM(fileInfo.hIcon != nullptr);
 	return fileInfo.hIcon;
 }
 
-auto GetTextureFromHIcon(const HICON hIcon)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetTextureFromHIcon(const HICON hIcon) NULLABLE
 {
 	// check if hFileIcon is already loaded
 	auto findIcon = m_iconIndices.find(hIcon);
@@ -84,11 +84,11 @@ auto GetTextureFromHIcon(const HICON hIcon)->SafeResult(ID3D11ShaderResourceView
 
 	// Get the icon info 
 	ICONINFO iconInfo = { 0 };
-	WINAPI_FAILIFN_NM(GetIconInfo(hIcon, &iconInfo));
+	if (!GetIconInfo(hIcon, &iconInfo)) return nullptr;
 
 	// get bitmap info
 	DIBSECTION ds;
-	WINAPI_FAILIFN_NM(GetObjectW(iconInfo.hbmColor, sizeof(ds), &ds));
+	if (!GetObjectW(iconInfo.hbmColor, sizeof(ds), &ds)) return nullptr;
 
 	UINT width = ds.dsBm.bmWidth;
 	UINT height = ds.dsBm.bmHeight;
@@ -100,51 +100,48 @@ auto GetTextureFromHIcon(const HICON hIcon)->SafeResult(ID3D11ShaderResourceView
 	// copy bitmap to the buffer
 	std::vector<BYTE> bitmapBuffer(static_cast<size_t>(byteSize));
 	LONG resultGetBm = GetBitmapBits(iconInfo.hbmColor, byteSize, bitmapBuffer.data());
-	RESULT_FAILIFN_NM(resultGetBm);
+	if (resultGetBm == 0) return nullptr;
 
 
 	// create the texture
-	auto resultGTFI = GetTextureFromBitmap(bitmapBuffer.data(), width, height);
-	RESULT_FAILIFN_NM(resultGTFI.has_value());
+	auto texture = GetTextureFromBitmap(bitmapBuffer.data(), width, height);
+	if (texture == nullptr) return nullptr;
 
 	// cache the icon
-	m_iconIndices[hIcon] = resultGTFI.value();
+	m_iconIndices[hIcon] = texture;
 
-	return resultGTFI.value();
+	return texture;
 }
 
-auto GetFileIconTexture(const std::wstring& path)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetFileIconTexture(const std::wstring& path) NULLABLE
 {
 	// return the stored texture if we have loaded it already
 	auto findIcon = m_fileIcons.find(path);
 	if (findIcon != m_fileIcons.end()) return findIcon->second;
 
-	auto resultGHI = GetFileHIcon(path);
-	RESULT_FAILIFN_NM(resultGHI.has_value());
+	HICON hFileIcon = GetFileHIcon(path);
+	if (hFileIcon == nullptr) return nullptr;
 
-	HICON hFileIcon = resultGHI.value();
+	auto texture = GetTextureFromHIcon(hFileIcon);
+	if (texture == nullptr) return nullptr;
 
-	auto resultGTFHI = GetTextureFromHIcon(hFileIcon);
-	RESULT_FAILIFN_NM(resultGTFHI.has_value());
-
-	auto texture = resultGTFHI.value();
 	m_fileIcons[path] = texture;
 
 	return texture;
 }
 
-auto GetWindowIconTexture(const HWND hwnd)->SafeResult(ID3D11ShaderResourceView*)
+ID3D11ShaderResourceView* GetWindowIconTexture(const HWND hwnd) NULLABLE
 {
 	// return the stored texture if we have loaded it already
 	auto findIcon = m_windowIcons.find(hwnd);
 	if (findIcon != m_windowIcons.end()) return findIcon->second;
 
-	HICON hIcon = reinterpret_cast<HICON>(GetClassLongPtrW(hwnd, -14));
+	HICON hFileIcon = reinterpret_cast<HICON>(GetClassLongPtrW(hwnd, -14));
+	if (hFileIcon == nullptr) return nullptr;
 
-	auto resultGTFHI = GetTextureFromHIcon(hIcon);
-	RESULT_FAILIFN_NM(resultGTFHI.has_value());
+	auto texture = GetTextureFromHIcon(hFileIcon);
+	if (texture == nullptr) return nullptr;
 
-	auto texture = resultGTFHI.value();
 	m_windowIcons[hwnd] = texture;
 
 	return texture;
@@ -594,9 +591,7 @@ void ViewAttachProc::GetProcessList()
 				if (sizeRequired > 0)
 				{
 					procData.path = common::BhString(procData.wpath);
-
-					auto fileIcon = ViewAttachProcUtils::GetFileIconTexture(procData.wpath);
-					if (fileIcon.has_value()) procData.icon = fileIcon.value();
+					procData.icon = ViewAttachProcUtils::GetFileIconTexture(procData.wpath);
 				}
 			}
 
@@ -632,7 +627,7 @@ void ViewAttachProc::GetProcessList()
 				if (winData.pid != procData.pid) continue;
 				if (winData.title.size() == 0) continue;
 
-				// MIGHT WANNA DISABLE THIS!!
+				// FIXME: MIGHT WANNA DISABLE THIS!!
 				// skip system's non-relavant windows
 				if (winData.title == L"MSCTFIME UI" || winData.title == L"Default IME") continue;
 
@@ -648,8 +643,8 @@ void ViewAttachProc::GetProcessList()
 
 				// get window icon
 				auto windowIcon = ViewAttachProcUtils::GetWindowIconTexture(window.hwnd);
-				if (windowIcon.has_value())
-					window.icon = windowIcon.value();
+				if (windowIcon != nullptr)
+					window.icon = windowIcon;
 				else
 					window.icon = procData.icon;
 			}

@@ -6,10 +6,7 @@
 
 ViewMemoryScan::ViewMemoryScan()
 {
-	m_title = ICON_MEMORY_SCAN u8" Memory Scan";
-
-	auto viewList = MainView::FindMultipleViewByClass<ViewMemoryScan>();
-	if (viewList.size() > 0) m_title += " " + std::to_string(viewList.size() + 1);
+	m_title = MainView::GetViewTitle<ViewMemoryScan>(ICON_MEMORY_SCAN u8" Memory Scan");
 }
 
 void ViewMemoryScan::Render(bool& bOpen)
