@@ -4,7 +4,8 @@
 #include <string>
 #include <exception>
 
-#define EXCEPT // the function might throw an exception
+#define EXCEPT   // the function might throw an exception
+#define NULLABLE // the function might return null
 
 namespace Tokio
 {
