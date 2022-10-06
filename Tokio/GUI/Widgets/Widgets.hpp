@@ -57,7 +57,7 @@ namespace Widgets
 // Or it could be anything... as long as it is unique
 _CONSTEXPR20 std::string GetUniqueName(const std::string& name, void* ptr)
 {
-	return name + "##" + std::to_string(reinterpret_cast<ULONG_PTR>(ptr));
+	return name + "##" + std::to_string(reinterpret_cast<unsigned long long>(ptr));
 }
 
 template <typename T>
