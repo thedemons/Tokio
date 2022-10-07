@@ -580,39 +580,6 @@ void ViewDisassembler::HandleShortcuts()
 	//}
 }
 
-
-//void ViewDisassembler::RenderGraph()
-//{
-//	//static ImVec2 graph_offset{ 0,0 };
-//	//static ImVec2 graph_offset_old = graph_offset;
-//	//static bool isDragging = false;
-//
-//	//if (!isDragging && ImGui::IsMouseDragging(0))
-//	//{
-//	//	graph_offset_old = graph_offset;
-//	//	isDragging = true;
-//	//}
-//	//else if (isDragging && !ImGui::IsMouseDragging(0))
-//	//{
-//	//	isDragging = false;
-//	//}
-//	//else if (isDragging)
-//	//{
-//	//	graph_offset = graph_offset_old + ImGui::GetMouseDragDelta(0);
-//	//}
-//	//SubroutineInfo& subroutine = m_analyzedData.subroutines[m_graphSubroutineIndex];
-//	//assert(subroutine.blocks.size() != 0);
-//
-//	//SubroutineBlock& firstBlock = subroutine.blocks[0];
-//
-//	//ImVec2 cursor = ImGui::GetWindowPos() + ImVec2(ImGui::GetWindowSize().x / 2, 100);
-//	//ImDrawList* dl = ImGui::GetWindowDrawList();
-//	//ImFont* font = MainApplication::FontMonoRegular;
-//
-//	//RenderNodeRecursive(subroutine, firstBlock, dl, font, font->FontSize, cursor + graph_offset);
-//
-//}
-
 void ViewDisassembler::Render(bool& bOpen)
 {
 	if (!bOpen) return;
@@ -668,158 +635,9 @@ void ViewDisassembler::OnDetach()
 	m_analyzedData.subroutines.clear(); // FIXME
 }
 
-ImGui::TokenizedText FormatSymbolAddress(
-	POINTER address,
-	const ResultGetSymbol& resultGetModuleSymbol,
-	bool* isBaseOffset = nullptr)
-{
-
-	static const auto& settings = Settings::theme.disasm;
-
-	// parse the address normally
-	if (!resultGetModuleSymbol.has_value())
-	{
-		return ImGui::TokenizedText(settings.AddressAbs, "%llX", address);
-	}
-
-	if (!resultGetModuleSymbol.has_symbol())
-	{
-		auto pModule = resultGetModuleSymbol.Module();
-		if (address != pModule->base)
-		{
-			// format: module.dll+8C
-			ImGui::TokenizedText symbol(3);
-			symbol.push_back(pModule->moduleNameA, settings.Module);
-			symbol.push_back("+"s, settings.Delimeter);
-			symbol.push_back(settings.Displacement, "%llX", address - pModule->base);
-
-			if (isBaseOffset) *isBaseOffset = false;
-
-			return symbol;
-		}
-		else
-		{
-			// format: module.dll
-			if (isBaseOffset) *isBaseOffset = true;
-			return ImGui::TokenizedText(pModule->moduleNameA, settings.Module);
-		}
-	}
-	else
-	{
-		auto pModule = resultGetModuleSymbol.Module();
-		auto pSymbol = resultGetModuleSymbol.Symbol();
-
-		// strip the module name from "module.dll" to "module"
-		std::string modShortName = pModule->moduleNameA;
-		auto find = modShortName.rfind('.');
-		if (find != std::string::npos)
-			modShortName = modShortName.substr(0, find);
-
-		POINTER offsetFromVA = address - (pModule->base + pSymbol->offset);
-
-		if (offsetFromVA > 0)
-		{
-			// format: module.func+8C
-			ImGui::TokenizedText symbol(5);
-			symbol.push_back(modShortName, settings.Module);
-			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Symbol);
-			symbol.push_back("+"s, settings.Delimeter);
-			symbol.push_back(settings.Displacement, "%llX", offsetFromVA);
-
-			if (isBaseOffset) *isBaseOffset = false;
-
-			return symbol;
-		}
-		else
-		{
-			// format: module.func
-			ImGui::TokenizedText symbol(3);
-			symbol.push_back(modShortName, settings.Module);
-			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Symbol);
-
-			if (isBaseOffset) *isBaseOffset = true;
-			return symbol;
-		}
-	}
-}
-
 //
 //// analyze the reference of the instruction (if it is a pointer e.g isRefPointer == true)
-//void ViewDisassembler::AnalyzeInstructionReference(ViewInstructionData& insData)
-//{
-//	static const auto& settings = Settings::theme.disasm;
-//
-//	auto resultRead = Engine::ReadMem<POINTER>(insData.refAddress);
-//	if (resultRead.has_value())
-//	{
-//		POINTER refPointer = resultRead.value();
-//		insData.refValue = refPointer;
-//
-//		// strip 4 bytes if the target is 32 bit
-//		if (Engine::Is32Bit()) refPointer &= 0xFFFFFFFF;
-//
-//		auto resultGetModuleSymbol = m_SymbolHandler->AddressToModuleSymbol(refPointer);
-//
-//		// format as a symbol
-//		if (resultGetModuleSymbol.has_value())
-//		{
-//			insData.comment = FormatSymbolAddress(refPointer, resultGetModuleSymbol);
-//			return;
-//		}
-//
-//		// if it doesn't have a symbol, try to read it as a string
-//		static char stringBuffer[64];
-//		if (!Engine::ReadMem(insData.refAddress, stringBuffer, sizeof(stringBuffer) - 1).has_error())
-//		{
-//			// hardcoded 5 valid chars to be defined as a string
-//
-//			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
-//			bool isValidWString = false;
-//			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), (sizeof(stringBuffer) - 1) / 2) >= 5;
-//
-//			// it is a string!
-//			if (isValidString)
-//			{
-//				std::string comment(stringBuffer, sizeof(stringBuffer));
-//				auto findLineBreak = comment.rfind('\n');
-//
-//				// strip \n out of the comment
-//				if (findLineBreak != std::string::npos)
-//					comment = comment.substr(0, findLineBreak);
-//
-//				insData.comment.push_back(comment, settings.String);
-//				return;
-//			}
-//			else if (isValidWString)
-//			{
-//
-//				std::wstring wideComment(reinterpret_cast<wchar_t*>(stringBuffer), sizeof(stringBuffer) / 2);
-//				auto findLineBreak = wideComment.rfind(L'\n');
-//
-//				// strip \n out of the comment
-//				if (findLineBreak != std::wstring::npos)
-//					wideComment = wideComment.substr(0, findLineBreak);
-//
-//
-//				insData.comment.push_back(Tokio::String(wideComment), settings.String);
-//				return;
-//			}
-//		}
-//
-//		// if it's not a string, then might it be a pointer?
-//		resultRead = Engine::ReadMem<POINTER>(refPointer);
-//		if (!resultRead.has_error())
-//		{
-//			insData.comment.push_back("[%llX]"s, settings.AddressAbs);
-//			return;
-//		}
-//
-//		// it it's not anything above, just format it as a decimal value
-//		insData.comment.push_back(settings.Displacement, "%lld", refPointer);
-//	}
-//}
+
 //
 //void ViewDisassembler::AnalyzeCrossReference()
 //{
@@ -961,72 +779,6 @@ ImGui::TokenizedText FormatSymbolAddress(
 //		}
 //	}
 //}
-//
-//void ViewDisassembler::DisassembleRegion(const MemoryReadRegion& region, size_t bufferOffset)
-//{
-//	auto disasmResult = Engine::Disassembler()->Disasm(region.start, m_memoryBuffer.data() + bufferOffset, region.size);
-//	assert(disasmResult.has_value() && "Disassemble failed");
-//
-//	auto& instructions = disasmResult.value();
-//
-//	size_t currentInstructionIndex = m_instructionList.size();
-//	size_t instructionIndex = 0;
-//	size_t instructionOffset = bufferOffset;
-//	m_instructionList.resize(m_instructionList.size() + instructions.size());
-//
-//	auto walkContext = m_SymbolHandler->AddressSymbolWalkInit();
-//	
-//	for (auto& disasmData : disasmResult.value())
-//	{
-//		auto resultGetModuleSymbol = m_SymbolHandler->AddressSymbolWalkNext(walkContext, disasmData.address);
-//
-//		auto& insData = m_instructionList[currentInstructionIndex + instructionIndex++];
-//
-//		insData.address = disasmData.address;
-//		insData.addressSymbol = FormatSymbolAddress(disasmData.address, resultGetModuleSymbol, &insData.isBaseOffset);
-//
-//		insData.refAddress = disasmData.referencedAddress;
-//		insData.isRefPointer = disasmData.isRefPointer;
-//
-//		insData.length = disasmData.length;
-//		insData.mnemonic_type = disasmData.mnemonic.type;
-//
-//		insData.bufferOffset = instructionOffset;
-//
-//		// here we parse the tokenized operands into colored text
-//		for (auto& operand : disasmData.operands)
-//		{
-//			// skip the menomonic and invalid operands
-//			if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
-//
-//			// don't colorize white spaces
-//			if (operand.type == DisasmOperandType::WhiteSpace)
-//			{
-//				insData.instruction += " ";
-//			}
-//			// it has a reference address, draw it as a symbol
-//			else if (insData.refAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
-//			{
-//				auto resultGetSymbol = m_SymbolHandler->AddressToModuleSymbol(insData.refAddress);
-//				insData.instruction += FormatSymbolAddress(insData.refAddress, resultGetSymbol);
-//			}
-//			// it's just a regular operand
-//			else
-//			{
-//				DWORD color = Settings::GetDisasmColor(operand.type);
-//				insData.instruction += ImGui::TokenizedText(operand.value, color);
-//			}
-//		}
-//
-//		// if it's is something like `mov rax, [0x12345]`
-//		if (insData.isRefPointer) AnalyzeInstructionReference(insData);
-//
-//		DWORD color = Settings::GetDisasmColor(disasmData.mnemonic.type);
-//		insData.mnemonic = ImGui::TokenizedText(disasmData.mnemonic.value, color);
-//
-//		instructionOffset += insData.length;
-//	}
-//}
 
 void ViewDisassembler::Disassemble()
 {
@@ -1036,7 +788,13 @@ void ViewDisassembler::Disassemble()
 
 	try
 	{
-		Engine::Analyze(startAddress, 2048, true, m_memoryBuffer, m_analyzedData);
+		static const Engine::AnalyzerFlags flags = 
+			Engine::AnalyzerFlags_::Symbol         | 
+			Engine::AnalyzerFlags_::CrossReference | 
+			Engine::AnalyzerFlags_::Subroutine     | 
+			Engine::AnalyzerFlags_::Comment        ;
+
+		Engine::Analyze(startAddress, 2048, flags, m_memoryBuffer, m_analyzedData);
 
 		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
 		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
@@ -1047,6 +805,8 @@ void ViewDisassembler::Disassemble()
 				break;
 			}
 		}
+
+		if (m_instructionOffset == UPTR_UNDEFINED) m_instructionOffset = 0;
 
 		//// do this to avoid nested hell
 		//const SubroutineInfo* pSubroutine = nullptr;
@@ -1068,6 +828,7 @@ void ViewDisassembler::Disassemble()
 	}
 	catch (Tokio::Exception& e)
 	{
+		m_instructionOffset = 0;
 		m_analyzedData.instructions.clear();
 		m_analyzedData.subroutines.clear();
 

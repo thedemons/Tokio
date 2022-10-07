@@ -25,48 +25,6 @@ private:
 	int RenderScrollBar();
 private:
 
-	struct ViewInstructionData
-	{
-		DisasmOperandType mnemonic_type = DisasmOperandType::Invalid;
-		size_t bufferOffset = 0;				// the position in the m_memoryBuffer
-		size_t length       = 0;				// length of the instruction, in bytes
-		POINTER address     = 0;				// virtual address of the target processs
-		POINTER refAddress  = 0;				// the jump/call/mov... address, can be nullptr
-		POINTER refValue    = 0;				// if isRefPointer is true, this contains the value of [refAddress]
-		ImGui::TokenizedText addressSymbol;		// formatted address
-		ImGui::TokenizedText mnemonic;			// formatted mnemonic of the instruction (main operand)
-		ImGui::TokenizedText instruction;		// formatted instruction
-		bool isBaseOffset   = false;			// is this a base offset? (start of a module or function)
-		bool isRefPointer   = false;			// is the reference address a pointer to something, e.g. mov eax, [refAddress]
-		bool isNotReadable  = false;			// if the memory is not readable (display as "??")
-		ImGui::TokenizedText comment;
-
-		// for rendering references
-		ImVec2 cursorPos{ 0.f, 0.f };
-		float refDepthLevel = 0.f;
-
-		// check if the instruction was rendered this frame
-		// we skipped rendering it for optimization
-		//bool isRendered = false;
-
-		// index of the instruction this instruction refer to
-		size_t referenceIndex = UPTR_UNDEFINED;
-
-		// list of the instructions the refer to this instruction
-		std::vector<size_t> refererIndexes;
-
-		// address of the instruction the refer to this instruction
-		//POINTER refererAddress = 0;
-
-		bool operator==(const ViewInstructionData& v) {
-			return address == v.address;
-		};
-		bool operator==(const POINTER& v) {
-			return address == v;
-		};
-	};
-
-
 	Widgets::Table m_table;							// main table
 	Widgets::Popup m_popupNavigate;					// popup for "Go to address"
 	Widgets::TextInput m_popupNavigateTextInput;	// text input for popup "Go to address"
@@ -79,11 +37,6 @@ private:
 	// virtual address in the target process
 	POINTER m_pVirtualBase;
 
-	// disassembled instructions
-	//std::vector<ViewInstructionData> m_instructionList;
-
-	// list of instruction that has a reference pointer
-	//std::vector<std::reference_wrapper<ViewInstructionData>> m_referenceList;
 
 	AnalyzedData m_analyzedData;
 
