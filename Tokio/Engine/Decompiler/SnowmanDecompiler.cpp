@@ -18,14 +18,15 @@
 //#include <nc/core/ir/Functions.h>
 
 //
+#pragma warning (push, 3)
 #include <nc/core/Driver.h>
 #include <nc/core/image/Image.h>
 #include <nc/core/image/Section.h>
 #include <nc/core/image/ByteSource.h>
 #include <nc/core/mangling/DefaultDemangler.h>
 #include <nc/core/likec/Tree.h>
-
 #include <QTextStream>
+#pragma warning (pop)
 
 using namespace nc;
 using namespace core;
@@ -89,19 +90,21 @@ _NODISCARD std::string SnowmanDecompiler::Decompile(POINTER address, size_t size
 					)
 			);
 		}       
-		
-		auto name = QString::fromUtf8(u8".text");
-		auto section = std::make_unique<nc::core::image::Section>(name, static_cast<ByteAddr>(procMod.base), static_cast<ByteAddr>(procMod.size));
-		section->setReadable(true);
-		section->setWritable(true);
-		section->setExecutable(true);
-		section->setCode(true);
-		section->setData(true);
-		section->setAllocated(true);
-		section->setExternalByteSource(std::make_unique<MemoryStream>(m_memory));
-		image->addSection(std::move(section));
 	}
 
+		
+	static const auto name = QString::fromUtf8(u8".text");
+	ByteAddr maxAddr = (m_target->is32bit) ? 0x7FFFFFFFul : 0x7FFF'FFFFFFFFull;
+
+	auto section = std::make_unique<nc::core::image::Section>(name, 0x000, maxAddr);
+	section->setReadable(true);
+	section->setWritable(true);
+	section->setExecutable(true);
+	section->setCode(true);
+	section->setData(true);
+	section->setAllocated(true);
+	section->setExternalByteSource(std::make_unique<MemoryStream>(m_memory));
+	image->addSection(std::move(section));
 
 	Driver::disassemble(m_context, &m_stream, static_cast<ByteAddr>(address), static_cast<ByteAddr>(address + size));
 	Driver::decompile(m_context);
@@ -110,7 +113,8 @@ _NODISCARD std::string SnowmanDecompiler::Decompile(POINTER address, size_t size
 	QTextStream qStream(&qResult);
 
 	m_context.tree()->print(qStream);
-
+	//m_context.tree()->root()
+	//m_context.tree()->ge
 	QByteArray resultByte = qResult.toLocal8Bit();
 
 	return resultByte.toStdString();

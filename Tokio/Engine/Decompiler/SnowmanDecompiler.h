@@ -8,8 +8,10 @@
 #include <nc/common/Types.h>
 #include <nc/core/Context.h>
 #include <nc/core/image/ByteSource.h>
-#include <qt5/QtCore/qvariant.h> // this must be included here in the header I HAVE NO IDEA WHY BUT IT GIVES A BUG :(
 
+#pragma warning (push, 1)
+#include <qt5/QtCore/qvariant.h> // this must be included here in the header I HAVE NO IDEA WHY BUT IT GIVES A BUG :(
+#pragma warning (pop)
 
 #include <memory>
 
