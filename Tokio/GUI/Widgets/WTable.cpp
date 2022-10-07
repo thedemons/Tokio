@@ -144,7 +144,6 @@ void Table::AddSelectedItem(size_t index)
 	}
 }
 
-
 // nMaxItem: enforce the row/item limit
 // bypass the Execution::Continue returned from the RenderCallback
 void Table::Render(size_t nMaxItem, ImVec2 Size)

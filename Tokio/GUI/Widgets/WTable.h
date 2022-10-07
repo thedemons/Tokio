@@ -214,6 +214,7 @@ public:
 	{
 		return m_currentTable;
 	}
+	
 
 	// nMaxItem: enforce the row/item limit
 	// bypass the Execution::Continue returned from the RenderCallback
