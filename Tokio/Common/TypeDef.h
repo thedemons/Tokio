@@ -44,15 +44,15 @@ typedef unsigned long    	dword_ptr;
 
 struct ProcessEntry
 {
-	PID pid;
-	PID parentPid;
+	PID pid = 0;
+	PID parentPid = 0;
 	std::wstring szExe;
 };
 
 struct WindowEntry
 {
-	PID pid;
-	WindowHandle hwnd;
+	PID pid = 0;
+	WindowHandle hwnd = nullptr;
 	std::wstring title;
 	std::wstring classname;
 };
