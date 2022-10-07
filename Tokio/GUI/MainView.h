@@ -26,7 +26,7 @@ inline std::vector<ViewWindowData> g_ViewList;
 void Init();
 void Render();
 
-// gee look at this nested template hell...
+// nested template hell..
 template <typename ViewType>
 std::vector<std::reference_wrapper<TemplateWindowData<ViewType>>> 
 FindViewsByClass() noexcept
