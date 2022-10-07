@@ -29,6 +29,8 @@ ViewSymbolList::TableRenderCallback(
 	{
 
 		ImGui::PushFont(MainApplication::FontMonoBold);
+
+		table->AddItemHeader();
 		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node.address);
 
 		table->NextColumn();
