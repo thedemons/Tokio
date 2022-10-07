@@ -153,12 +153,12 @@ _NODISCARD _CONSTEXPR20 VirtualMemoryInfo VirtualQuery(POINTER address) EXCEPT
 _NODISCARD _CONSTEXPR20 void Analyze(
 	POINTER address,
 	size_t size,
-	bool bDisectSubroutine,
+	AnalyzerFlags flags,
 	std::vector<byte_t>& outBuffer,
 	AnalyzedData& outData
 ) EXCEPT
 {
-	return g_Analyzer->Analyze(address, size, bDisectSubroutine, outBuffer, outData);
+	return g_Analyzer->Analyze(address, size, flags, outBuffer, outData);
 }
 
 

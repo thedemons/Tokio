@@ -14,6 +14,21 @@ struct AnalyzedData;
 namespace Engine
 {
 
+typedef int AnalyzerFlags;
+
+class AnalyzerFlags_
+{
+public:
+	enum Flags
+	{
+		None           = 0,		  // Just disassemble the region without doing anything else
+		Symbol         = 1 << 0,  // Parse symbol for addresses, jumps and calls, if this flag is not set, fmtAddress will not be available
+		CrossReference = 1 << 1,  // Analyze cross-reference
+		Subroutine     = 1 << 2,  // Analyze subroutines, if this flag is set, subroutines will also be analyzed
+		Comment        = 1 << 3,  // Detect comments, such as value, pointer and strings
+	};
+};
+
 class BaseAnalyzer
 {
 protected:
@@ -22,6 +37,9 @@ protected:
 	std::shared_ptr<BaseMemory> m_memory;			    // memeory engine
 	std::shared_ptr<BaseDisassembler> m_disassembler;	// disassemble engine
 public:
+	
+
+
 	BaseAnalyzer(
 		const std::shared_ptr<ProcessData>& target,
 		const std::shared_ptr<BaseSymbol>& symbol,
@@ -42,7 +60,7 @@ public:
 	_NODISCARD virtual void Analyze(
 		POINTER address,
 		size_t size,
-		bool bDisectSubroutine,
+		AnalyzerFlags flags,
 		std::vector<byte_t>& outBuffer,
 		AnalyzedData& outData
 	) EXCEPT = 0;
