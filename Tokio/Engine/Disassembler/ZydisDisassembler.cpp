@@ -253,11 +253,10 @@ ZydisDisassembler::Disassemble(
                             operand.type = GetOperandType(token_type);
 
                             // check for reference address is a pointer
-                            if (token_type == ZYDIS_TOKEN_PARENTHESIS_CLOSE && disasmData.operands.size() >= 2)
+                            if (operand.type == DisasmOperandType::ParenthesisClose && disasmData.operands.size() >= 2)
                             {
-                                size_t index = disasmData.operands.size() - 1;
-                                if ((disasmData.operands[index - 1].type == DisasmOperandType::AddressAbs) &&
-                                    (disasmData.operands[index - 2].type == DisasmOperandType::ParenthesisOpen))
+                                if ((disasmData.operands[operandIndex - 2].type == DisasmOperandType::AddressAbs) &&
+                                    (disasmData.operands[operandIndex - 3].type == DisasmOperandType::ParenthesisOpen))
                                 {
                                     disasmData.isRefPointer = true;
                                 }
