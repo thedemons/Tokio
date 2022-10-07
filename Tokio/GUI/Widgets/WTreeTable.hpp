@@ -216,6 +216,13 @@ private:
 	// popup widget for right click handling
 	Popup m_popup;
 
+	ImGuiTable* m_currentTable = nullptr;
+
+	// see AddItemHeader()
+	bool m_drawHeader = false;
+	int m_currentColumn = 0;
+	ImVec2 m_currentHeaderPos{ 0.f, 0.f };
+
 
 public:
 	void Setup(const Desc& desc)
@@ -401,7 +408,6 @@ private:
 			return;
 		}
 
-		ImGui::TableSetColumnIndex(static_cast<int>(m_columns.size() - 1));
 
 		// HandleRowInput() return true if the node was clicked
 		if (HandleRowInput(table, node, index))
@@ -409,9 +415,45 @@ private:
 			node.m_open = !node.m_open;
 		}
 
+		// AddItemHeader was called in the render callback
+		if (m_drawHeader && node.m_childs.size() > 0)
+		{
+			ImGui::TableSetColumnIndex(m_currentColumn);
+			float width = 5.f;
+			float height = width * 0.8f;
+
+			ImU32 color = ImGui::GetColorU32(ImGuiCol_Text);
+			if (node.m_open)
+			{
+				ImVec2 p1 = m_currentHeaderPos + ImVec2(0, -height);
+				ImVec2 p2 = m_currentHeaderPos + ImVec2(0, height);
+				ImVec2 p3 = m_currentHeaderPos + ImVec2(-width*1.2f, height);
+				m_currentTable->InnerWindow->DrawList->AddTriangleFilled(p1, p2, p3, color);
+			}
+			else
+			{
+				ImVec2 p1 = m_currentHeaderPos + ImVec2(-width, -height);
+				ImVec2 p3 = m_currentHeaderPos + ImVec2(-width, height);
+				if (m_hoveredIndex == index)
+				{
+					m_currentTable->InnerWindow->DrawList->AddTriangleFilled(p1, m_currentHeaderPos, p3, color);
+				}
+				else
+				{
+					m_currentTable->InnerWindow->DrawList->AddTriangle(p1, m_currentHeaderPos, p3, color, 0.5f);
+				}
+			}
+
+
+		}
+
+		m_drawHeader = false;
+
+
 		index += 1;
 		level += 1;
 
+		ImGui::TableSetColumnIndex(static_cast<int>(m_columns.size() - 1));
 		// if this node is open, we render its childs
 		if (node.m_open && node.m_childs.size() > 0)
 		{
@@ -444,6 +486,19 @@ private:
 	}
 
 public:
+
+	// add a header to the current item, it will draw a triangle 
+	// call this in the render callback
+	void AddItemHeader()
+	{
+		m_drawHeader = true;
+		m_currentColumn = m_currentTable->CurrentColumn;
+		m_currentHeaderPos = m_currentTable->InnerWindow->Pos + ImGui::GetCursorPos();
+		m_currentHeaderPos -= m_currentTable->InnerWindow->Scroll;
+		m_currentHeaderPos.x -= 5.f;
+		m_currentHeaderPos.y += GImGui->Font->FontSize / 2.f;
+	}
+
 	void AddSelectedItem(size_t index)
 	{
 		if (!m_desc.IsMultiSelection)
@@ -576,6 +631,10 @@ public:
 		return nullptr;
 	}
 
+	_NODISCARD _CONSTEXPR20 ImGuiTable* GetHandle() const
+	{
+		return m_currentTable;
+	}
 
 	// The widget will modify the node m_open state only, userdata will be left untouched
 	void Render(std::vector<UserNode>& NodeList, ImVec2 Size = { 0.f, 0.f })
@@ -589,6 +648,7 @@ public:
 		if (ImGui::BeginTable(m_desc.Name.c_str(), columnCount, m_desc.Flags, Size))
 		{
 			auto* table = g.CurrentTable;
+			m_currentTable = table;
 
 			for (auto& column : m_columns)
 			{
