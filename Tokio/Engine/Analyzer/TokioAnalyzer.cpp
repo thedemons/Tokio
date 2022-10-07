@@ -8,6 +8,8 @@
 #include "Engine/Symbol/BaseSymbol.h"
 #include "Engine/Disassembler/BaseDisassembler.h"
 
+#include "Common/StringHelper.h"
+
 using namespace std::string_literals;
 
 namespace Engine
@@ -320,7 +322,7 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, const std::vector<BYT
 	}
 }
 
-void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data)
+void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data) noexcept
 {
 	static ImGui::TokenizedText xRefString("REF: "s, Settings::theme.disasm.Xref);
 	
@@ -330,51 +332,55 @@ void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data)
 	auto iterBegin = data.instructions.begin();
 	auto iterEnd = data.instructions.end();
 
+	const size_t pointerSize = m_target->is32bit ? sizeof(dword_t) : sizeof(qword_t);
+
 	// calculate the reference index, mainly used for jump and call pointer rendering
 	for (std::vector<AnalyzedInstruction>::iterator it = iterBegin; it != iterEnd; it++)
 	{
 		// if the reference address is in range of the current instructions
-		if (it->referencedAddress != 0 &&
-			instructionStart <= it->referencedAddress &&
-			it->referencedAddress <= instructionEnd)
+		if (it->referencedAddress != 0)
 		{
 
-			std::vector<AnalyzedInstruction>::iterator reference;
-
-			// we are optimizing the search by doing this in a sorted list
-			// will binary search be better?
-			bool bHasReference = false;
-			if (it->referencedAddress > it->address)
+			if (
+				instructionStart <= it->referencedAddress &&
+				it->referencedAddress <= instructionEnd)
 			{
-				reference = std::find(it, iterEnd, it->referencedAddress);
-				bHasReference = reference != iterEnd;
+
+				std::vector<AnalyzedInstruction>::iterator reference;
+
+				// we are optimizing the search by doing this in a sorted list
+				// will binary search be better?
+				bool bReferenceInRange = false;
+				if (it->referencedAddress > it->address)
+				{
+					reference = std::find(it + 1, iterEnd, it->referencedAddress);
+					bReferenceInRange = reference != iterEnd;
+				}
+				else
+				{
+					reference = std::find(iterBegin, it, it->referencedAddress);
+					bReferenceInRange = reference != it;
+				}
+
+				// if the reference is in range of the analyzed data
+				if (bReferenceInRange)
+				{
+					it->referencedInstruction = reference._Ptr;
+					it->referencedIndex = reference - iterBegin;
+
+					reference->referers.push_back(it._Ptr);
+
+					reference->fmtComment.append_space(xRefString);
+					reference->fmtComment += it->fmtAddress;
+
+				}
 			}
-			else
+
+			if (it->isRefPointer)
 			{
-				reference = std::find(iterBegin, it, it->referencedAddress);
-				bHasReference = reference != it;
+				UNUSED(m_memory->Read(it->referencedAddress, &it->referencedValue, pointerSize));
 			}
-
-
-			if (bHasReference)
-			{
-				it->referencedInstruction = reference._Ptr;
-				it->referencedIndex = reference - iterBegin;
-
-				reference->referers.push_back(it._Ptr);
-
-				reference->fmtComment.append_space(xRefString);
-				reference->fmtComment += it->fmtAddress;
-
-			}
-			else
-			{
-				it->referencedAddress = 0;
-				it->isRefPointer = false;
-			}
-
-
-		}
+		}	
 	}
 }
 
@@ -458,18 +464,98 @@ ImGui::TokenizedText FormatSymbolAddress(
 	}
 }
 
+void TokioAnalyzer::AnalyzeComment(AnalyzedData& data) noexcept
+{
+	static const auto& settings = Settings::theme.disasm;
+
+	const size_t pointerSize = m_target->is32bit ? sizeof(dword_t) : sizeof(qword_t);
+
+	for (AnalyzedInstruction& instruction : data.instructions)
+	{
+		if (instruction.referencedAddress == 0ull) continue;
+
+		// a pointer reference
+		if (instruction.referencedValue != 0)
+		{
+			auto resultGetModuleSymbol = m_symbol->AddressToModuleSymbol(instruction.referencedValue);
+
+			// format as a symbol
+			if (resultGetModuleSymbol.has_value())
+			{
+				instruction.fmtComment.append_space(FormatSymbolAddress(instruction.referencedValue, resultGetModuleSymbol));
+				continue;
+			}
+		}
+
+		// if it doesn't have a symbol, try to read it as a string
+		static char stringBuffer[64];
+		size_t byteRead = m_memory->Read(instruction.referencedAddress, stringBuffer, sizeof(stringBuffer));
+
+		if (byteRead == sizeof(stringBuffer))
+		{
+			// hardcoded 5 valid chars to be defined as a string
+			stringBuffer[sizeof(stringBuffer) - 1] = 0;
+
+			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
+			bool isValidWString = false;
+			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), (sizeof(stringBuffer) - 1) / 2) >= 5;
+
+			// it is a string!
+			if (isValidString)
+			{
+				std::string comment(stringBuffer, sizeof(stringBuffer));
+				auto findLineBreak = comment.rfind('\n');
+
+				// strip \n out of the comment
+				if (findLineBreak != std::string::npos)
+					comment = comment.substr(0, findLineBreak);
+
+				instruction.fmtComment.append_space({ settings.String, "\"%s\"", comment.c_str() });
+				continue;
+			}
+			else if (isValidWString)
+			{
+
+				std::wstring wideComment(reinterpret_cast<wchar_t*>(stringBuffer), sizeof(stringBuffer) / 2);
+				auto findLineBreak = wideComment.rfind(L'\n');
+
+				// strip \n out of the comment
+				if (findLineBreak != std::wstring::npos)
+					wideComment = wideComment.substr(0, findLineBreak);
+
+				instruction.fmtComment.append_space({ settings.String, "L\"%s\"", Tokio::String(wideComment).c_str()});
+				continue;
+			}
+		}
+
+		// if it's not a string, then might it be a pointer?
+		POINTER referencePointer = 0;
+		size_t bytesRead = m_memory->Read(instruction.referencedValue, &referencePointer, pointerSize);
+
+		// it is a pointer to something else
+		if (bytesRead == pointerSize && referencePointer != 0)
+		{
+			instruction.fmtComment.append_space({ settings.AddressAbs, "[%llX]", referencePointer });
+			continue;
+		}
+
+		// it it's not anything above, just format it as a decimal value
+		instruction.fmtComment.append_space({ settings.Displacement, "%llX", instruction.referencedValue });
+	}
+}
 
 
 void TokioAnalyzer::AnalyzeRegion(
 	const MemoryReadRegion& region,
 	const std::vector<byte_t>& buffer,
-	const size_t bufferOffset,
+	size_t bufferOffset,
 	size_t& instructionIndex,
 	AnalyzedData& data
 ) EXCEPT
 {
 	try
-	{	
+	{
+
 		// disassemble the region first
 		std::vector<DisasmInstruction> disasmInstructions = 
 			m_disassembler->Disassemble(region.start, buffer.data() + bufferOffset, region.size);
@@ -506,8 +592,7 @@ void TokioAnalyzer::AnalyzeRegion(
 			instruction.operands          = std::move(disasmData.operands);
 			instruction.isNotReadable = false;
 
-			// format the address for the instruction
-			//instruction.fmtMnemonic.clear();
+			// format the address and mnemonic
 			instruction.fmtMnemonic.push_back(disasmData.mnemonic.value, mnemonicColor);
 
 			instruction.fmtAddress = std::move(FormatSymbolAddress(
@@ -516,10 +601,6 @@ void TokioAnalyzer::AnalyzeRegion(
 				&instruction.isAtBaseModule,
 				&instruction.isAtSubroutineStart
 			));
-
-			// clear all the formatted text
-			//instruction.fmtOperand.clear();
-			//instruction.fmtComment.clear();
 
 			// here we parse the tokenized operands into colored text
 			for (auto& operand : instruction.operands)
@@ -555,7 +636,80 @@ void TokioAnalyzer::AnalyzeRegion(
 	}
 	catch (Tokio::Exception& e)
 	{
-		e += "TokioAnalyzer failed to analyed region";
+		e += "TokioAnalyzer failed to analyze region";
+		throw e;
+	}
+}
+
+void TokioAnalyzer::AnalyzeRegionNoSymbol(
+	const MemoryReadRegion& region,
+	const std::vector<byte_t>& buffer,
+	size_t bufferOffset,
+	size_t& instructionIndex,
+	AnalyzedData& data
+) EXCEPT
+{
+	try
+	{
+
+		// disassemble the region first
+		std::vector<DisasmInstruction> disasmInstructions = 
+			m_disassembler->Disassemble(region.start, buffer.data() + bufferOffset, region.size);
+
+		size_t insBufferOffset = bufferOffset;
+
+
+		// loop through all the disassembled instructions
+		for (DisasmInstruction& disasmData : disasmInstructions)
+		{
+			AnalyzedInstruction& instruction = data.instructions[instructionIndex++];
+
+			// color of the mnemonic base on its type
+			dword_t mnemonicColor = Settings::GetDisasmColor(disasmData.mnemonic.type);
+
+
+			// copy the result from disasmData
+			instruction.address           = disasmData.address;
+			instruction.length            = disasmData.length;
+
+			instruction.mnemonic          = std::move(disasmData.mnemonic);
+
+			instruction.bufferOffset      = insBufferOffset;
+
+			instruction.referencedAddress = disasmData.referencedAddress;
+			instruction.isRefPointer      = disasmData.isRefPointer;
+
+			instruction.operands          = std::move(disasmData.operands);
+			instruction.isNotReadable = false;
+
+			// format the mnemonic, the address won't be formatted
+			instruction.fmtMnemonic.push_back(disasmData.mnemonic.value, mnemonicColor);
+
+			// here we parse the tokenized operands into colored text
+			for (auto& operand : instruction.operands)
+			{
+				// skip the mnemonic and invalid operands (the mnemonic is already at the instruction.mnemonic)
+				if (IsOperandMnemonic(operand.type) || operand.type == DisasmOperandType::Invalid) continue;
+
+				if (operand.type == DisasmOperandType::WhiteSpace)
+				{
+					instruction.fmtOperand.push_back(" "s, 0x00000000);
+				}
+				// it's just a regular operand
+				else
+				{
+					dword_t operandColor = Settings::GetDisasmColor(operand.type);
+					instruction.fmtOperand.push_back(operand.value, operandColor);
+				}
+			}
+
+			insBufferOffset += instruction.length;
+		}
+
+	}
+	catch (Tokio::Exception& e)
+	{
+		e += "TokioAnalyzer failed to analyze region";
 		throw e;
 	}
 }
@@ -563,7 +717,7 @@ void TokioAnalyzer::AnalyzeRegion(
 _NODISCARD void TokioAnalyzer::Analyze(
 	POINTER address,
 	size_t size,
-	bool bAnalyzeSubroutine,
+	AnalyzerFlags flags,
 	std::vector<byte_t>& outBuffer,
 	AnalyzedData& outData
 ) EXCEPT
@@ -602,7 +756,7 @@ _NODISCARD void TokioAnalyzer::Analyze(
 			instruction.address = address++;
 		}
 
-		throw Tokio::Exception(except_read_failed);
+		return;
 	}
 
 	// loop through the buffer, if it's not readable then push invalid instructions, else disassemble it
@@ -617,12 +771,6 @@ _NODISCARD void TokioAnalyzer::Analyze(
 		if (offset < regionIter->start)
 		{
 			for (; offset < regionIter->start; offset++)
-
-			//size_t unreadableSize = regionIter->start - offset;
-			//instructionIndex += unreadableSize;
-
-			//for (auto iter = outData.instructions.begin() + instructionIndex;
-			//	offset < regionIter->start; iter++, offset++)
 			{
 				AnalyzedInstruction& ins = outData.instructions[instructionIndex++];
 				ins.address = offset;
@@ -632,7 +780,14 @@ _NODISCARD void TokioAnalyzer::Analyze(
 		// disassemble valid region
 		else
 		{
-			AnalyzeRegion(*regionIter, outBuffer, regionIter->start - address, instructionIndex, outData);
+			if (flags & AnalyzerFlags_::Symbol)
+			{
+				AnalyzeRegion(*regionIter, outBuffer, regionIter->start - address, instructionIndex, outData);
+			}
+			else
+			{
+				AnalyzeRegionNoSymbol(*regionIter, outBuffer, regionIter->start - address, instructionIndex, outData);
+			}
 
 			offset += regionIter->size;
 			if (++regionIter == regions.end()) break;
@@ -649,14 +804,22 @@ _NODISCARD void TokioAnalyzer::Analyze(
 	}
 
 	outData.instructions.resize(instructionIndex, invalidInstruction);
-	//outData.subroutines.resize(0, outData);
 
-	AnalyzeCrossReferences(outData);
-
-	if (bAnalyzeSubroutine)
+	if (flags & AnalyzerFlags_::Comment)
 	{
+		AnalyzeComment(outData);
+	}
+
+	if (flags & AnalyzerFlags_::Subroutine)
+	{
+		AnalyzeCrossReferences(outData);
 		AnalyzeSubroutines(outData, outBuffer);
 	}
+	else if (flags & AnalyzerFlags_::CrossReference)
+	{
+		AnalyzeCrossReferences(outData);
+	}
+
 }
 
 

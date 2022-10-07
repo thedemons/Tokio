@@ -14,12 +14,22 @@ private:
 	_NODISCARD void AnalyzeRegion(
 		const MemoryReadRegion& region,
 		const std::vector<byte_t>& buffer,
-		const size_t bufferOffset,
+		size_t bufferOffset,
 		size_t& instructionIndex,
 		AnalyzedData& data
 	) EXCEPT;
 
-	void AnalyzeCrossReferences(AnalyzedData& data);
+	// analyze without symbol
+	_NODISCARD void AnalyzeRegionNoSymbol(
+		const MemoryReadRegion& region,
+		const std::vector<byte_t>& buffer,
+		size_t bufferOffset,
+		size_t& instructionIndex,
+		AnalyzedData& data
+	) EXCEPT;
+
+	void AnalyzeComment(AnalyzedData& data) noexcept;
+	void AnalyzeCrossReferences(AnalyzedData& data) noexcept;
 	void AnalyzeSubroutines(AnalyzedData& data, const std::vector<byte_t>& buffer);
 
 public:
@@ -31,7 +41,7 @@ public:
 	_NODISCARD void Analyze(
 		POINTER address,
 		size_t size,
-		bool bAnalyzeSubroutine,
+		AnalyzerFlags flags,
 		std::vector<byte_t>& outBuffer,
 		AnalyzedData& outData
 	) EXCEPT override;
