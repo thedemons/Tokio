@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname_autogen\mocs_compilation_Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname_autogen\mocs_compilation_Release.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname_autogen\mocs_compilation_MinSizeRel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{96A1E1BF-BC56-3510-8C6A-17B2FD8025E4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F1C7320A-6A24-314E-A49F-2E45917B08BC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

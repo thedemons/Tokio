@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/EngineDef.h"
+#include <memory>
+
 class BaseView
 {
 protected:
@@ -31,7 +33,7 @@ public:
 
 	virtual void OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 	{
-		UNUSED(targetProcess);
+		(void)(targetProcess);
 	}
 
 	virtual void OnDetach(){}

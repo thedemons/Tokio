@@ -1,0 +1,477 @@
+{
+	"BUILD_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen",
+	"CMAKE_BINARY_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src",
+	"CMAKE_CURRENT_BINARY_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui",
+	"CMAKE_CURRENT_SOURCE_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui",
+	"CMAKE_EXECUTABLE" : "C:/Program Files/CMake/bin/cmake.exe",
+	"CMAKE_LIST_FILES" : 
+	[
+		"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeLists.txt"
+	],
+	"CMAKE_SOURCE_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src",
+	"DEP_FILE" : "",
+	"DEP_FILE_RULE_NAME" : "",
+	"HEADERS" : 
+	[
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Activity.h",
+			"Mu",
+			"EWIEGA46WW/moc_Activity.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Colors.h",
+			"Mu",
+			"EWIEGA46WW/moc_Colors.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Command.h",
+			"Mu",
+			"EWIEGA46WW/moc_Command.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CommandQueue.h",
+			"Mu",
+			"EWIEGA46WW/moc_CommandQueue.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CppSyntaxHighlighter.h",
+			"Mu",
+			"EWIEGA46WW/moc_CppSyntaxHighlighter.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CxxDocument.h",
+			"Mu",
+			"EWIEGA46WW/moc_CxxDocument.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CxxView.h",
+			"Mu",
+			"EWIEGA46WW/moc_CxxView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Decompilation.h",
+			"Mu",
+			"EWIEGA46WW/moc_Decompilation.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Decompile.h",
+			"Mu",
+			"EWIEGA46WW/moc_Decompile.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/DecompileAll.h",
+			"Mu",
+			"EWIEGA46WW/moc_DecompileAll.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/DeleteInstructions.h",
+			"Mu",
+			"EWIEGA46WW/moc_DeleteInstructions.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Disassemble.h",
+			"Mu",
+			"EWIEGA46WW/moc_Disassemble.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Disassembly.h",
+			"Mu",
+			"EWIEGA46WW/moc_Disassembly.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/DisassemblyDialog.h",
+			"Mu",
+			"EWIEGA46WW/moc_DisassemblyDialog.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/GotoLineWidget.h",
+			"Mu",
+			"EWIEGA46WW/moc_GotoLineWidget.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InspectorItem.h",
+			"Mu",
+			"EWIEGA46WW/moc_InspectorItem.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InspectorModel.h",
+			"Mu",
+			"EWIEGA46WW/moc_InspectorModel.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InspectorView.h",
+			"Mu",
+			"EWIEGA46WW/moc_InspectorView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InstructionsModel.h",
+			"Mu",
+			"EWIEGA46WW/moc_InstructionsModel.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InstructionsView.h",
+			"Mu",
+			"EWIEGA46WW/moc_InstructionsView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/LogManager.h",
+			"Mu",
+			"EWIEGA46WW/moc_LogManager.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/LogView.h",
+			"Mu",
+			"EWIEGA46WW/moc_LogView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/MainWindow.h",
+			"Mu",
+			"EWIEGA46WW/moc_MainWindow.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/ParentTracker.h",
+			"Mu",
+			"EWIEGA46WW/moc_ParentTracker.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Project.h",
+			"Mu",
+			"EWIEGA46WW/moc_Project.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/RangeNode.h",
+			"Mu",
+			"EWIEGA46WW/moc_RangeNode.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/RangeTree.h",
+			"Mu",
+			"EWIEGA46WW/moc_RangeTree.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/RangeTreeBuilder.h",
+			"Mu",
+			"EWIEGA46WW/moc_RangeTreeBuilder.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SearchWidget.h",
+			"Mu",
+			"EWIEGA46WW/moc_SearchWidget.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SectionsModel.h",
+			"Mu",
+			"EWIEGA46WW/moc_SectionsModel.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SectionsView.h",
+			"Mu",
+			"EWIEGA46WW/moc_SectionsView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SymbolsModel.h",
+			"Mu",
+			"EWIEGA46WW/moc_SymbolsModel.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SymbolsView.h",
+			"Mu",
+			"EWIEGA46WW/moc_SymbolsView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TextEditSearcher.h",
+			"Mu",
+			"EWIEGA46WW/moc_TextEditSearcher.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TextView.h",
+			"Mu",
+			"EWIEGA46WW/moc_TextView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TreeView.h",
+			"Mu",
+			"EWIEGA46WW/moc_TreeView.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TreeViewSearcher.h",
+			"Mu",
+			"EWIEGA46WW/moc_TreeViewSearcher.cpp",
+			null
+		]
+	],
+	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
+	"INCLUDE_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/include",
+	"INCLUDE_DIR_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/include_Debug",
+	"INCLUDE_DIR_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/include_MinSizeRel",
+	"INCLUDE_DIR_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/include_RelWithDebInfo",
+	"INCLUDE_DIR_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/include_Release",
+	"MOC_COMPILATION_FILE" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/mocs_compilation.cpp",
+	"MOC_COMPILATION_FILE_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/mocs_compilation_Debug.cpp",
+	"MOC_COMPILATION_FILE_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/mocs_compilation_MinSizeRel.cpp",
+	"MOC_COMPILATION_FILE_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/mocs_compilation_RelWithDebInfo.cpp",
+	"MOC_COMPILATION_FILE_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/nc-gui_autogen/mocs_compilation_Release.cpp",
+	"MOC_DEFINITIONS" : 
+	[
+		"QT_CORE_LIB",
+		"QT_GUI_LIB",
+		"QT_NO_DEBUG",
+		"QT_WIDGETS_LIB",
+		"WIN32",
+		"WINVER=0x0501"
+	],
+	"MOC_DEFINITIONS_Debug" : 
+	[
+		"QT_CORE_LIB",
+		"QT_GUI_LIB",
+		"QT_WIDGETS_LIB",
+		"WIN32",
+		"WINVER=0x0501"
+	],
+	"MOC_DEPEND_FILTERS" : 
+	[
+		[
+			"Q_PLUGIN_METADATA",
+			"[\n][ \t]*Q_PLUGIN_METADATA[ \t]*\\([^\\)]*FILE[ \t]*\"([^\"]+)\""
+		]
+	],
+	"MOC_INCLUDES" : 
+	[
+		"C:/Users/thedemons/Documents/GitHub/snowman/src",
+		"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party",
+		"C:/dev/vcpkg/installed/x64-windows/include",
+		"C:/dev/vcpkg/installed/x64-windows/include/qt5",
+		"C:/dev/vcpkg/installed/x64-windows/include/qt5/QtCore",
+		"C:/dev/vcpkg/installed/x64-windows/tools/qt5/mkspecs/win32-msvc",
+		"C:/dev/vcpkg/installed/x64-windows/include/qt5/QtWidgets",
+		"C:/dev/vcpkg/installed/x64-windows/include/qt5/QtGui"
+	],
+	"MOC_MACRO_NAMES" : [ "Q_OBJECT", "Q_GADGET", "Q_NAMESPACE", "Q_NAMESPACE_EXPORT" ],
+	"MOC_OPTIONS" : [],
+	"MOC_PATH_PREFIX" : false,
+	"MOC_PREDEFS_CMD" : [],
+	"MOC_PREDEFS_FILE" : "",
+	"MOC_RELAXED_MODE" : false,
+	"MOC_SKIP" : [],
+	"MULTI_CONFIG" : true,
+	"PARALLEL" : 8,
+	"PARSE_CACHE_FILE" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/ParseCache.txt",
+	"PARSE_CACHE_FILE_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/ParseCache_Debug.txt",
+	"PARSE_CACHE_FILE_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/ParseCache_MinSizeRel.txt",
+	"PARSE_CACHE_FILE_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/ParseCache_RelWithDebInfo.txt",
+	"PARSE_CACHE_FILE_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/ParseCache_Release.txt",
+	"QT_MOC_EXECUTABLE" : "C:/dev/vcpkg/installed/x64-windows/tools/qt5/bin/moc.exe",
+	"QT_UIC_EXECUTABLE" : "",
+	"QT_VERSION_MAJOR" : 5,
+	"QT_VERSION_MINOR" : 15,
+	"SETTINGS_FILE" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenUsed.txt",
+	"SETTINGS_FILE_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenUsed_Debug.txt",
+	"SETTINGS_FILE_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenUsed_MinSizeRel.txt",
+	"SETTINGS_FILE_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenUsed_RelWithDebInfo.txt",
+	"SETTINGS_FILE_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenUsed_Release.txt",
+	"SOURCES" : 
+	[
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Activity.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Command.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CommandQueue.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CppSyntaxHighlighter.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CxxDocument.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CxxView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Decompilation.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Decompile.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/DecompileAll.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/DeleteInstructions.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Disassemble.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Disassembly.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/DisassemblyDialog.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/GotoLineWidget.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InspectorItem.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InspectorModel.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InspectorView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InstructionsModel.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/InstructionsView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/LogManager.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/LogView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/MainWindow.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/Project.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/RangeTree.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SearchWidget.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SectionsModel.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SectionsView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SymbolsModel.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/SymbolsView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TextEditSearcher.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TextView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TreeView.cpp",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/TreeViewSearcher.cpp",
+			"Mu",
+			null
+		]
+	],
+	"VERBOSITY" : 0
+}

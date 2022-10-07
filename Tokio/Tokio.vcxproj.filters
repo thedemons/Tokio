@@ -58,6 +58,9 @@
     <Filter Include="Common">
       <UniqueIdentifier>{6eaf9a60-14c6-4ded-a6d3-06c137d0d851}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Decompiler">
+      <UniqueIdentifier>{6097d97c-37b4-41f6-bbd5-3d7b5cd1bdea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -167,6 +170,18 @@
     </ClCompile>
     <ClCompile Include="Common\SystemHelper.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Decompiler\BaseDecompiler.cpp">
+      <Filter>Engine\Decompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Decompiler\SnowmanDecompiler.cpp">
+      <Filter>Engine\Decompiler</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Widgets\WTextEditor.cpp">
+      <Filter>GUI\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\Views\ViewDecompiler.cpp">
+      <Filter>GUI\Views</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -313,6 +328,18 @@
     </ClInclude>
     <ClInclude Include="Common\TypeDef.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Decompiler\BaseDecompiler.h">
+      <Filter>Engine\Decompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Decompiler\SnowmanDecompiler.h">
+      <Filter>Engine\Decompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Widgets\WTextEditor.h">
+      <Filter>GUI\Widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\Views\ViewDecompiler.h">
+      <Filter>GUI\Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

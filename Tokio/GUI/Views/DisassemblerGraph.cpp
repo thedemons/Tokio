@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DisassemblerGraph.h"
+#include "Engine/Engine.h"
 
 
 
@@ -123,7 +124,6 @@ bool DisassemblerGraph::Init(POINTER address, const AnalyzedData& data)
 	}
 
 	if (pSubroutine == nullptr) return false;
-
 
 	m_nodes.reserve(pSubroutine->blocks.size());
 

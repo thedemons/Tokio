@@ -1,0 +1,427 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{70A4EFE6-5AA4-3329-BC77-C4BAD02A329E}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>nc-gui</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="do_not_import_user.props" Condition="exists('do_not_import_user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nc-gui.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nc-gui</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nc-gui.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nc-gui</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">nc-gui.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">nc-gui</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">nc-gui.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">nc-gui</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_Debug;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WINVER=0x0501;QT_CORE_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WINVER=0x0501;QT_CORE_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_Debug;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_Debug;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc-gui</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenInfo.json Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_Release;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_Release;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_Release;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc-gui</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenInfo.json Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_MinSizeRel;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_MinSizeRel;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_MinSizeRel;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc-gui</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenInfo.json MinSizeRel
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_RelWithDebInfo;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;QT_WIDGETS_LIB;QT_GUI_LIB;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_RelWithDebInfo;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\include_RelWithDebInfo;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtWidgets;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc-gui</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/nc-gui_autogen.dir/AutogenInfo.json RelWithDebInfo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/gui/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_Debug.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Activity.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Colors.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Command.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CommandQueue.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CppSyntaxHighlighter.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CxxDocument.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CxxView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Decompilation.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Decompile.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\DecompileAll.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\DeleteInstructions.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Disassemble.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Disassembly.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\DisassemblyDialog.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\GotoLineWidget.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InspectorItem.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InspectorModel.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InspectorView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InstructionsModel.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InstructionsView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\LogManager.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\LogView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\MainWindow.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\ParentTracker.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Project.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeNode.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeTree.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeTree.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeTreeBuilder.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SearchWidget.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SectionsModel.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SectionsView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SymbolsModel.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SymbolsView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TextEditSearcher.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TextView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TreeView.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TreeViewSearcher.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_Release.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_MinSizeRel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\ZERO_CHECK.vcxproj">
+      <Project>{3BAAFCF3-3514-3ED3-AAA4-05082D3BC627}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\capstone-static.vcxproj">
+      <Project>{DC73BBEC-7737-3723-8D13-6E6DCEFFC5F1}</Project>
+      <Name>capstone-static</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\libiberty\iberty.vcxproj">
+      <Project>{3D6B5A6D-40AD-3533-987E-24284F4AB89C}</Project>
+      <Name>iberty</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc.vcxproj">
+      <Project>{D0385DE1-840A-3B0B-B96C-FA011F51EA1A}</Project>
+      <Name>nc</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\libudis86\udis86.vcxproj">
+      <Project>{910B2BCA-85EA-3A9A-BF7D-91C230AD0333}</Project>
+      <Name>udis86</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname.vcxproj">
+      <Project>{7FAE9593-65E1-3DBD-8A4B-F73DFB0B5F6D}</Project>
+      <Name>undname</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Activity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Command.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CommandQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CppSyntaxHighlighter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CxxDocument.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CxxView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Decompilation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Decompile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\DecompileAll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\DeleteInstructions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Disassemble.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Disassembly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\DisassemblyDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\GotoLineWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InspectorItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InspectorModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InspectorView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InstructionsModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\InstructionsView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\LogManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\LogView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Project.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeTree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SearchWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SectionsModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SectionsView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SymbolsModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\SymbolsView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TextEditSearcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TextView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TreeView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\TreeViewSearcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_Release.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_MinSizeRel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\nc-gui_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\Colors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\ParentTracker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\RangeTreeBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\gui\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{96A1E1BF-BC56-3510-8C6A-17B2FD8025E4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F1C7320A-6A24-314E-A49F-2E45917B08BC}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

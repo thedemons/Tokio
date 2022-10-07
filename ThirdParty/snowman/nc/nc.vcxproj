@@ -1,0 +1,703 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D0385DE1-840A-3B0B-B96C-FA011F51EA1A}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>nc</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="do_not_import_user.props" Condition="exists('do_not_import_user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nc.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nc</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nc.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nc</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">nc.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">nc</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">nc.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">nc</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_Debug;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;WINVER=0x0501;QT_CORE_LIB;CMAKE_INTDIR="Debug"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;WINVER=0x0501;QT_CORE_LIB;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_Debug;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_Debug;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/nc_autogen.dir/AutogenInfo.json Debug
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_Release;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;CMAKE_INTDIR="Release"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_Release;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_Release;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/nc_autogen.dir/AutogenInfo.json Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_MinSizeRel;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;CMAKE_INTDIR="MinSizeRel"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_MinSizeRel;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_MinSizeRel;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/nc_autogen.dir/AutogenInfo.json MinSizeRel
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_RelWithDebInfo;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;CMAKE_INTDIR="RelWithDebInfo"</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;WINVER=0x0501;QT_CORE_LIB;QT_NO_DEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_RelWithDebInfo;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\include_RelWithDebInfo;C:\Users\thedemons\Documents\GitHub\snowman\src;C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party;C:\dev\vcpkg\installed\x64-windows\include;C:\dev\vcpkg\installed\x64-windows\include\qt5;C:\dev\vcpkg\installed\x64-windows\include\qt5\QtCore;C:\dev\vcpkg\installed\x64-windows\tools\qt5\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreBuildEvent>
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message>Automatic MOC for target nc</Message>
+      <Command>setlocal
+cd C:\Users\thedemons\Documents\GitHub\snowman\src\nc
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autogen C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/nc_autogen.dir/AutogenInfo.json RelWithDebInfo
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreBuildEvent>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Users\thedemons\Documents\GitHub\snowman\.git\HEAD;C:\Users\thedemons\Documents\GitHub\snowman\.git\refs\heads\master;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake.in;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\git-data\grabRef.cmake;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Version.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Users\thedemons\Documents\GitHub\snowman\.git\HEAD;C:\Users\thedemons\Documents\GitHub\snowman\.git\refs\heads\master;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake.in;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\git-data\grabRef.cmake;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Version.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Users\thedemons\Documents\GitHub\snowman\.git\HEAD;C:\Users\thedemons\Documents\GitHub\snowman\.git\refs\heads\master;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake.in;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\git-data\grabRef.cmake;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Version.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/thedemons/Documents/GitHub/snowman/src -BC:/Users/thedemons/Documents/GitHub/snowman/src --check-stamp-file C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\FindGit.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Users\thedemons\Documents\GitHub\snowman\.git\HEAD;C:\Users\thedemons\Documents\GitHub\snowman\.git\refs\heads\master;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake;C:\Users\thedemons\Documents\GitHub\snowman\modules\GetGitRevisionDescription.cmake.in;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\git-data\grabRef.cmake;C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Version.cpp.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\thedemons\Documents\GitHub\snowman\src\nc\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\mocs_compilation_Debug.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmArchitecture.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmArchitecture.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmDisassembler.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmDisassembler.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmInstruction.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmInstructionAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmInstructionAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmRegisters.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\ArmRegisters.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\CallingConventions.cpp">
+      <ObjectFileName>$(IntDir)/arch/arm/CallingConventions.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\arm\CallingConventions.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\CallingConventions.cpp">
+      <ObjectFileName>$(IntDir)/arch/x86/CallingConventions.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\CallingConventions.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Architecture.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Architecture.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Disassembler.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Disassembler.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Instruction.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Instruction.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86InstructionAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86InstructionAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86MasterAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86MasterAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Registers.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\X86Registers.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\arch\x86\udis86.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\BitTwiddling.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Branding.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Branding.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\ByteOrder.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\CancellationToken.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\CancellationToken.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\CheckedCast.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\DisjointSet.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Escaping.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Escaping.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Exception.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Exception.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Foreach.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\LogToken.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Logger.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Logger.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\PrintCallback.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Printable.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Range.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\RangeClass.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\SignalLogger.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\SignalLogger.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\SizedValue.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\StreamLogger.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\StreamLogger.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\StringToInt.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\StringToInt.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Subclass.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Types.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Unreachable.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Unused.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Version.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\ilist.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\make_unique.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\Context.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\Driver.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\Driver.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\MasterAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\MasterAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Architecture.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Architecture.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\ArchitectureRepository.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\ArchitectureRepository.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\CapstoneInstruction.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Capstone.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Disassembler.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Disassembler.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Instruction.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Instruction.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Instructions.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Instructions.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Register.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\arch\Registers.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\ByteSource.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Image.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Image.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Platform.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Platform.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Reader.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Reader.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Relocation.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Section.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Section.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Symbol.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\image\Symbol.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\input\ParseError.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\input\ParseError.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\input\Parser.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\input\Parser.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\input\ParserRepository.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\input\ParserRepository.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\input\Utils.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\BasicBlock.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\BasicBlock.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\CFG.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\CFG.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Dominators.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Dominators.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Function.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Function.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Functions.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Functions.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\FunctionsGenerator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\FunctionsGenerator.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Jump.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Jump.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\JumpTarget.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\JumpTarget.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\MemoryDomain.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\MemoryLocation.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\MemoryLocation.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Program.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Program.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Statement.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Statement.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Statements.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Statements.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Term.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Term.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Terms.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\Terms.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\CallHook.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\CallHook.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\CalleeId.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\Convention.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\Convention.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\EntryHook.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\EntryHook.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\FunctionSignature.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\Hooks.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\Hooks.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\Patch.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\Patch.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\ReturnHook.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\ReturnHook.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\SignatureAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\calling\SignatureAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\BasicNode.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\BasicNode.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Dfs.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Dfs.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Edge.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Edge.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Graph.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Graph.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\GraphBuilder.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\GraphBuilder.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\LoopExplorer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\LoopExplorer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Node.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Node.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Region.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Region.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\StructureAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\StructureAnalyzer.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cflow\Switch.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\CodeGenerator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\CodeGenerator.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\DeclarationGenerator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\DeclarationGenerator.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\DefinitionGenerator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\DefinitionGenerator.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\NameGenerator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\NameGenerator.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\SwitchContext.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\Utils.cpp">
+      <ObjectFileName>$(IntDir)/core/ir/cgen/Utils.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\cgen\Utils.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Dataflow.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Dataflow.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\DataflowAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\DataflowAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\ReachingDefinitions.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\ReachingDefinitions.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Uses.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Uses.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Utils.cpp">
+      <ObjectFileName>$(IntDir)/core/ir/dflow/Utils.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Utils.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Value.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\dflow\Value.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\misc\ArrayAccess.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\misc\BoundsCheck.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\misc\PatternRecognition.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\misc\PatternRecognition.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\types\Type.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\types\Type.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\types\TypeAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\types\TypeAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\types\Types.cpp">
+      <ObjectFileName>$(IntDir)/core/ir/types/Types.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\types\Types.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\liveness\Liveness.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\liveness\LivenessAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\liveness\LivenessAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\vars\Variable.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\vars\Variable.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\vars\VariableAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\vars\VariableAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\vars\Variables.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\ir\vars\Variables.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\irgen\Expressions.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\irgen\IRGenerator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\irgen\IRGenerator.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\irgen\InstructionAnalyzer.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\irgen\InstructionAnalyzer.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\irgen\InvalidInstructionException.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\irgen\InvalidInstructionException.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\ArgumentDeclaration.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\BinaryOperator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\BinaryOperator.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Block.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Block.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Break.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\CallOperator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\CallOperator.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\CaseLabel.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Commentable.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\CompilationUnit.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\CompilationUnit.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Continue.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Declaration.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\DefaultLabel.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\DoWhile.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\DoWhile.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Expression.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\ExpressionStatement.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\ExpressionStatement.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\FunctionDeclaration.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\FunctionDeclaration.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\FunctionDefinition.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\FunctionDefinition.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\FunctionIdentifier.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\FunctionPointerType.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\FunctionPointerType.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Goto.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Goto.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\If.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\If.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\InlineAssembly.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\IntegerConstant.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\IntegerConstant.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\LabelDeclaration.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\LabelIdentifier.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\LabelIdentifier.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\LabelStatement.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\MemberAccessOperator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\MemberAccessOperator.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\MemberDeclaration.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Return.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Return.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Simplifier.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Simplifier.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Statement.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\String.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\StructType.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\StructType.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\StructTypeDeclaration.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Switch.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Switch.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Tree.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Tree.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\TreeNode.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\TreeNode.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\TreePrinter.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\TreePrinter.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Type.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\TypeCalculator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\TypeCalculator.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Typecast.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Typecast.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Types.cpp">
+      <ObjectFileName>$(IntDir)/core/likec/Types.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Types.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\UnaryOperator.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\UnaryOperator.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\UndeclaredIdentifier.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Utils.cpp">
+      <ObjectFileName>$(IntDir)/core/likec/Utils.cpp.obj</ObjectFileName>
+    </ClCompile>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\Utils.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\VariableDeclaration.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\VariableDeclaration.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\VariableIdentifier.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\While.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\likec\While.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\mangling\DefaultDemangler.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\mangling\DefaultDemangler.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\mangling\Demangler.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\elf\ElfParser.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\elf\ElfParser.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\elf\elf32.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\elf\elf64.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\elf\elf_common.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\mach-o\MachOParser.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\mach-o\MachOParser.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\mach-o\mach-o.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\pe\PeParser.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\pe\PeParser.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\pe\pe.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\le\LeParser.cpp" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\input\le\LeParser.h" />
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\core\Context.h" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\common\Version.cpp" />
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\mocs_compilation_Release.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\mocs_compilation_MinSizeRel.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\nc\nc_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\ZERO_CHECK.vcxproj">
+      <Project>{3BAAFCF3-3514-3ED3-AAA4-05082D3BC627}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\capstone-static.vcxproj">
+      <Project>{DC73BBEC-7737-3723-8D13-6E6DCEFFC5F1}</Project>
+      <Name>capstone-static</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\libiberty\iberty.vcxproj">
+      <Project>{3D6B5A6D-40AD-3533-987E-24284F4AB89C}</Project>
+      <Name>iberty</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\libudis86\udis86.vcxproj">
+      <Project>{910B2BCA-85EA-3A9A-BF7D-91C230AD0333}</Project>
+      <Name>udis86</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\undname\undname.vcxproj">
+      <Project>{7FAE9593-65E1-3DBD-8A4B-F73DFB0B5F6D}</Project>
+      <Name>undname</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

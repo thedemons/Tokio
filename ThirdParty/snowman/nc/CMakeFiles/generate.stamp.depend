@@ -1,0 +1,11 @@
+# CMake generation dependency list for this directory.
+C:/Program Files/CMake/share/cmake-3.22/Modules/FindGit.cmake
+C:/Program Files/CMake/share/cmake-3.22/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.22/Modules/FindPackageMessage.cmake
+C:/Users/thedemons/Documents/GitHub/snowman/.git/HEAD
+C:/Users/thedemons/Documents/GitHub/snowman/.git/refs/heads/master
+C:/Users/thedemons/Documents/GitHub/snowman/modules/GetGitRevisionDescription.cmake
+C:/Users/thedemons/Documents/GitHub/snowman/modules/GetGitRevisionDescription.cmake.in
+C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeFiles/git-data/grabRef.cmake
+C:/Users/thedemons/Documents/GitHub/snowman/src/nc/CMakeLists.txt
+C:/Users/thedemons/Documents/GitHub/snowman/src/nc/common/Version.cpp.in

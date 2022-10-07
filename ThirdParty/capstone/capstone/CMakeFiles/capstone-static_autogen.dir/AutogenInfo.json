@@ -1,0 +1,258 @@
+{
+	"BUILD_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen",
+	"CMAKE_BINARY_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src",
+	"CMAKE_CURRENT_BINARY_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone",
+	"CMAKE_CURRENT_SOURCE_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone",
+	"CMAKE_EXECUTABLE" : "C:/Program Files/CMake/bin/cmake.exe",
+	"CMAKE_LIST_FILES" : 
+	[
+		"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeLists.txt"
+	],
+	"CMAKE_SOURCE_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src",
+	"DEP_FILE" : "",
+	"DEP_FILE_RULE_NAME" : "",
+	"HEADERS" : 
+	[
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/MCInst.h",
+			"Mu",
+			"EWIEGA46WW/moc_MCInst.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/MCInstrDesc.h",
+			"Mu",
+			"EWIEGA46WW/moc_MCInstrDesc.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/MCRegisterInfo.h",
+			"Mu",
+			"EWIEGA46WW/moc_MCRegisterInfo.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/SStream.h",
+			"Mu",
+			"EWIEGA46WW/moc_SStream.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMAddressingModes.h",
+			"Mu",
+			"WTH636ZSVV/moc_ARMAddressingModes.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMBaseInfo.h",
+			"Mu",
+			"WTH636ZSVV/moc_ARMBaseInfo.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMDisassembler.h",
+			"Mu",
+			"WTH636ZSVV/moc_ARMDisassembler.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMInstPrinter.h",
+			"Mu",
+			"WTH636ZSVV/moc_ARMInstPrinter.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMMapping.h",
+			"Mu",
+			"WTH636ZSVV/moc_ARMMapping.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/cs_priv.h",
+			"Mu",
+			"EWIEGA46WW/moc_cs_priv.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/arm.h",
+			"Mu",
+			"6YEA5652QU/moc_arm.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/arm64.h",
+			"Mu",
+			"6YEA5652QU/moc_arm64.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/capstone.h",
+			"Mu",
+			"6YEA5652QU/moc_capstone.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/mips.h",
+			"Mu",
+			"6YEA5652QU/moc_mips.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/platform.h",
+			"Mu",
+			"6YEA5652QU/moc_platform.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/ppc.h",
+			"Mu",
+			"6YEA5652QU/moc_ppc.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/sparc.h",
+			"Mu",
+			"6YEA5652QU/moc_sparc.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/systemz.h",
+			"Mu",
+			"6YEA5652QU/moc_systemz.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/x86.h",
+			"Mu",
+			"6YEA5652QU/moc_x86.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include/xcore.h",
+			"Mu",
+			"6YEA5652QU/moc_xcore.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/myinttypes.h",
+			"Mu",
+			"EWIEGA46WW/moc_myinttypes.cpp",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/utils.h",
+			"Mu",
+			"EWIEGA46WW/moc_utils.cpp",
+			null
+		]
+	],
+	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
+	"INCLUDE_DIR" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/include",
+	"INCLUDE_DIR_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/include_Debug",
+	"INCLUDE_DIR_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/include_MinSizeRel",
+	"INCLUDE_DIR_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/include_RelWithDebInfo",
+	"INCLUDE_DIR_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/include_Release",
+	"MOC_COMPILATION_FILE" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/mocs_compilation.cpp",
+	"MOC_COMPILATION_FILE_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/mocs_compilation_Debug.cpp",
+	"MOC_COMPILATION_FILE_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/mocs_compilation_MinSizeRel.cpp",
+	"MOC_COMPILATION_FILE_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/mocs_compilation_RelWithDebInfo.cpp",
+	"MOC_COMPILATION_FILE_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/capstone-static_autogen/mocs_compilation_Release.cpp",
+	"MOC_DEFINITIONS" : 
+	[
+		"CAPSTONE_HAS_ARM",
+		"CAPSTONE_USE_SYS_DYN_MEM",
+		"WIN32",
+		"WINVER=0x0501"
+	],
+	"MOC_DEPEND_FILTERS" : 
+	[
+		[
+			"Q_PLUGIN_METADATA",
+			"[\n][ \t]*Q_PLUGIN_METADATA[ \t]*\\([^\\)]*FILE[ \t]*\"([^\"]+)\""
+		]
+	],
+	"MOC_INCLUDES" : 
+	[
+		"C:/Users/thedemons/Documents/GitHub/snowman/src",
+		"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party",
+		"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/include",
+		"C:/dev/vcpkg/installed/x64-windows/include"
+	],
+	"MOC_MACRO_NAMES" : [ "Q_OBJECT", "Q_GADGET", "Q_NAMESPACE", "Q_NAMESPACE_EXPORT" ],
+	"MOC_OPTIONS" : [],
+	"MOC_PATH_PREFIX" : false,
+	"MOC_PREDEFS_CMD" : [],
+	"MOC_PREDEFS_FILE" : "",
+	"MOC_RELAXED_MODE" : false,
+	"MOC_SKIP" : [],
+	"MULTI_CONFIG" : true,
+	"PARALLEL" : 8,
+	"PARSE_CACHE_FILE" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/ParseCache.txt",
+	"PARSE_CACHE_FILE_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/ParseCache_Debug.txt",
+	"PARSE_CACHE_FILE_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/ParseCache_MinSizeRel.txt",
+	"PARSE_CACHE_FILE_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/ParseCache_RelWithDebInfo.txt",
+	"PARSE_CACHE_FILE_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/ParseCache_Release.txt",
+	"QT_MOC_EXECUTABLE" : "C:/dev/vcpkg/installed/x64-windows/tools/qt5/bin/moc.exe",
+	"QT_UIC_EXECUTABLE" : "",
+	"QT_VERSION_MAJOR" : 5,
+	"QT_VERSION_MINOR" : 15,
+	"SETTINGS_FILE" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/AutogenUsed.txt",
+	"SETTINGS_FILE_Debug" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/AutogenUsed_Debug.txt",
+	"SETTINGS_FILE_MinSizeRel" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/AutogenUsed_MinSizeRel.txt",
+	"SETTINGS_FILE_RelWithDebInfo" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/AutogenUsed_RelWithDebInfo.txt",
+	"SETTINGS_FILE_Release" : "C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/CMakeFiles/capstone-static_autogen.dir/AutogenUsed_Release.txt",
+	"SOURCES" : 
+	[
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/MCInst.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/MCInstrDesc.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/MCRegisterInfo.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/SStream.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMDisassembler.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMInstPrinter.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMMapping.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/arch/ARM/ARMModule.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/cs.c",
+			"Mu",
+			null
+		],
+		[
+			"C:/Users/thedemons/Documents/GitHub/snowman/src/3rd-party/capstone/capstone/utils.c",
+			"Mu",
+			null
+		]
+	],
+	"VERBOSITY" : 0
+}

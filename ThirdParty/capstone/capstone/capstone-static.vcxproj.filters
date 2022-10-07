@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\capstone-static_autogen\mocs_compilation_Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\cs.c">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\MCInst.c">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\MCInstrDesc.c">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\MCRegisterInfo.c">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\SStream.c">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\utils.c">
+      <Filter>Source\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMDisassembler.c">
+      <Filter>Source\ARM</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMInstPrinter.c">
+      <Filter>Source\ARM</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMMapping.c">
+      <Filter>Source\ARM</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMModule.c">
+      <Filter>Source\ARM</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\capstone-static_autogen\mocs_compilation_Release.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\capstone-static_autogen\mocs_compilation_MinSizeRel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\capstone-static_autogen\mocs_compilation_RelWithDebInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\arm64.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\arm.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\capstone.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\mips.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\ppc.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\x86.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\sparc.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\systemz.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\xcore.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\include\platform.h">
+      <Filter>Include\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\utils.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\MCRegisterInfo.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\MCInst.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\MCInstrDesc.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\SStream.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\cs_priv.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\myinttypes.h">
+      <Filter>Include\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMAddressingModes.h">
+      <Filter>Include\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMBaseInfo.h">
+      <Filter>Include\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMDisassembler.h">
+      <Filter>Include\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMInstPrinter.h">
+      <Filter>Include\ARM</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMMapping.h">
+      <Filter>Include\ARM</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMGenAsmWriter.inc">
+      <Filter>Include\ARM</Filter>
+    </None>
+    <None Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMGenDisassemblerTables.inc">
+      <Filter>Include\ARM</Filter>
+    </None>
+    <None Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMGenInstrInfo.inc">
+      <Filter>Include\ARM</Filter>
+    </None>
+    <None Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMGenRegisterInfo.inc">
+      <Filter>Include\ARM</Filter>
+    </None>
+    <None Include="C:\Users\thedemons\Documents\GitHub\snowman\src\3rd-party\capstone\capstone\arch\ARM\ARMGenSubtargetInfo.inc">
+      <Filter>Include\ARM</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Include">
+      <UniqueIdentifier>{699EF01A-8A2F-3D20-B34F-27DEACDEB2C4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\ARM">
+      <UniqueIdentifier>{FA598F07-072A-311B-9415-D59AD8E16FCB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Common">
+      <UniqueIdentifier>{D1B77072-3D66-3659-B200-7E659E504595}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include\Engine">
+      <UniqueIdentifier>{1A04443F-952A-3B61-A0D2-44ABACE66AAE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{71383ADE-1533-3296-9F87-30F329B4FE90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F1C7320A-6A24-314E-A49F-2E45917B08BC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ARM">
+      <UniqueIdentifier>{E243B698-B835-3B9B-B64D-6EF87287927E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Engine">
+      <UniqueIdentifier>{6B3C0F86-CF05-3E0E-9697-EFF5237D509A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "stdafx.h"
 #include "ViewDisassembler.h"
+#include "ViewDecompiler.h"
 
 #include "GUI/Widgets/Widgets.hpp"
 #include "Engine/Engine.h"
@@ -534,23 +535,49 @@ void ViewDisassembler::HandleShortcuts()
 
 	if (Settings::shortcuts.DisasmSwitchMode.IsPressedInWindow())
 	{
-
-		if (!m_isGraphMode)
+		auto& selected = m_table.GetSelectedItems();
+		if (selected.size() > 0)
 		{
-			auto& selected = m_table.GetSelectedItems();
-			if (selected.size() > 0)
+			// do this to avoid nested hell
+			const SubroutineInfo* pSubroutine = nullptr;
+
+			POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
+			for (const SubroutineInfo& subroutine : m_analyzedData.subroutines)
 			{
-				POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
-				m_isGraphMode = m_graph.Init(selectedItemAddress, m_analyzedData);
+				if (subroutine.start <= selectedItemAddress && selectedItemAddress <= subroutine.end)
+				{
+					pSubroutine = &subroutine;
+					break;
+				}
+			}
+
+			if (pSubroutine != nullptr)
+			{
+				auto views = MainView::FindViewsByClass<ViewDecompiler>();
+				views[0].get().pView->Decompile(pSubroutine->start, pSubroutine->end - pSubroutine->start);
 			}
 		}
-		else
-		{
-
-			m_isGraphMode = false;
-		}
-
 	}
+
+	//if (Settings::shortcuts.DisasmSwitchMode.IsPressedInWindow())
+	//{
+
+	//	if (!m_isGraphMode)
+	//	{
+	//		auto& selected = m_table.GetSelectedItems();
+	//		if (selected.size() > 0)
+	//		{
+	//			POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
+	//			m_isGraphMode = m_graph.Init(selectedItemAddress, m_analyzedData);
+	//		}
+	//	}
+	//	else
+	//	{
+
+	//		m_isGraphMode = false;
+	//	}
+
+	//}
 }
 
 
@@ -590,11 +617,14 @@ void ViewDisassembler::Render(bool& bOpen)
 {
 	if (!bOpen) return;
 
-	double currentTime = ImGui::GetTime();
-	if (currentTime - m_timeLastRefresh > m_refreshInterval)
+	if (Engine::IsAttached())
 	{
-		m_timeLastRefresh = currentTime;
-		GoToAddress(m_pVirtualBase);
+		double currentTime = ImGui::GetTime();
+		if (currentTime - m_timeLastRefresh > m_refreshInterval)
+		{
+			m_timeLastRefresh = currentTime;
+			GoToAddress(m_pVirtualBase);
+		}
 	}
 	//GoToAddress(m_pVirtualBase);
 
@@ -627,14 +657,15 @@ void ViewDisassembler::Render(bool& bOpen)
 
 void ViewDisassembler::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 {
-	UNUSED(targetProcess);
-	GoToAddress(0x7ffe09c11700);
-	//GoToAddress(targetProcess->baseModule->base);
+	//GoToAddress(0x7ffe09c11700);
+	GoToAddress(targetProcess->baseModule->base);
 }
 
 void ViewDisassembler::OnDetach()
 {
+	m_instructionOffset = 0;
 	m_analyzedData.instructions.clear(); // FIXME
+	m_analyzedData.subroutines.clear(); // FIXME
 }
 
 ImGui::TokenizedText FormatSymbolAddress(
@@ -1001,11 +1032,11 @@ void ViewDisassembler::Disassemble()
 {
 	if (!Engine::IsAttached()) return;
 
-	POINTER startAddress = m_pVirtualBase - 512;
+	POINTER startAddress = m_pVirtualBase - 1024;
 
 	try
 	{
-		Engine::Analyze(startAddress, 1024, true, m_memoryBuffer, m_analyzedData);
+		Engine::Analyze(startAddress, 2048, true, m_memoryBuffer, m_analyzedData);
 
 		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
 		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
@@ -1016,13 +1047,31 @@ void ViewDisassembler::Disassemble()
 				break;
 			}
 		}
+
+		//// do this to avoid nested hell
+		//const SubroutineInfo* pSubroutine = nullptr;
+
+		//for (const SubroutineInfo& subroutine : m_analyzedData.subroutines)
+		//{
+		//	if (subroutine.start <= m_pVirtualBase && m_pVirtualBase <= subroutine.end)
+		//	{
+		//		pSubroutine = &subroutine;
+		//		break;
+		//	}
+		//}
+
+		//if (pSubroutine != nullptr)
+		//{
+		//	auto views = MainView::FindViewsByClass<ViewDecompiler>();
+		//	views[0].get().pView->Decompile(pSubroutine->start, pSubroutine->end - pSubroutine->start);
+		//}
 	}
 	catch (Tokio::Exception& e)
 	{
 		m_analyzedData.instructions.clear();
 		m_analyzedData.subroutines.clear();
 
-		e.Log("View disassembler failed to analyze");
+		e.Log("View disassembler failed to analyze\n");
 	}
 }
 

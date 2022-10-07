@@ -9,6 +9,7 @@
 #include "Views/ViewAttachProc.h"
 #include "Views/ViewSymbolList.h"
 #include "Views/ViewDisassembler.h"
+#include "Views/ViewDecompiler.h"
 #include "Views/ViewMemoryScan.h"
 #include "Views/ViewSettings.h"
 
@@ -26,19 +27,20 @@ void Init()
 	AddView<ViewSymbolList>();
 	AddView<ViewSettings>();
 	AddView<ViewDisassembler>();
+	AddView<ViewDecompiler>();
 
 	Engine::OnAttachCallback(HandlerAttachProcess);
 	Engine::OnDetachCallback(HandlerDetachProcess);
 
 
-	try
-	{
-		Engine::Attach(177508);
-	}
-	catch (Tokio::Exception& e)
-	{
-		e.Log("Couldn't attach to the process");
-	}
+	//try
+	//{
+	//	Engine::Attach(177508);
+	//}
+	//catch (Tokio::Exception& e)
+	//{
+	//	e.Log("Couldn't attach to the process");
+	//}
 }
 
 void RenderMenuBar()

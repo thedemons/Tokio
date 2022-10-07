@@ -6,6 +6,7 @@
 #include "Memory/BaseMemory.h"
 #include "Symbol/BaseSymbol.h"
 #include "Disassembler/BaseDisassembler.h"
+#include "Decompiler/BaseDecompiler.h"
 #include "Analyzer/BaseAnalyzer.h"
 
 #include <memory>
@@ -23,19 +24,22 @@ namespace Engine
 // the engines if any of the threads using them is still running
 
 // TARGET PROCESS
-inline std::shared_ptr<ProcessData> g_Target = nullptr;
+inline std::shared_ptr<ProcessData> g_Target            = nullptr;
 
 // MEMORY ENGINE
-inline std::shared_ptr<BaseMemory> g_Memory = nullptr;
+inline std::shared_ptr<BaseMemory> g_Memory             = nullptr;
 
 // SYMBOL ENGINE
-inline std::shared_ptr<BaseSymbol> g_Symbol = nullptr;
+inline std::shared_ptr<BaseSymbol> g_Symbol             = nullptr;
 
 // DISASSEMBLE ENGINE
 inline std::shared_ptr<BaseDisassembler> g_Disassembler = nullptr;
 
+// DECOMPILE ENGINE
+inline std::shared_ptr<BaseDecompiler> g_Decompiler     = nullptr;
+
 // ANALYZER ENGINE
-inline std::shared_ptr<BaseAnalyzer> g_Analyzer = nullptr;
+inline std::shared_ptr<BaseAnalyzer> g_Analyzer         = nullptr;
 
 // callback when we attach to a process
 typedef void (*LPON_ATTACH_CALLBACK)(std::shared_ptr<ProcessData>);
@@ -78,6 +82,13 @@ _NODISCARD _CONSTEXPR20 std::shared_ptr<BaseMemory> Memory() noexcept
 _NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDisassembler> Disassembler() noexcept
 {
 	return g_Disassembler;
+}
+
+
+// return a shared pointer to the disassembler engine
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDecompiler> Decompiler() noexcept
+{
+	return g_Decompiler;
 }
 
 // return a shared pointer to the analyzer engine
@@ -150,6 +161,11 @@ _NODISCARD _CONSTEXPR20 void Analyze(
 	return g_Analyzer->Analyze(address, size, bDisectSubroutine, outBuffer, outData);
 }
 
+
+_NODISCARD _CONSTEXPR20 std::string Decompile(POINTER address, size_t size) EXCEPT
+{
+	return g_Decompiler->Decompile(address, size);
+}
 
 void OnAttachCallback(LPON_ATTACH_CALLBACK callback) noexcept;
 void OnDetachCallback(LPON_DETACH_CALLBACK callback) noexcept;

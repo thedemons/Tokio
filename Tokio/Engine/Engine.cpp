@@ -7,6 +7,7 @@
 #include "Memory/Win32Memory.hpp"
 #include "Symbol/Win32Symbol.h"
 #include "Disassembler/ZydisDisassembler.h"
+#include "Decompiler/SnowmanDecompiler.h"
 
 #include "Analyzer/TokioAnalyzer.h"
 
@@ -29,6 +30,7 @@ void Attach(PID pid) EXCEPT
 		g_Target       = g_Memory->Attach(pid);
 		g_Symbol       = std::make_shared<Win32Symbol>		(g_Target);
 		g_Disassembler = std::make_shared<ZydisDisassembler>(g_Target);
+		g_Decompiler   = std::make_shared<SnowmanDecompiler>(g_Target, g_Memory);
 		g_Analyzer     = std::make_shared<TokioAnalyzer>	(g_Target, g_Symbol, g_Memory, g_Disassembler);
 		
 
@@ -49,6 +51,7 @@ void Detach() noexcept
 	if (g_Symbol       != nullptr) g_Symbol.reset();
 	if (g_Target       != nullptr) g_Target.reset();
 	if (g_Disassembler != nullptr) g_Disassembler.reset();
+	if (g_Decompiler   != nullptr) g_Decompiler.reset();
 	if (g_Analyzer     != nullptr) g_Analyzer.reset();
 
 	if (g_Memory != nullptr)

@@ -85,6 +85,33 @@ void SetViewOpen(size_t index = 0, bool bOpen = true) noexcept
 	}
 }
 
+// focus a specific view
+template <typename ViewType>
+void SetViewFocus(size_t index = 0) noexcept
+{
+	auto views = FindViewsByClass<ViewType>();
+	if (views.size() == 0)
+	{
+		Tokio::Log("Failed to find any view?");
+	}
+	else
+	{
+		if (index < views.size())
+		{
+
+			auto& view = views[index].get();
+			view.bOpen = true;
+
+			ImGuiWindow* window = ImGui::FindWindowByName(view.pView->Title().c_str());
+			ImGui::FocusWindow(window);
+		}
+		else
+		{
+			Tokio::Log("The view index to open was wrong");
+		}
+	}
+}
+
 template <typename ViewType>
 TemplateWindowData<ViewType>& AddView() noexcept
 {

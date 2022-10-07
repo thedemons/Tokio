@@ -27,6 +27,10 @@ int main()
 	{
 		e.Log("Critical error");
 	}
+	catch (std::exception& e)
+	{
+		MessageBoxA(0, e.what(), "Error", 16);
+	}
 
 	return 0;
 }
