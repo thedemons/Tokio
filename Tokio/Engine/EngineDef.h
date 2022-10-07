@@ -39,7 +39,7 @@ enum Protection
 	Guard        = 1 << 0,  // Guarded region
 	Read         = 1 << 1,  // Readable region, it should always be Read | OtherFlags, except for NoAccess
 	Write        = 1 << 2,  // Writable region
-	WriteCopy    = 1 << 2,  // Write on copy region
+	WriteCopy    = 1 << 3,  // Write on copy region
 	Execute      = 1 << 4,  // Executable region
 };
 };
