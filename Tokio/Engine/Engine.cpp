@@ -7,9 +7,9 @@
 #include "Memory/Win32Memory.hpp"
 #include "Symbol/Win32Symbol.h"
 #include "Disassembler/ZydisDisassembler.h"
-#include "Decompiler/SnowmanDecompiler.h"
-
 #include "Analyzer/TokioAnalyzer.h"
+
+#include "Plugins/PluginLoader.h"
 
 
 namespace Engine
@@ -17,6 +17,19 @@ namespace Engine
 
 LPON_ATTACH_CALLBACK pAttachCallback = nullptr;
 LPON_DETACH_CALLBACK pDetachCallback = nullptr;
+
+void Init() noexcept
+{
+	try
+	{
+		LoadPlugins();
+	}
+	catch (Tokio::Exception& e)
+	{
+		e.Log("Faile to load plugins");
+	}
+
+}
 
 void Attach(PID pid) EXCEPT
 {
@@ -30,10 +43,9 @@ void Attach(PID pid) EXCEPT
 		g_Target       = g_Memory->Attach(pid);
 		g_Symbol       = std::make_shared<Win32Symbol>		(g_Target);
 		g_Disassembler = std::make_shared<ZydisDisassembler>(g_Target);
-		g_Decompiler   = std::make_shared<SnowmanDecompiler>(g_Target, g_Memory);
 		g_Analyzer     = std::make_shared<TokioAnalyzer>	(g_Target, g_Symbol, g_Memory, g_Disassembler);
 		
-
+		LoadDecompilerPlugin();
 	}
 	catch (Tokio::Exception& e)
 	{

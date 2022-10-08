@@ -380,7 +380,7 @@ void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data, size_t numInstruc
 	auto iterBegin = data.instructions.begin();
 	auto iterEnd = iterBegin + numInstructions;
 
-	const size_t pointerSize = m_target->is32bit ? sizeof(dword_t) : sizeof(qword_t);
+	const size_t pointerSize = m_target->is32Bit() ? sizeof(dword_t) : sizeof(qword_t);
 
 	// calculate the reference index, mainly used for jump and call pointer rendering
 	for (std::vector<AnalyzedInstruction>::iterator it = iterBegin; it != iterEnd; it++)
@@ -516,7 +516,7 @@ void TokioAnalyzer::AnalyzeComment(AnalyzedData& data) noexcept
 {
 	static const auto& settings = Settings::theme.disasm;
 
-	const size_t pointerSize = m_target->is32bit ? sizeof(dword_t) : sizeof(qword_t);
+	const size_t pointerSize = m_target->is32Bit() ? sizeof(dword_t) : sizeof(qword_t);
 
 	for (AnalyzedInstruction& instruction : data.instructions)
 	{
@@ -676,10 +676,6 @@ void TokioAnalyzer::AnalyzeRegion(
 					instruction.fmtOperand.push_back(operand.value, operandColor);
 				}
 			}
-
-			// if it's is something like `mov rax, [0x12345]`
-			//if (instruction.isRefPointer) AnalyzeInstructionReference(insData);
-
 
 			insBufferOffset += instruction.length;
 		}

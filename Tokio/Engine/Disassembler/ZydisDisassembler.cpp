@@ -160,7 +160,7 @@ ZydisDisassembler::Disassemble(
     static char buffer[256];
 
     // select the right decoder
-    ZydisDecoder* decoder = m_target->is32bit ? m_decoder32 : m_decoder64;
+    ZydisDecoder* decoder = m_target->is32Bit() ? m_decoder32 : m_decoder64;
 
     // first we decode the buffer to instructions
     ZydisDecodedInstruction instruction;

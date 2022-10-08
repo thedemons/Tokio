@@ -890,4 +890,4 @@ void ViewDisassembler::GoToAddress(POINTER address)
 
 		m_pVirtualBase = m_analyzedData.instructions[m_instructionOffset].address;
 	}
-}
+       }

@@ -38,7 +38,7 @@ Win32Memory::Attach(PID pid) EXCEPT
 		throw Tokio::Exception(except_getarch_failed, Tokio::Exception::Type::WinAPI);
 	}
 
-	m_target->is32bit = static_cast<bool>(result);
+	m_target->arch = result ? Architecture::x86 : Architecture::x86_64;
 	return m_target;
 }
 

@@ -393,7 +393,7 @@ Win32Symbol::Win32Symbol(const std::shared_ptr<ProcessData>& target) EXCEPT : Ba
 _NODISCARD bool Win32Symbol::Tlhelp32RetrieveModuleList() noexcept
 {
 	//DWORD snapFlags = TH32CS_SNAPMODULE;
-	//if (m_target->is32bit) snapFlags |= TH32CS_SNAPMODULE32;
+	//if (m_target->is32Bit()) snapFlags |= TH32CS_SNAPMODULE32;
 
 	DWORD snapFlags = TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32;
 	HANDLE hSnap = CreateToolhelp32Snapshot(snapFlags, m_target->pid);

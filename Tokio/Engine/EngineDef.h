@@ -337,6 +337,15 @@ struct DisasmInstruction
 
 // ================================== MAIN DEFINITIONS ==================================
 
+enum Architecture
+{
+	NotSupported,
+	x86,			// i386
+	x86_64,			// 64-bit 
+	ARM,			// ARM 32-bit
+	ARM64,			// ARM 64-bit
+};
+
 // Contains information about the target process
 struct ProcessData
 {
@@ -349,12 +358,17 @@ struct ProcessData
 	// all loaded modules
 	std::vector<ProcessModule> modules;
 
-	// is the process x86 or x64
-	// TODO: Make an architecture enum
-	bool is32bit = false;
+	// architecture of the process
+	Architecture arch = Architecture::NotSupported;
 
 	// the base image module
 	ProcessModule* baseModule = nullptr;
+
+	// is the process x86 or x64
+	_NODISCARD _CONSTEXPR20 bool is32Bit()
+	{
+		return (arch == Architecture::x86) || (arch == Architecture::ARM);
+	}
 };
 
 
