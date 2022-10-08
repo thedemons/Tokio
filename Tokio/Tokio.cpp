@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MainApplication.h"
+#include "Engine/Engine.h"
 #include "GUI/MainView.h"
 #include "Settings.h"
 #include "Common/Exception.h"
@@ -15,7 +16,7 @@ int main()
 	{
 		MainApplication::Init();
 		Settings::Load();
-
+		Engine::Init();
 		MainView::Init();
 
 		MainApplication::SetRenderCallback(MainLoop);

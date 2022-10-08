@@ -3,6 +3,8 @@
 
 #include "EngineDef.h"
 
+#include "Plugins/PluginsDef.h"
+
 #include "Memory/BaseMemory.h"
 #include "Symbol/BaseSymbol.h"
 #include "Disassembler/BaseDisassembler.h"
@@ -24,28 +26,33 @@ namespace Engine
 // the engines if any of the threads using them is still running
 
 // TARGET PROCESS
-inline std::shared_ptr<ProcessData> g_Target            = nullptr;
+inline std::shared_ptr<ProcessData>      g_Target       = nullptr;
 
 // MEMORY ENGINE
-inline std::shared_ptr<BaseMemory> g_Memory             = nullptr;
+inline std::shared_ptr<BaseMemory>       g_Memory       = nullptr;
 
 // SYMBOL ENGINE
-inline std::shared_ptr<BaseSymbol> g_Symbol             = nullptr;
+inline std::shared_ptr<BaseSymbol>       g_Symbol       = nullptr;
 
 // DISASSEMBLE ENGINE
 inline std::shared_ptr<BaseDisassembler> g_Disassembler = nullptr;
 
 // DECOMPILE ENGINE
-inline std::shared_ptr<BaseDecompiler> g_Decompiler     = nullptr;
+inline std::shared_ptr<BaseDecompiler>   g_Decompiler   = nullptr;
 
 // ANALYZER ENGINE
-inline std::shared_ptr<BaseAnalyzer> g_Analyzer         = nullptr;
+inline std::shared_ptr<BaseAnalyzer>     g_Analyzer     = nullptr;
+
+// LOADED PLUGIN INTERFACES
+inline std::vector<PluginInterface>      g_Plugins;
 
 // callback when we attach to a process
 typedef void (*LPON_ATTACH_CALLBACK)(std::shared_ptr<ProcessData>);
 
 // callback when detach the target process
 typedef void (*LPON_DETACH_CALLBACK)();
+
+void Init() noexcept;
 
 // Attach to a process
 void Attach(PID pid) EXCEPT;
@@ -63,7 +70,7 @@ _NODISCARD _CONSTEXPR20 bool IsAttached() noexcept
 _NODISCARD _CONSTEXPR20 bool Is32Bit() noexcept
 {
 	//assert(g_Target != nullptr);
-	return g_Target->is32bit;
+	return g_Target->is32Bit();
 }
 
 // Return a shared pointer of the target process
@@ -165,6 +172,11 @@ _NODISCARD _CONSTEXPR20 void Analyze(
 _NODISCARD _CONSTEXPR20 std::string Decompile(POINTER address, size_t size) EXCEPT
 {
 	return g_Decompiler->Decompile(address, size);
+}
+
+_NODISCARD _CONSTEXPR20 const std::vector<PluginInterface>& Plugins() noexcept
+{
+	return g_Plugins;
 }
 
 void OnAttachCallback(LPON_ATTACH_CALLBACK callback) noexcept;
