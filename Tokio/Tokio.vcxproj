@@ -138,7 +138,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ZYDIS_STATIC_BUILD;ZYCORE_STATIC_BUILD</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman;$(VcpkgRoot)\installed\x64-windows\include;$(VcpkgRoot)\installed\x64-windows\include\qt5;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtGui;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtCore;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtWidgets;$(VcpkgRoot)\installed\x64-windows\tools\qt5\mkspecs\win32-msvc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir)ThirdParty\Zydis</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -151,7 +151,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;d3d11.lib;d3dx11.lib;$(SolutionDir)ThirdParty\Zydis\lib\$(Platform)\$(Configuration)\zydis.lib;$(SolutionDir)ThirdParty\Zydis\Zycore\lib\$(Platform)\$(Configuration)\zycore.lib;$(SolutionDir)ThirdParty\Snowman\nc\$(Configuration)\nc.lib;$(SolutionDir)ThirdParty\capstone\capstone\$(Configuration)\capstone.lib;$(SolutionDir)ThirdParty\libudis86\$(Configuration)\udis86.lib;$(SolutionDir)ThirdParty\libiberty\$(Configuration)\iberty.lib;$(SolutionDir)ThirdParty\undname\$(Configuration)\undname.lib;$(VcpkgRoot)\installed\x64-windows\debug\lib\Qt5Widgetsd.lib;$(VcpkgRoot)\installed\x64-windows\debug\lib\Qt5Guid.lib;$(VcpkgRoot)\installed\x64-windows\debug\lib\Qt5Cored.lib;$(VcpkgRoot)\installed\x64-windows\debug\lib\manual-link\qtmaind.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;d3d11.lib;d3dx11.lib;$(SolutionDir)ThirdParty\Zydis\lib\$(Platform)\$(Configuration)\zydis.lib;$(SolutionDir)ThirdParty\Zydis\Zycore\lib\$(Platform)\$(Configuration)\zycore.lib</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
@@ -178,24 +178,29 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;d3d11.lib;d3dx11.lib;$(SolutionDir)ThirdParty\Zydis\lib\$(Platform)\$(Configuration)\zydis.lib;$(SolutionDir)ThirdParty\Zydis\Zycore\lib\$(Platform)\$(Configuration)\zycore.lib;$(SolutionDir)ThirdParty\Snowman\nc\$(Configuration)\nc.lib;$(SolutionDir)ThirdParty\libudis86\$(Configuration)\udis86.lib;$(SolutionDir)ThirdParty\capstone\capstone\$(Configuration)\capstone.lib;$(SolutionDir)ThirdParty\libiberty\$(Configuration)\iberty.lib;$(SolutionDir)ThirdParty\undname\$(Configuration)\undname.lib;$(VcpkgRoot)\installed\x64-windows\lib\Qt5Gui.lib;$(VcpkgRoot)\installed\x64-windows\lib\Qt5Core.lib;$(VcpkgRoot)\installed\x64-windows\lib\Qt5Widgets.lib;$(VcpkgRoot)\installed\x64-windows\lib\manual-link\qtmain.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;d3d11.lib;d3dx11.lib;$(SolutionDir)ThirdParty\Zydis\lib\$(Platform)\$(Configuration)\zydis.lib;$(SolutionDir)ThirdParty\Zydis\Zycore\lib\$(Platform)\$(Configuration)\zycore.lib</AdditionalDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Common\Exception.cpp" />
+    <ClCompile Include="Common\Exception.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Common\PathHelper.cpp" />
     <ClCompile Include="Common\StringHelper.cpp" />
     <ClCompile Include="Common\SystemHelper.cpp" />
     <ClCompile Include="Engine\Analyzer\BaseAnalyzer.cpp" />
     <ClCompile Include="Engine\Analyzer\TokioAnalyzer.cpp" />
     <ClCompile Include="Engine\Decompiler\BaseDecompiler.cpp" />
-    <ClCompile Include="Engine\Decompiler\SnowmanDecompiler.cpp" />
     <ClCompile Include="Engine\Disassembler\BaseDisassembler.cpp" />
     <ClCompile Include="Engine\Disassembler\ZydisDisassembler.cpp" />
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Engine\Memory\BaseMemory.cpp" />
     <ClCompile Include="Engine\Memory\Win32Memory.cpp" />
+    <ClCompile Include="Engine\Plugins\PluginLoader.cpp" />
     <ClCompile Include="Engine\Symbol\BaseSymbol.cpp" />
     <ClCompile Include="Engine\Symbol\Demangler\DemanglerMSVC.cpp" />
     <ClCompile Include="Engine\Symbol\Demangler\undname.c">
@@ -272,7 +277,6 @@
     <ClInclude Include="Engine\Analyzer\BaseAnalyzer.h" />
     <ClInclude Include="Engine\Analyzer\TokioAnalyzer.h" />
     <ClInclude Include="Engine\Decompiler\BaseDecompiler.h" />
-    <ClInclude Include="Engine\Decompiler\SnowmanDecompiler.h" />
     <ClInclude Include="Engine\Disassembler\BaseDisassembler.h" />
     <ClInclude Include="Engine\Disassembler\ZydisDisassembler.h" />
     <ClInclude Include="Engine\Engine.h" />
@@ -280,6 +284,8 @@
     <ClInclude Include="Engine\EngineDef.h" />
     <ClInclude Include="Engine\Memory\BaseMemory.h" />
     <ClInclude Include="Engine\Memory\Win32Memory.hpp" />
+    <ClInclude Include="Engine\Plugins\PluginLoader.h" />
+    <ClInclude Include="Engine\Plugins\PluginsDef.h" />
     <ClInclude Include="Engine\Symbol\BaseSymbol.h" />
     <ClInclude Include="Engine\Symbol\Demangler\DemanglerMSVC.h" />
     <ClInclude Include="Engine\Symbol\Demangler\undname.h" />

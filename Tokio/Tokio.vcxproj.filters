@@ -64,6 +64,9 @@
     <Filter Include="Engine\Symbol\Demangler">
       <UniqueIdentifier>{830130bf-8c4b-4c95-9f49-4bf9ae2b88ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Plugins">
+      <UniqueIdentifier>{e981a090-8127-4310-9613-0fc1a44da4ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -177,9 +180,6 @@
     <ClCompile Include="Engine\Decompiler\BaseDecompiler.cpp">
       <Filter>Engine\Decompiler</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Decompiler\SnowmanDecompiler.cpp">
-      <Filter>Engine\Decompiler</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\Widgets\WTextEditor.cpp">
       <Filter>GUI\Widgets</Filter>
     </ClCompile>
@@ -191,6 +191,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Symbol\Demangler\undname.c">
       <Filter>Engine\Symbol\Demangler</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Plugins\PluginLoader.cpp">
+      <Filter>Engine\Plugins</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -341,9 +344,6 @@
     <ClInclude Include="Engine\Decompiler\BaseDecompiler.h">
       <Filter>Engine\Decompiler</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Decompiler\SnowmanDecompiler.h">
-      <Filter>Engine\Decompiler</Filter>
-    </ClInclude>
     <ClInclude Include="GUI\Widgets\WTextEditor.h">
       <Filter>GUI\Widgets</Filter>
     </ClInclude>
@@ -355,6 +355,12 @@
     </ClInclude>
     <ClInclude Include="Engine\Symbol\Demangler\undname.h">
       <Filter>Engine\Symbol\Demangler</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Plugins\PluginsDef.h">
+      <Filter>Engine\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Plugins\PluginLoader.h">
+      <Filter>Engine\Plugins</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
