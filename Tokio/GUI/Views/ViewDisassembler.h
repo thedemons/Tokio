@@ -72,7 +72,7 @@ private:
 	void HandleShortcuts();
 	void HandleScrolling();
 	void RenderReferenceArrow();
-	void Disassemble();
+	void Disassemble(Engine::AnalyzerFlags flags = Engine::AnalyzerFlags_::None);
 
 public:
 	ViewDisassembler();

@@ -59,18 +59,26 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	// draw symbolic address
 	// FIXME: is checking the size needed?
 
-	insData.fmtAddress.Render();
+	if (insData.fmtAddress.size() > 0)
+	{
+		insData.fmtAddress.Render();
+	}
+	else
+	{
+		ImVec4 addrColor = ImGui::ColorConvertU32ToFloat4(Settings::theme.disasm.AddressAbs);
+		ImGui::TextColored(addrColor, "%llX", insData.address);
+	}
 
 	const SubroutineInfo* subroutine = insData.GetSubroutine();
 
-	if (subroutine != nullptr)
+	if (subroutine != nullptr && subroutine->address == insData.address)
 	{
 		if (insData.isAtSubroutineStart)
 		{
 			ImVec4 subColor = ImGui::ColorConvertU32ToFloat4(Settings::theme.disasm.Subroutine);
 
 			ImGui::SameLine();
-			ImGui::TextColored(subColor, "sub_%llx start", insData.address);
+			ImGui::TextColored(subColor, "sub_%llx start %d", insData.address, insData.iSubroutine);
 
 			insData.fmtAddress.Render();
 			ImGui::SameLine();
@@ -532,6 +540,7 @@ void ViewDisassembler::HandleShortcuts()
 		if (selectedItems.size() > 0)
 		{
 			POINTER address = GetInstructionAt(selectedItems[0]).address;
+
 			if (!Tokio::ClipboardCopy(address, true))
 			{
 				Tokio::Log("Copy address failed");
@@ -611,7 +620,10 @@ void ViewDisassembler::Render(bool& bOpen)
 		if (currentTime - m_timeLastRefresh > m_refreshInterval)
 		{
 			m_timeLastRefresh = currentTime;
-			GoToAddress(m_pVirtualBase);
+			Disassemble(Engine::AnalyzerFlags_::Symbol |
+				Engine::AnalyzerFlags_::CrossReference |
+				Engine::AnalyzerFlags_::Subroutine |
+				Engine::AnalyzerFlags_::Comment);
 		}
 	}
 	//GoToAddress(m_pVirtualBase);
@@ -807,21 +819,16 @@ void ViewDisassembler::OnDetach()
 //	}
 //}
 
-void ViewDisassembler::Disassemble()
+void ViewDisassembler::Disassemble(Engine::AnalyzerFlags flags)
 {
 	if (!Engine::IsAttached()) return;
 
-	POINTER startAddress = m_pVirtualBase - 2048;
+	POINTER startAddress = m_pVirtualBase - 1024;
 
 	try
 	{
-		static const Engine::AnalyzerFlags flags = 
-			Engine::AnalyzerFlags_::Symbol         | 
-			Engine::AnalyzerFlags_::CrossReference | 
-			Engine::AnalyzerFlags_::Subroutine     | 
-			Engine::AnalyzerFlags_::Comment        ;
 
-		Engine::Analyze(startAddress, 4096, flags, m_memoryBuffer, m_analyzedData);
+		Engine::Analyze(startAddress, 2048, flags, m_memoryBuffer, m_analyzedData);
 
 		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
 		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
@@ -866,5 +873,21 @@ void ViewDisassembler::Disassemble()
 void ViewDisassembler::GoToAddress(POINTER address)
 {
 	m_pVirtualBase = address;
-	Disassemble();
+	Disassemble(Engine::AnalyzerFlags_::Symbol |
+		Engine::AnalyzerFlags_::CrossReference |
+		Engine::AnalyzerFlags_::Subroutine |
+		Engine::AnalyzerFlags_::Comment);
+
+	// restore the view of the selected address
+	if (auto& selected = m_table.GetSelectedItems(); selected.size() > 0)
+	{
+		size_t index = selected[0];
+		if (index > m_instructionOffset)
+			index = m_instructionOffset;
+
+		m_instructionOffset -= index;
+		m_table.AddSelectedItem(index);
+
+		m_pVirtualBase = m_analyzedData.instructions[m_instructionOffset].address;
+	}
 }
