@@ -120,17 +120,17 @@ struct ProcessModule
 class ResultGetSymbol
 {
 private:
-	const ProcessModule* pModule;
-	const ModuleSymbol* pSymbol;
+	ProcessModule* pModule;
+	ModuleSymbol* pSymbol;
 
 public:
-	ResultGetSymbol(const ProcessModule* pModule, const ModuleSymbol* pSymbol) :
+	ResultGetSymbol(ProcessModule* pModule, ModuleSymbol* pSymbol) :
 		pModule(pModule), pSymbol(pSymbol)
 	{
 
 	}
 
-	ResultGetSymbol(const ProcessModule* pModule) :
+	ResultGetSymbol(ProcessModule* pModule) :
 		pModule(pModule), pSymbol(nullptr)
 	{
 
@@ -156,13 +156,13 @@ public:
 	}
 
 	// pointer to the module of this address
-	_NODISCARD _CONSTEXPR20 const ProcessModule* Module() const noexcept
+	_NODISCARD _CONSTEXPR20 ProcessModule* Module() noexcept
 	{
 		return pModule;
 	}
 
 	// pointer to the symbol of this address
-	_NODISCARD _CONSTEXPR20 const ModuleSymbol* Symbol() const noexcept
+	_NODISCARD _CONSTEXPR20 ModuleSymbol* Symbol() noexcept
 	{
 		return pSymbol;
 	}
@@ -175,7 +175,7 @@ class SymbolWalkContext
 private:
 	// copy of the modules, maybe change this to a reference to improve performance?
 	// these modules and its symbols must be sorted in order for this to work!
-	const std::vector<ProcessModule>& modules;
+	const std::vector<std::reference_wrapper<ProcessModule>>& modules;
 
 	size_t module_index = 0ull;
 	size_t symbol_index = UPTR_UNDEFINED;
@@ -184,25 +184,25 @@ private:
 	size_t saved_symbol_index = UPTR_UNDEFINED;
 
 public:
-	SymbolWalkContext(const std::vector<ProcessModule>& modules) : modules(modules) {}
+	SymbolWalkContext(const std::vector<std::reference_wrapper<ProcessModule>>& modules) : modules(modules) {}
 
 	// get the current module
-	_NODISCARD _CONSTEXPR20 const ProcessModule* Module() const noexcept
+	_NODISCARD _CONSTEXPR20 ProcessModule* Module() const noexcept
 	{
-		return &modules[module_index];
+		return &modules[module_index].get();
 	}
 
 	// get the current symbol
-	_NODISCARD _CONSTEXPR20 const ModuleSymbol* Symbol() const noexcept
+	_NODISCARD _CONSTEXPR20 ModuleSymbol* Symbol() const noexcept
 	{
 		if (symbol_index == UPTR_UNDEFINED) return nullptr;
-		return &modules[module_index].exports[symbol_index];
+		return &modules[module_index].get().exports[symbol_index];
 	}
 
 	// check if the address belongds to any of the symbols
 	_NODISCARD _CONSTEXPR20 bool IsAddressOfSymbols(POINTER address) const noexcept
 	{
-		auto& procMod = modules[module_index];
+		auto& procMod = modules[module_index].get();
 
 		if (procMod.exports.size() == 0) return false;
 		
@@ -229,7 +229,7 @@ public:
 	// increase the symbol index by one, if out of bound then set to UPTR_UNDEFINED and return false
 	_NODISCARD _CONSTEXPR20 bool NextSymbol() noexcept
 	{
-		if (++symbol_index >= modules[module_index].exports.size())
+		if (++symbol_index >= modules[module_index].get().exports.size())
 		{
 			symbol_index = UPTR_UNDEFINED;
 			return false;
