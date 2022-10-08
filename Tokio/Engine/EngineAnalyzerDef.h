@@ -323,6 +323,12 @@ struct AnalyzedInstruction
 	// a pointer to the referenced instruction
 	AnalyzedInstruction* referencedInstruction = nullptr;
 
+	// the symbol for the address of the instruction, if it has any
+	ResultGetSymbol symbolAddress;
+
+	// the symbol for the referenced address, if it has any
+	ResultGetSymbol symbolReferenced;
+
 	// the index of the block if it belongs to any blocks
 	size_t blockIndex = UPTR_UNDEFINED;
 
