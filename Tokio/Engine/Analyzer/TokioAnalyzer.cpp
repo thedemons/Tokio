@@ -87,11 +87,6 @@ bool AnalyzeSubroutineBlocks(
 		AnalyzedInstruction& instruction = data.instructions[index];
 		AnalyzedInstruction& next_instruction = data.instructions[index + 1];
 
-		bool bIsInvalid =
-			instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
-			instruction.mnemonic.type == DisasmOperandType::Invalid ||
-			instruction.isNotReadable;
-
 		instruction.blockIndex = thisBlockIndex;
 
 		//printf("%llx:  ", instruction.address);
@@ -106,11 +101,6 @@ bool AnalyzeSubroutineBlocks(
 		{
 			thisBlock.instructionCount = index - start_index + 1;
 			return true;
-		}
-		else if (bIsInvalid)
-		{
-			thisBlock.instructionCount = index - start_index + 1;
-			return false;
 		}
 		else if (next_instruction.iSubroutine != UPTR_UNDEFINED) 
 		{
@@ -129,6 +119,12 @@ bool AnalyzeSubroutineBlocks(
 				// jump out of the subroutine, we should mark it as ended here
 				// FIXME <-- i added this FIXME a while ago and didn't remember what to fix..
 
+				// jump at the first instruction, this is a "forwarder" subroutine, return immediately
+				// FIXME: might not be the case?
+				if (thisBlockIndex == 0 && index == start_index)
+				{
+					return true;
+				}
 				bool bNextInvalid =
 					next_instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
 					next_instruction.mnemonic.type == DisasmOperandType::Invalid ||
@@ -151,6 +147,7 @@ bool AnalyzeSubroutineBlocks(
 		{
 			thisBlock.instructionCount = index - start_index + 1;
 
+
 			// if the referenced index is valid, it's probably isn't valid if it points to
 			// somewhere outside the analyzed range
 			if (instruction.referencedIndex != UPTR_UNDEFINED)
@@ -161,7 +158,7 @@ bool AnalyzeSubroutineBlocks(
 					next_instruction.isNotReadable;
 
 				// a conditional jump but its next instruction is invalid, this is not a subroutine
-				if (bNextInvalid) break;
+				if (bNextInvalid) return false;
 
 				// analyzed the block that this instruction jumps to
 				thisBlock.nextCondBlockIndex = subroutine.blocks.size();
@@ -199,6 +196,18 @@ bool AnalyzeSubroutineBlocks(
 			thisBlock.nextBlockIndex = subroutine.blocks.size();
 			return AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
 		}
+
+
+		bool bNextIsInvalid =
+			next_instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
+			next_instruction.mnemonic.type == DisasmOperandType::Invalid ||
+			next_instruction.isNotReadable;
+
+		if (bNextIsInvalid)
+		{
+			thisBlock.instructionCount = index - start_index + 1;
+			return true;
+		}
 	}
 
 
@@ -223,7 +232,8 @@ inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, siz
 		POINTER startAddr = data.instructions[block.instructionIndex].address;
 		POINTER endAddr = data.instructions[end_index].address;
 
-		if (startAddr < subroutine.address)
+		if (subroutine.address == UPTR_UNDEFINED)
+		//if (startAddr < subroutine.address)
 		{
 			subroutine.address = startAddr;
 			subroutine.instructionIndex = block.instructionIndex;
@@ -238,14 +248,28 @@ inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, siz
 	}
 
 	subroutine.size -= subroutine.address;
-	subroutine.instructionCount -= subroutine.instructionIndex;
+	subroutine.instructionCount -= subroutine.instructionIndex - 1;
 
-	data.instructions[startidx].isAtSubroutineStart = true;
+	AnalyzedInstruction& startInstruction = data.instructions[startidx];
+
+	startInstruction.isAtSubroutineStart = true;
 	data.instructions[endidx].isAtSubroutineEnd = true;
 
 	// assign the subroutine to those instructions
 	for (size_t i = startidx; i <= endidx; i++)
 		data.instructions[i].iSubroutine = subroutineIndex;
+
+
+	// if the size of the subroutine symbol doesn't match the subroutine
+	if (startInstruction.symbolAddress.has_symbol())
+	{
+		POINTER subroutineOffset = subroutine.address - startInstruction.symbolAddress.Module()->base;
+		ModuleSymbol* symbol = startInstruction.symbolAddress.Symbol();
+		if (subroutineOffset == symbol->offset)
+		{
+			symbol->size = subroutine.size;
+		}
+	}
 
 	return endidx;
 }
@@ -263,6 +287,11 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, size_t numInstruction
 	{
 		AnalyzedInstruction& instruction = data.instructions[index];
 		bool bIsInt3 = instruction.mnemonic.type == DisasmOperandType::mneInt3;
+		if (bIsInt3)
+		{
+			bLastInt3 = true;
+			continue;
+		}
 
 		bool bIsNull = true;
 		for (size_t bufIndex = instruction.bufferOffset; bufIndex < instruction.bufferOffset + instruction.length; bufIndex++)
@@ -282,7 +311,7 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, size_t numInstruction
 		//system("cls");
 
 		bool case5 = bLastSubroutineEnded && !bIsInt3 && !bIsNull && !instruction.isNotReadable;
-		if (case5 || (bLastInt3 && !bIsInt3) || (bLastNull && !bIsNull) || (bLastUnreadable && !instruction.isNotReadable) || instruction.isAtSubroutineStart)
+		if (case5 || (bLastInt3) || (bLastNull && !bIsNull) || (bLastUnreadable && !instruction.isNotReadable) || instruction.isAtSubroutineStart)
 		{
 			size_t subroutineIndex = data.subroutines.size();
 			SubroutineInfo& subroutine = data.AddSubroutine();
@@ -335,7 +364,7 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, size_t numInstruction
 		}
 
 		bLastNull = bIsNull;
-		bLastInt3 = bIsInt3;
+		bLastInt3 = false;
 		bLastUnreadable = instruction.isNotReadable;
 		bLastSubroutineEnded = false;
 	}
@@ -405,7 +434,7 @@ void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data, size_t numInstruc
 
 ImGui::TokenizedText FormatSymbolAddress(
 	POINTER address,
-	const ResultGetSymbol& resultGetSymbol,
+	ResultGetSymbol& resultGetSymbol,
 	bool* isAtBaseModule = nullptr,
 	bool* isAtSubroutineStart = nullptr
 )
@@ -598,7 +627,7 @@ void TokioAnalyzer::AnalyzeRegion(
 			dword_t mnemonicColor = Settings::GetDisasmColor(disasmData.mnemonic.type);
 
 			// get the symbol data from this instruction address
-			auto resultGetSymbol = m_symbol->AddressSymbolWalkNext(walkContext, disasmData.address);
+			instruction.symbolAddress = m_symbol->AddressSymbolWalkNext(walkContext, disasmData.address);
 
 			// copy the result from disasmData
 			instruction.address           = disasmData.address;
@@ -619,7 +648,7 @@ void TokioAnalyzer::AnalyzeRegion(
 
 			instruction.fmtAddress = std::move(FormatSymbolAddress(
 				disasmData.address,
-				resultGetSymbol,
+				instruction.symbolAddress,
 				&instruction.isAtBaseModule,
 				&instruction.isAtSubroutineStart
 			));
@@ -637,8 +666,8 @@ void TokioAnalyzer::AnalyzeRegion(
 				// it has a reference address, find a symbol for it
 				else if (instruction.referencedAddress != 0ull && operand.type == DisasmOperandType::AddressAbs)
 				{
-					auto resultGetRefSymbol = m_symbol->AddressToModuleSymbol(instruction.referencedAddress);
-					instruction.fmtOperand += FormatSymbolAddress(instruction.referencedAddress, resultGetRefSymbol);
+					instruction.symbolReferenced = m_symbol->AddressToModuleSymbol(instruction.referencedAddress);
+					instruction.fmtOperand += FormatSymbolAddress(instruction.referencedAddress, instruction.symbolReferenced);
 				}
 				// it's just a regular operand
 				else
