@@ -18,10 +18,7 @@ protected:
 	std::shared_ptr<BaseMemory> m_memory;
 
 public:
-	BaseDecompiler(
-		const std::shared_ptr<ProcessData>& target,
-		const std::shared_ptr<BaseMemory>& memory
-	);
+	BaseDecompiler(const std::shared_ptr<ProcessData>& target);
 
 	~BaseDecompiler();
 

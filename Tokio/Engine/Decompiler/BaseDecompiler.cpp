@@ -5,8 +5,8 @@
 namespace Engine
 {
 
-BaseDecompiler::BaseDecompiler(const std::shared_ptr<ProcessData>& target, const std::shared_ptr<BaseMemory>& memory) :
-	m_target(target), m_memory(memory)
+BaseDecompiler::BaseDecompiler(const std::shared_ptr<ProcessData>& target) :
+	m_target(target)
 {
 
 }
