@@ -33,10 +33,17 @@ void BaseSymbol::SortSymbol(ProcessModule& procMod)
 
 // Make a copy of the modules (m_sortedModules)
 // and sort them in ascending order
-void BaseSymbol::UpdateModules(const std::vector<ProcessModule>& modules)
+void BaseSymbol::UpdateModules(std::vector<ProcessModule>& modules)
 {
-	m_sortedModules = modules;
-	if (m_sortedModules.size() == 0) return;
+	if (modules.size() == 0) return;
+
+	m_sortedModules.clear();
+	m_sortedModules.reserve(modules.size());
+
+	for (ProcessModule& procMod : modules)
+	{
+		m_sortedModules.push_back(procMod);
+	}
 
 	static const auto lmSortModuleAsc = [](const ProcessModule& a, const ProcessModule& b) -> bool
 	{

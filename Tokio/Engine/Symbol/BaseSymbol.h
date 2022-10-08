@@ -19,7 +19,7 @@ protected:
 	std::shared_ptr<ProcessData> m_target;
 
 	// a copy of the target modules data in ascending address order
-	std::vector<ProcessModule> m_sortedModules;
+	std::vector<std::reference_wrapper<ProcessModule>> m_sortedModules;
 
 	// sort symbols, acsending order
 	// this also calculate the symbol size
@@ -27,7 +27,7 @@ protected:
 
 	// Make a copy of the modules (m_sortedModules)
 	// and sort them in acsending order
-	void UpdateModules(const std::vector<ProcessModule>& modules);
+	void UpdateModules(std::vector<ProcessModule>& modules);
 
 public:
 	BaseSymbol(const std::shared_ptr<ProcessData>& target) EXCEPT;
