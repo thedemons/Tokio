@@ -5,6 +5,8 @@
 #include <exception>
 #include <stdarg.h>
 
+#include <iostream>
+
 #define EXCEPT   // the function might throw an exception
 #define NULLABLE // the function might return null
 
