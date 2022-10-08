@@ -3,6 +3,7 @@
 #include "Win32Symbol.h"
 #include "Common/StringHelper.h"
 #include "Common/PathHelper.h"
+#include "Demangler/DemanglerMSVC.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -324,7 +325,7 @@ void ParseNtHeader(void* pBase, ProcessModule& procMod) EXCEPT
 		ModuleSymbol& data = procMod.AddExportSymbol();
 		data.offset = static_cast<POINTER>(function);
 		data.ordinal = ordinal;
-		data.name = name;
+		data.name = DemangleSymbolMSVC(name);
 	}
 }
 
