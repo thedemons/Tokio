@@ -21,18 +21,14 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 
 	static ImGui::TokenizedText notReadableColored(1);
 
-	//ImVec2 cursorPos = ImGui::GetCursorPos();
+	ImVec2 checkCursorPos = ImGui::GetCursorPos();
 
-	//ImGuiTable* im_table = table->GetHandle();
-	//// stop rendering if we are out of sight on the table
-	//if (cursorPos.y > im_table->InnerWindow->Size.y)
-	//{
-	//	if (insData.cursorPos.x != 0 && insData.cursorPos.y != 0)
-	//	{
-	//		insData.isRendered = false;
-	//		return Widgets::Table::Execution::Skip;
-	//	}
-	//}
+	ImGuiTable* im_table = table->GetHandle();
+	// stop rendering if we are out of sight on the table
+	if (checkCursorPos.y > im_table->InnerWindow->Size.y)
+	{
+		return Widgets::Table::Execution::Stop;
+	}
 	//im_table->Columns[1].ItemWidth
 
 	// not readable address, draw a "??"
@@ -82,7 +78,7 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 
 			insData.fmtAddress.Render();
 			ImGui::SameLine();
-			ImGui::TextColored(subColor, "size: 0x%llX", subroutine->end - subroutine->start);
+			ImGui::TextColored(subColor, "size: 0x%llX", subroutine->size);
 
 
 			cursorOffset.y += 17.f*2.f;
@@ -112,7 +108,7 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 		ImGui::SameLine();
 
 		ImVec4 subColor = ImGui::ColorConvertU32ToFloat4(0xff00ff00);
-		ImGui::TextColored(subColor, "sub_%llx endp", subroutine->start);
+		ImGui::TextColored(subColor, "sub_%llx endp", subroutine->address);
 	}
 	
 	// bytes column
@@ -456,18 +452,20 @@ void ViewDisassembler::HandleScrolling()
 		if (scrollDir < 0 && m_instructionOffset < -scrollDir)
 		{
 			m_pVirtualBase += scrollDir;
+
+			// we disassemble before the refresh rate hit because we ran out of instructions to display
+			Disassemble();
 		}
 		else if(scrollDir > 0 && m_instructionOffset + scrollDir > m_analyzedData.instructions.size() - 1)
 		{
 			m_pVirtualBase += scrollDir;
+			Disassemble();
 		}
 		else
 		{
 			m_instructionOffset += scrollDir;
 			m_pVirtualBase = m_analyzedData.instructions[m_instructionOffset].address;
 		}
-
-		Disassemble();
 
 		if (auto& selectedItems = m_table.GetSelectedItems(); selectedItems.size() > 0)
 		{
@@ -478,14 +476,37 @@ void ViewDisassembler::HandleScrolling()
 
 			if (scrollDir > 0)
 			{
-				currentIndex = (currentIndex >= scrollDir) ? currentIndex - scrollDir : 0;
+				if (currentIndex >= scrollDir)
+				{
+					m_table.AddSelectedItem(currentIndex - scrollDir);
+				}
+				else
+				{
+					m_rememberedSelectedIndex = 1;
+					m_table.ClearSelectedItems();
+				}
 			}
 			else if (scrollDir < 0)
 			{
-				currentIndex = (currentIndex - scrollDir <= ins_list_size - 1) ? currentIndex - scrollDir : ins_list_size - 1;
-			}
+				m_rememberedSelectedIndex = 0;
 
-			m_table.AddSelectedItem(currentIndex);
+				currentIndex = (currentIndex - scrollDir <= ins_list_size - 1) ? currentIndex - scrollDir : ins_list_size - 1;
+				m_table.AddSelectedItem(currentIndex);
+			}
+		}
+		else
+		{
+			if (scrollDir > 0)
+			{
+				m_rememberedSelectedIndex += 1;
+			}
+			else if (scrollDir < 0)
+			{
+				m_rememberedSelectedIndex -= 1;
+
+				if (m_rememberedSelectedIndex == 0)
+					m_table.AddSelectedItem(0);
+			}
 		}
 
 	}
@@ -544,7 +565,7 @@ void ViewDisassembler::HandleShortcuts()
 			POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
 			for (const SubroutineInfo& subroutine : m_analyzedData.subroutines)
 			{
-				if (subroutine.start <= selectedItemAddress && selectedItemAddress <= subroutine.end)
+				if (subroutine.address <= selectedItemAddress && selectedItemAddress <= subroutine.address + subroutine.size)
 				{
 					pSubroutine = &subroutine;
 					break;
@@ -554,7 +575,7 @@ void ViewDisassembler::HandleShortcuts()
 			if (pSubroutine != nullptr)
 			{
 				auto views = MainView::FindViewsByClass<ViewDecompiler>();
-				views[0].get().pView->Decompile(pSubroutine->start, pSubroutine->end - pSubroutine->start);
+				views[0].get().pView->Decompile(pSubroutine->address, pSubroutine->size);
 			}
 		}
 	}
@@ -624,8 +645,14 @@ void ViewDisassembler::Render(bool& bOpen)
 
 void ViewDisassembler::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 {
-	//GoToAddress(0x7ffe09c11700);
-	GoToAddress(targetProcess->baseModule->base);
+	UNUSED(targetProcess);
+	GoToAddress((POINTER)Settings::Load);
+
+	//Engine::Analyzer()->FullAnalyze(nullptr, nullptr);
+
+	//GoToAddress(targetProcess->baseModule->base);
+	//GoToAddress(targetProcess->baseModule->base);
+
 }
 
 void ViewDisassembler::OnDetach()
@@ -784,7 +811,7 @@ void ViewDisassembler::Disassemble()
 {
 	if (!Engine::IsAttached()) return;
 
-	POINTER startAddress = m_pVirtualBase - 1024;
+	POINTER startAddress = m_pVirtualBase - 2048;
 
 	try
 	{
@@ -794,7 +821,7 @@ void ViewDisassembler::Disassemble()
 			Engine::AnalyzerFlags_::Subroutine     | 
 			Engine::AnalyzerFlags_::Comment        ;
 
-		Engine::Analyze(startAddress, 2048, flags, m_memoryBuffer, m_analyzedData);
+		Engine::Analyze(startAddress, 4096, flags, m_memoryBuffer, m_analyzedData);
 
 		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
 		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)

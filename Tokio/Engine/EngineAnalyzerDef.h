@@ -20,10 +20,13 @@ struct SubroutineInfo;
 struct SubroutineInfo
 {
 	// the start address of the subroutine
-	POINTER start = 0;
+	POINTER address = 0;
 
 	// the end address of the subroutine
-	POINTER end = 0;
+	POINTER size = 0;
+
+	size_t instructionIndex = UPTR_UNDEFINED;
+	size_t instructionCount = 0;
 
 	// reference to the root AnalyzeData of this subroutine
 	const AnalyzedData& root;
@@ -360,7 +363,7 @@ struct AnalyzedInstruction
 
 	AnalyzedInstruction(const AnalyzedData& root) : root(root) {}
 
-	// for searching the vectory of analyzed instructions
+	// for searching the vector of analyzed instructions
 	bool operator==(const AnalyzedInstruction& v)
 	{
 		return address == v.address;
@@ -375,6 +378,21 @@ struct AnalyzedInstruction
 	{
 		return (iSubroutine >= 0 && iSubroutine < root.subroutines.size()) ? &root.subroutines[iSubroutine] : nullptr;
 	}
+};
+
+
+// contains only the address end size of the subroutine
+struct SubroutineBasicInfo
+{
+	POINTER address = 0;
+	POINTER size    = 0;
+};
+
+// Full analyzed data
+struct FullAnalyedData
+{
+	std::map<POINTER, std::vector<POINTER>> xrefs;
+	std::vector<SubroutineBasicInfo> subroutines;
 };
 
 #endif // !TOKIO_ENGINE_ENGINE_ANALYZER_DEF_H

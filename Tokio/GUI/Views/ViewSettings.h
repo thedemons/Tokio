@@ -8,7 +8,6 @@ class ViewSettings : public BaseView
 {
 private:
 	bool m_isOpenned = false;
-	void DrawDisassemblerTab();
 public:
 	ViewSettings();
 	void Render(bool& bOpen) override;

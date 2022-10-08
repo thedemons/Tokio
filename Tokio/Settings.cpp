@@ -7,6 +7,7 @@ namespace Settings
 
 Theme theme;
 Disasm disasm;
+General general;
 ShortCuts shortcuts;
 
 void SetDarkVSTheme();

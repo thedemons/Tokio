@@ -10,7 +10,20 @@ ViewSettings::ViewSettings()
 	m_title = ICON_SETTING u8"Settings";
 }
 
-void ViewSettings::DrawDisassemblerTab()
+void DrawGeneralTab()
+{
+	auto& settings = Settings::general;
+
+	ImGui::BeginChild("##childdgeneralSettings");
+
+	ImGui::Checkbox("Enable v-sync", &settings.bEnableVsync);
+
+
+	ImGui::EndChild();
+	Engine::Disassembler()->UpdateSettings();
+}
+
+void DrawDisassemblerTab()
 {
 	auto& settings = Settings::disasm;
 
@@ -72,16 +85,19 @@ void ViewSettings::Render(bool& bOpen)
 		ImGui::BeginChild("##childSettings", childSize, false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
         if (ImGui::BeginTabBar("##tabSettings", ImGuiTabBarFlags_None))
-        {/*
+        {
             if (ImGui::BeginTabItem("General"))
             {
+				DrawGeneralTab();
                 ImGui::EndTabItem();
-            }*/
+            }
+
             if (ImGui::BeginTabItem("Disassembler"))
             {
 				DrawDisassemblerTab();
                 ImGui::EndTabItem();
             }
+
             if (ImGui::BeginTabItem("Memory View"))
             {
                 ImGui::EndTabItem();

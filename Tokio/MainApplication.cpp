@@ -3,6 +3,8 @@
 #include "Resources/FontAwesome.h"
 #include "Resources/FontAwesomeImpl.h"
 
+#include "Settings.h"
+
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API void ImGui_ImplWin32_EnableAlphaCompositing(void* hwnd);
@@ -311,8 +313,10 @@ void StartLoop()
         ImGui::Render();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-        g_pSwapChain->Present(0, 0); // Present without vsync
-        //g_pSwapChain->Present(1, 0); // Present with vsync
+        if (Settings::general.bEnableVsync)
+            g_pSwapChain->Present(1, 0); // Present with vsync
+        else
+            g_pSwapChain->Present(0, 0); // Present without vsync
     }
 
     // Cleanup

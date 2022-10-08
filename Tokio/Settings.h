@@ -99,6 +99,11 @@ struct Disasm
 	char cHexSuffix[10] = {'h', '\x00'};
 };
 
+struct General
+{
+	bool bEnableVsync = true;
+};
+
 struct ShortCuts
 {
 	ShortcutKey DisasmCopyAddress;
@@ -122,6 +127,7 @@ struct ShortCuts
 };
 
 extern Theme theme;
+extern General general;
 extern Disasm disasm;
 extern ShortCuts shortcuts;
 

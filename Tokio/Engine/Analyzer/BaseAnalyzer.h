@@ -29,6 +29,19 @@ public:
 	};
 };
 
+struct FullAnalyzeCallbackData
+{
+	bool isError = false;
+	// indicates how many bytes have been analyzed
+	POINTER done = 0;
+	// the total bytes to analyze
+	POINTER total = 0;
+	
+	// the analyze progress could be calculated be (done / total) * 100
+};
+
+typedef void(*FullAnalyzeResultCallback)(FullAnalyzeCallbackData data, const void* UserData);
+
 class BaseAnalyzer
 {
 protected:
@@ -65,6 +78,7 @@ public:
 		AnalyzedData& outData
 	) EXCEPT = 0;
 
+	virtual void FullAnalyze(FullAnalyzeResultCallback callback, const void* UserData) noexcept = 0;
 };
 
 }

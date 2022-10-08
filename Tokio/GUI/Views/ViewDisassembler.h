@@ -31,7 +31,7 @@ private:
 	Widgets::Popup m_popupEditIns;					// popup for "Edit instruction" | NOT IMPLEMENTED YET
 
 	double m_timeLastRefresh = 0.f;					// last refresh time, for refreshing the process list every x ms
-	double m_refreshInterval = 0.25f;				// refresh every 250ms
+	double m_refreshInterval = 1.f;				    // refresh every 1000ms
 
 
 	// virtual address in the target process
@@ -61,6 +61,12 @@ private:
 
 	std::vector<POINTER> m_addressHistory;
 	size_t m_addressHistoryIndex = UPTR_UNDEFINED;
+
+	// if the selected row in the table were 0 and we scroll down
+	// it means subtract the index so it will be negative, but that
+	// is invalid, so we clear the selected index and remember where
+	// we selected, restore it back if we are scrolling back up
+	size_t m_rememberedSelectedIndex = 0;
 
 private:
 	void HandleShortcuts();

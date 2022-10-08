@@ -227,7 +227,7 @@ ZydisDisassembler::Disassemble(
 
             if (ZYAN_SUCCESS(zResultTokenize))
             {
-                disasmData.operands.resize(20);
+                disasmData.operands.resize(25);
                 size_t operandIndex = 0;
 
                 // get tokenized operands

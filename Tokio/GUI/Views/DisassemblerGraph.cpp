@@ -116,7 +116,7 @@ bool DisassemblerGraph::Init(POINTER address, const AnalyzedData& data)
 
 	for (const SubroutineInfo& subroutine : data.subroutines)
 	{
-		if (subroutine.start <= address && address <= subroutine.end)
+		if (subroutine.address <= address && address <= subroutine.address + subroutine.size)
 		{
 			pSubroutine = &subroutine;
 			break;

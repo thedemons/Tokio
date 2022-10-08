@@ -55,12 +55,16 @@ public:
 
     _CONSTEXPR20 void Log(const char* fmt, ...) const noexcept
     {
-        printf_s("Exception: %s\nMessage:", m_message.c_str());
+        printf_s("Exception: %s\nMessage: ", m_message.c_str());
 
         va_list args;
         va_start(args, fmt);
         vprintf_s(fmt, args);
         va_end(args);
+    }
+    _CONSTEXPR20 void Log() const noexcept
+    {
+        printf_s("Exception: %s\n", m_message.c_str());
     }
 };
 

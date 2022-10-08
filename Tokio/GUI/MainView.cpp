@@ -35,7 +35,7 @@ void Init()
 
 	try
 	{
-		Engine::Attach(177508);
+		Engine::Attach(GetCurrentProcessId());
 	}
 	catch (Tokio::Exception& e)
 	{

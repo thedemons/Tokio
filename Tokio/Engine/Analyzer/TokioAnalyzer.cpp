@@ -47,19 +47,33 @@ bool AnalyzeSubroutineBlocks(
 		}
 		else
 		{
-			SubroutineBlock& thisBlock = subroutine.blocks[firstInstruction.blockIndex];
+			if (firstInstruction.blockIndex >= subroutine.blocks.size())
+			{
+				Tokio::Log("Instruction block index out of bound?");
+			}
+			else
+			{
+				SubroutineBlock& thisBlock = subroutine.blocks[firstInstruction.blockIndex];
 
-			if (thisBlock.prevBlockIndex == UPTR_UNDEFINED)
-				thisBlock.prevBlockIndex = prevBlockIndex;
+				if (thisBlock.prevBlockIndex == UPTR_UNDEFINED)
+					thisBlock.prevBlockIndex = prevBlockIndex;
 
-			if (thisBlock.prevCondBlockIndex == UPTR_UNDEFINED)
-				thisBlock.prevCondBlockIndex = prevCondBlockIndex;
+				if (thisBlock.prevCondBlockIndex == UPTR_UNDEFINED)
+					thisBlock.prevCondBlockIndex = prevCondBlockIndex;
+			}
 		}
 
 		return true;
 	}
 
 	size_t thisBlockIndex = subroutine.blocks.size();
+
+	if (thisBlockIndex > 1000)
+	{
+		Tokio::Log("Function too big at address: %llx\n", data.instructions[subroutine.blocks[0].instructionIndex].address);
+		return false;
+	}
+
 	SubroutineBlock& thisBlock = subroutine.AddBlock();
 
 	thisBlock.instructionIndex = start_index;
@@ -198,8 +212,8 @@ bool AnalyzeSubroutineBlocks(
 inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, size_t subroutineIndex)
 {
 	// find the start and end point of the subroutine simply by min max the blocks start/end index
-	subroutine.start = UPTR_UNDEFINED;
-	subroutine.end = 0;
+	subroutine.address = UPTR_UNDEFINED;
+	subroutine.size = 0;
 	size_t startidx = UPTR_UNDEFINED;
 	size_t endidx = UPTR_UNDEFINED;
 
@@ -209,17 +223,22 @@ inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, siz
 		POINTER startAddr = data.instructions[block.instructionIndex].address;
 		POINTER endAddr = data.instructions[end_index].address;
 
-		if (startAddr < subroutine.start)
+		if (startAddr < subroutine.address)
 		{
-			subroutine.start = startAddr;
+			subroutine.address = startAddr;
+			subroutine.instructionIndex = block.instructionIndex;
 			startidx = block.instructionIndex;
 		}
-		if (endAddr > subroutine.end)
+		if (endAddr > subroutine.size)
 		{
-			subroutine.end = endAddr;
+			subroutine.size = endAddr;
+			subroutine.instructionCount = end_index;
 			endidx = end_index;
 		}
 	}
+
+	subroutine.size -= subroutine.address;
+	subroutine.instructionCount -= subroutine.instructionIndex;
 
 	data.instructions[startidx].isAtSubroutineStart = true;
 	data.instructions[endidx].isAtSubroutineEnd = true;
@@ -232,7 +251,7 @@ inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, siz
 }
 
 // THIS IS A MESS FIXME-PLEASE
-void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, const std::vector<BYTE>& buffer)
+void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, size_t numInstructions, const std::vector<BYTE>& buffer)
 {
 
 	bool bLastInt3 = false;
@@ -240,7 +259,7 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, const std::vector<BYT
 	bool bLastUnreadable = false;
 	bool bLastSubroutineEnded = false;
 
-	for (size_t index = 0; index < data.instructions.size(); index++)
+	for (size_t index = 0; index < numInstructions; index++)
 	{
 		AnalyzedInstruction& instruction = data.instructions[index];
 		bool bIsInt3 = instruction.mnemonic.type == DisasmOperandType::mneInt3;
@@ -322,7 +341,7 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, const std::vector<BYT
 	}
 }
 
-void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data) noexcept
+void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data, size_t numInstructions) noexcept
 {
 	static ImGui::TokenizedText xRefString("REF: "s, Settings::theme.disasm.Xref);
 	
@@ -330,7 +349,7 @@ void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data) noexcept
 	POINTER instructionEnd = data.instructions.back().address;
 	
 	auto iterBegin = data.instructions.begin();
-	auto iterEnd = data.instructions.end();
+	auto iterEnd = iterBegin + numInstructions;
 
 	const size_t pointerSize = m_target->is32bit ? sizeof(dword_t) : sizeof(qword_t);
 
@@ -472,7 +491,7 @@ void TokioAnalyzer::AnalyzeComment(AnalyzedData& data) noexcept
 
 	for (AnalyzedInstruction& instruction : data.instructions)
 	{
-		if (instruction.referencedAddress == 0ull) continue;
+		if (!instruction.isRefPointer) continue;
 
 		// a pointer reference
 		if (instruction.referencedValue != 0)
@@ -496,6 +515,8 @@ void TokioAnalyzer::AnalyzeComment(AnalyzedData& data) noexcept
 			// hardcoded 5 valid chars to be defined as a string
 			stringBuffer[sizeof(stringBuffer) - 1] = 0;
 
+
+			// TODO: handle strings more nicely
 			bool isValidString = strnlen_s(stringBuffer, 64) >= 5;
 			bool isValidWString = false;
 			if (!isValidString) isValidWString = wcsnlen_s(reinterpret_cast<wchar_t*>(stringBuffer), (sizeof(stringBuffer) - 1) / 2) >= 5;
@@ -546,7 +567,8 @@ void TokioAnalyzer::AnalyzeComment(AnalyzedData& data) noexcept
 
 
 void TokioAnalyzer::AnalyzeRegion(
-	const MemoryReadRegion& region,
+	POINTER address,
+	POINTER size,
 	const std::vector<byte_t>& buffer,
 	size_t bufferOffset,
 	size_t& instructionIndex,
@@ -558,7 +580,7 @@ void TokioAnalyzer::AnalyzeRegion(
 
 		// disassemble the region first
 		std::vector<DisasmInstruction> disasmInstructions = 
-			m_disassembler->Disassemble(region.start, buffer.data() + bufferOffset, region.size);
+			m_disassembler->Disassemble(address, buffer.data() + bufferOffset, size);
 
 		size_t insBufferOffset = bufferOffset;
 
@@ -642,7 +664,8 @@ void TokioAnalyzer::AnalyzeRegion(
 }
 
 void TokioAnalyzer::AnalyzeRegionNoSymbol(
-	const MemoryReadRegion& region,
+	POINTER address,
+	POINTER size,
 	const std::vector<byte_t>& buffer,
 	size_t bufferOffset,
 	size_t& instructionIndex,
@@ -651,10 +674,9 @@ void TokioAnalyzer::AnalyzeRegionNoSymbol(
 {
 	try
 	{
-
 		// disassemble the region first
-		std::vector<DisasmInstruction> disasmInstructions = 
-			m_disassembler->Disassemble(region.start, buffer.data() + bufferOffset, region.size);
+		std::vector<DisasmInstruction> disasmInstructions =
+			m_disassembler->Disassemble(address, buffer.data() + bufferOffset, size);
 
 		size_t insBufferOffset = bufferOffset;
 
@@ -714,6 +736,7 @@ void TokioAnalyzer::AnalyzeRegionNoSymbol(
 	}
 }
 
+
 _NODISCARD void TokioAnalyzer::Analyze(
 	POINTER address,
 	size_t size,
@@ -722,7 +745,6 @@ _NODISCARD void TokioAnalyzer::Analyze(
 	AnalyzedData& outData
 ) EXCEPT
 {
-	
 	static const std::string except_zero("The size to analyze was zero");
 	static const std::string except_read_failed("Failed to read memory");
 
@@ -782,11 +804,11 @@ _NODISCARD void TokioAnalyzer::Analyze(
 		{
 			if (flags & AnalyzerFlags_::Symbol)
 			{
-				AnalyzeRegion(*regionIter, outBuffer, regionIter->start - address, instructionIndex, outData);
+				AnalyzeRegion(regionIter->start, regionIter->size, outBuffer, regionIter->start - address, instructionIndex, outData);
 			}
 			else
 			{
-				AnalyzeRegionNoSymbol(*regionIter, outBuffer, regionIter->start - address, instructionIndex, outData);
+				AnalyzeRegionNoSymbol(regionIter->start, regionIter->size, outBuffer, regionIter->start - address, instructionIndex, outData);
 			}
 
 			offset += regionIter->size;
@@ -805,19 +827,156 @@ _NODISCARD void TokioAnalyzer::Analyze(
 
 	outData.instructions.resize(instructionIndex, invalidInstruction);
 
+	if (flags & AnalyzerFlags_::Subroutine)
+	{
+		AnalyzeCrossReferences(outData, instructionIndex);
+		AnalyzeSubroutines(outData, instructionIndex, outBuffer);
+	}
+	else if (flags & AnalyzerFlags_::CrossReference)
+	{
+		AnalyzeCrossReferences(outData, instructionIndex);
+	}
+
 	if (flags & AnalyzerFlags_::Comment)
 	{
 		AnalyzeComment(outData);
 	}
 
-	if (flags & AnalyzerFlags_::Subroutine)
+}
+
+void TokioAnalyzer::AnalyzeRegionBasic(
+	POINTER address,
+	POINTER size,
+	const std::vector<byte_t>& buffer,
+	size_t& instructionIndex,
+	AnalyzedData& data
+) EXCEPT
+{
+
+	// disassemble the region first
+	std::vector<DisasmInstruction> disasmInstructions =
+		m_disassembler->Disassemble(address, buffer.data(), size);
+
+	size_t insBufferOffset = 0;
+
+	// loop through all the disassembled instructions
+	for (DisasmInstruction& disasmData : disasmInstructions)
 	{
-		AnalyzeCrossReferences(outData);
-		AnalyzeSubroutines(outData, outBuffer);
+		AnalyzedInstruction& instruction = data.instructions[instructionIndex++];
+
+		// copy the result from disasmData
+		instruction.address = disasmData.address;
+		instruction.length = disasmData.length;
+
+		instruction.mnemonic = std::move(disasmData.mnemonic);
+
+		instruction.bufferOffset = insBufferOffset;
+
+		instruction.referencedAddress = disasmData.referencedAddress;
+		instruction.isRefPointer = disasmData.isRefPointer;
+
+		instruction.operands = std::move(disasmData.operands);
+		instruction.isNotReadable = false;
+
+
+		instruction.blockIndex = UPTR_UNDEFINED;
+		instruction.iSubroutine = UPTR_UNDEFINED;
+
+		insBufferOffset += instruction.length;
 	}
-	else if (flags & AnalyzerFlags_::CrossReference)
+}
+
+void TokioAnalyzer::FullAnalyze(FullAnalyzeResultCallback callback, const void* UserData) noexcept
+{
+	UNUSED(callback);
+	UNUSED(UserData);
+
+
+	FullAnalyedData result;
+	size_t bufferSize = 1024'00;
+
+	// invalidate all of the instructions
+	AnalyzedData tempData;
+	AnalyzedInstruction invalidInstruction(tempData);
+
+	invalidInstruction.isNotReadable = false;
+	tempData.instructions.resize(bufferSize, invalidInstruction);
+	
+	POINTER address = 0;
+	VirtualMemoryInfo memInfo;
+
+	std::vector<byte_t> memBuffer;
+	memBuffer.resize(bufferSize);
+
+	std::vector<MemoryReadRegion> regions;
+
+	while (true)
 	{
-		AnalyzeCrossReferences(outData);
+		try
+		{
+			memInfo = m_memory->VirtualQuery(address);
+			address = memInfo.base + memInfo.size;
+
+			if (memInfo.protect & VirtualProtection::Read && memInfo.protect & VirtualProtection::Execute)
+			{
+				MemoryReadRegion& region = regions.emplace_back();
+				region.start = memInfo.base;
+				region.size = memInfo.size;
+			}
+		}
+		catch (Tokio::Exception)
+		{
+			break;
+		}
+	}
+
+
+	for (MemoryReadRegion& region : regions)
+	{
+		POINTER endAddr = region.start + region.size;
+
+		for (POINTER offset = region.start; offset < endAddr;)
+		{
+			size_t readSize = (endAddr - offset > bufferSize) ? bufferSize : endAddr - offset;
+			size_t bytesRead = m_memory->Read(offset, memBuffer.data(), readSize);
+
+			if (bytesRead == 0)
+			{
+				offset += bufferSize;
+				continue;
+			}
+
+			size_t instructionIndex = 0;
+
+			tempData.subroutines.clear();
+
+			AnalyzeRegionBasic(offset, bytesRead, memBuffer, instructionIndex, tempData);
+			//AnalyzeCrossReferences(tempData, instructionIndex);
+			//AnalyzeSubroutines(tempData, instructionIndex, memBuffer);
+
+			//if (tempData.subroutines.size() > 0)
+			//{
+			//	auto& sub = tempData.subroutines.back();
+			//	auto& lastInstruction = tempData.instructions[sub.instructionIndex + sub.instructionCount - 1];
+			//	offset = lastInstruction.address + lastInstruction.length;
+
+			//	for (auto& subroutine : tempData.subroutines)
+			//	{
+			//		auto& copy = result.subroutines.emplace_back();
+			//		copy.address = subroutine.address;
+			//		copy.size = subroutine.size;
+
+			//		printf("sub_%llx\n", copy.address);
+			//	}
+			//}
+			//else
+			//{
+				auto& lastInstruction = tempData.instructions[instructionIndex - 1];
+				offset = lastInstruction.address + lastInstruction.length;
+			//}
+
+					printf("sub_%llx\n", offset);
+		}
 	}
 
 }

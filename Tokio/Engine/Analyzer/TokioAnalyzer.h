@@ -11,8 +11,9 @@ class TokioAnalyzer : public BaseAnalyzer
 {
 	using BaseAnalyzer::BaseAnalyzer;
 private:
-	_NODISCARD void AnalyzeRegion(
-		const MemoryReadRegion& region,
+	void AnalyzeRegion(
+		POINTER address,
+		POINTER size,
 		const std::vector<byte_t>& buffer,
 		size_t bufferOffset,
 		size_t& instructionIndex,
@@ -20,17 +21,27 @@ private:
 	) EXCEPT;
 
 	// analyze without symbol
-	_NODISCARD void AnalyzeRegionNoSymbol(
-		const MemoryReadRegion& region,
+	void AnalyzeRegionNoSymbol(
+		POINTER address,
+		POINTER size,
 		const std::vector<byte_t>& buffer,
 		size_t bufferOffset,
 		size_t& instructionIndex,
 		AnalyzedData& data
 	) EXCEPT;
 
+	// analyze without symbol
+	void AnalyzeRegionBasic(
+		POINTER address,
+		POINTER size,
+		const std::vector<byte_t>& buffer,
+		size_t& instructionIndex,
+		AnalyzedData& data
+	) EXCEPT;
+
 	void AnalyzeComment(AnalyzedData& data) noexcept;
-	void AnalyzeCrossReferences(AnalyzedData& data) noexcept;
-	void AnalyzeSubroutines(AnalyzedData& data, const std::vector<byte_t>& buffer);
+	void AnalyzeCrossReferences(AnalyzedData& data, size_t numInstructions) noexcept;
+	void AnalyzeSubroutines(AnalyzedData& data, size_t numInstructions, const std::vector<byte_t>& buffer);
 
 public:
 	// address:		      the virtual address in the target process
@@ -45,6 +56,8 @@ public:
 		std::vector<byte_t>& outBuffer,
 		AnalyzedData& outData
 	) EXCEPT override;
+
+	void FullAnalyze(FullAnalyzeResultCallback callback, const void* UserData) noexcept override;
 };
 
 
