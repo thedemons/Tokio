@@ -3,10 +3,9 @@
 #include "SnowmanDecompiler.h"
 
 
-std::shared_ptr<Engine::BaseDecompiler> __stdcall
+std::shared_ptr<Engine::BaseDecompiler>
 PluginInit(const std::shared_ptr<ProcessData>& target)
 {
-
 	return std::make_shared<Engine::SnowmanDecompiler>(target);
 }
 
