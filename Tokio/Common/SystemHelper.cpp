@@ -127,7 +127,7 @@ bool ClipboardCopy(const std::wstring& text) noexcept
 	}
 	GlobalFree(pchData);
 	CloseClipboard();
-	return {};
+	return true;
 }
 
 bool ClipboardCopy(const std::string& text) noexcept
