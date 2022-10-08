@@ -197,6 +197,11 @@
     <ClCompile Include="Engine\Memory\BaseMemory.cpp" />
     <ClCompile Include="Engine\Memory\Win32Memory.cpp" />
     <ClCompile Include="Engine\Symbol\BaseSymbol.cpp" />
+    <ClCompile Include="Engine\Symbol\Demangler\DemanglerMSVC.cpp" />
+    <ClCompile Include="Engine\Symbol\Demangler\undname.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Engine\Symbol\Win32Symbol.cpp" />
     <ClCompile Include="GUI\ImGui\custom\TokenizedText.cpp" />
     <ClCompile Include="GUI\ImGui\imgui.cpp">
@@ -276,6 +281,8 @@
     <ClInclude Include="Engine\Memory\BaseMemory.h" />
     <ClInclude Include="Engine\Memory\Win32Memory.hpp" />
     <ClInclude Include="Engine\Symbol\BaseSymbol.h" />
+    <ClInclude Include="Engine\Symbol\Demangler\DemanglerMSVC.h" />
+    <ClInclude Include="Engine\Symbol\Demangler\undname.h" />
     <ClInclude Include="Engine\Symbol\Win32Symbol.h" />
     <ClInclude Include="GUI\ImGui\custom\TokenizedText.h" />
     <ClInclude Include="GUI\ImGui\imconfig.h" />

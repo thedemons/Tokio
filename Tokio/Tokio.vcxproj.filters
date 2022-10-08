@@ -61,6 +61,9 @@
     <Filter Include="Engine\Decompiler">
       <UniqueIdentifier>{6097d97c-37b4-41f6-bbd5-3d7b5cd1bdea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Symbol\Demangler">
+      <UniqueIdentifier>{830130bf-8c4b-4c95-9f49-4bf9ae2b88ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -182,6 +185,12 @@
     </ClCompile>
     <ClCompile Include="GUI\Views\ViewDecompiler.cpp">
       <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Symbol\Demangler\DemanglerMSVC.cpp">
+      <Filter>Engine\Symbol\Demangler</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Symbol\Demangler\undname.c">
+      <Filter>Engine\Symbol\Demangler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -340,6 +349,12 @@
     </ClInclude>
     <ClInclude Include="GUI\Views\ViewDecompiler.h">
       <Filter>GUI\Views</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Symbol\Demangler\DemanglerMSVC.h">
+      <Filter>Engine\Symbol\Demangler</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Symbol\Demangler\undname.h">
+      <Filter>Engine\Symbol\Demangler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
