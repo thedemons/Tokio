@@ -68,5 +68,8 @@
     <ClCompile Include="..\..\Tokio\Engine\Decompiler\BaseDecompiler.cpp">
       <Filter>Engine\Decompiler</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
