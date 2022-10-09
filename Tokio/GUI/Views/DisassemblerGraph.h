@@ -49,38 +49,36 @@ private:
 		ImGui::TokenizedText fmtOperand;
 
 	};
-	class Node
+
+	struct SugiyamaNode
 	{
-	public:
-		bool m_isVisited        = false;
-
-		size_t m_layer = 0;
-		size_t m_row = 0;
-
-		ImVec2 m_pos  { 0.f, 0.f };
-		ImVec2 m_size { 0.f, 0.f };
-
-		Node* m_nextNode        = nullptr;
-		Node* m_conditionalNode = nullptr;
-
-		std::vector<Instruction> m_instructions;
-
-	public:
-		void Calculte(ImVec2 pos = { 0.f, 0.f }, bool override_visited = false);
-		void Render(ImVec2 offset);
+		bool isDummy = true;
+		ImVec2 pos{ 0.f, 0.f };
 	};
 
-	struct Layer
+	struct SugiyamaEdge
 	{
-		ImVec2 size;
-		//std::vector<Node*> nodes;
+		size_t from;
+		size_t to;
+	};
+
+	struct Block
+	{
+		ImVec2 size { 0.f, 0.f };
+
+		Block* nextBlock        = nullptr;
+		Block* conditionalBlock = nullptr;
+
+		std::vector<Instruction> instructions;
 	};
 
 private:
 
-	std::vector<Node> m_nodes;
-	std::vector<Layer> m_layers;
+	std::vector<Block> m_blocks;
+	std::vector<SugiyamaEdge> m_edges;
+	std::vector<SugiyamaNode> m_nodes;
 
+	void CalculateGraph();
 public:
 	bool Init(POINTER address, const AnalyzedData& data);
 	void Render();

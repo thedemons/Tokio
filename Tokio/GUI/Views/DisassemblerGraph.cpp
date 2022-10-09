@@ -31,114 +31,136 @@
 #include "DisassemblerGraph.h"
 #include "Engine/Engine.h"
 
+#include "sfg/sfg.h"
+//
+//int getnodedata(int num, int level, int pos, int xpos, int ypos, int tx, int ty, int nselfedges, int type,
+//	int indegree, int outdegree, int ly0, int ly1)
+//{
+//
+//	//auto& node = nodes[num - 1];
+//	//node.isDummy = tx == 0 && ty == 0;
+//	//node.pos = { float(xpos), float(ypos) };
+//	//if (node.isDummy)
+//	//	node.size = { 5.f, 5.f };
+//	//else
+//	//	node.size = { float(tx), float(ty) };
+//
+//	/* return(1); to stop the callback */
+//	//printf("node %d relative pos (%d,%d) (type %d) in/outdegree %d:%d final pos (%d,%d) (%d, %d)\n", num, pos, level, type, indegree, outdegree, xpos,
+//		//ypos, tx, ty);
+//	/* return 0 to continue callbacks */
+//	return 0;
+//}
+//
+///* this gets the edge data after layout */
+//int getedgedata(int num, int from, int to, int type, int rev)
+//{
+//	//if (type == 1)
+//	//{
+//	//auto& edge = edges.emplace_back();
+//	//edge.from = from - 1;
+//	//edge.to = to - 1;
+//	////}
+//	/* return(1); to stop the callback */
+//	if (type)
+//	{
+//	}
+//	printf("edge %d (type %d) from node %d to %d reversed=%d\n", num, type, from, to, rev);
+//	/* return 0 to continue callbacks */
+//	return (0);
+//}
 
-
-void DisassemblerGraph::Node::Calculte(ImVec2 pos, bool override_visited)
+void DisassemblerGraph::CalculateGraph()
 {
-
-	if (m_isVisited && !override_visited) return;
-
-	m_isVisited = true;
-
 	ImFont* font = MainApplication::FontMonoRegular;
 	const float fontSize = font->FontSize;
 
 	const float lineHeight = fontSize * 1.5f;
 	const float mnemonic_width = 50.f;
 
-	m_pos = pos;
-	m_size = {0, m_instructions.size() * lineHeight};
+	sfg::sfg_init();
 
-	for (const Instruction& instruction : m_instructions)
+	int nodeNum = 1;
+	int edgeNum = 1;
+
+	for (Block& block : m_blocks)
 	{
-		ImVec2 textSize = instruction.fmtOperand.CalcSize(font, fontSize);
-		if (textSize.x > m_size.x) m_size.x = textSize.x;
+		block.size = { 0, float(block.instructions.size()) * lineHeight };
+
+		for (const Instruction& instruction : block.instructions)
+		{
+			ImVec2 operandSize = instruction.fmtOperand.CalcSize(font, fontSize);
+			ImVec2 addressSize = instruction.fmtAddress.CalcSize(font, fontSize);
+			float sumSize = operandSize.x + addressSize.x + 10.f;
+			if (sumSize > block.size.x) block.size.x = sumSize;
+		}
+
+		block.size.x += mnemonic_width;
+
+		sfg::sfg_addnode(nodeNum++, int(block.size.x), int(block.size.y));
+
 	}
 
-	m_size.x += mnemonic_width;
-
-	ImVec2 arrowPos{ m_pos.x + m_size.x / 2.f, m_pos.y + m_size.y + 30.f};
-
-	if (m_nextNode != nullptr)
+	for (Block& block : m_blocks)
 	{
-		if (m_nextNode->m_isVisited)
+		size_t nodeIndex = &block - &m_blocks[0];
+		if (block.nextBlock != nullptr)
 		{
-			if (m_nextNode->m_pos.y < arrowPos.y)
-				m_nextNode->Calculte(arrowPos);
+			size_t nextIndex = block.nextBlock - &m_blocks[0];
+			sfg::sfg_addedge(edgeNum++, static_cast<int>(nodeIndex + 1), static_cast<int>(nextIndex + 1), 0, 0);
 		}
-		else
-		{
-			m_nextNode->Calculte(arrowPos);
 
-			if (m_conditionalNode != nullptr)
-				m_nextNode->m_pos.x -= m_nextNode->m_size.x - 20;
-			else
-				m_nextNode->m_pos.x -= m_nextNode->m_size.x / 2.f - 20;
-		}
-	}
-	// make sure we don't jump into ourselve recurively
-	if (m_conditionalNode != nullptr && m_conditionalNode != this)
-	{
-		// if the node is already visited, check if it fit the position properly
-		// if not then we override with a new position
-		if (m_conditionalNode->m_isVisited)
+		if (block.conditionalBlock != nullptr)
 		{
-			if (m_conditionalNode->m_pos.y < arrowPos.y)
-				m_conditionalNode->Calculte(arrowPos);
-		}
-		else
-		{
-			m_conditionalNode->Calculte(arrowPos);
-			m_conditionalNode->m_pos.x += 20;
+			size_t conditionalIndex = block.conditionalBlock - &m_blocks[0];
+			sfg::sfg_addedge(edgeNum++, static_cast<int>(nodeIndex + 1), static_cast<int>(conditionalIndex + 1), 0, 0);
 		}
 	}
 
+	sfg::sfg_xspacing(10);
+	sfg::sfg_yspacing(10);
+	sfg::sfg_layout();
+
+	m_nodes.clear();
+	m_edges.clear();
+	//m_edges.resize(static_cast<size_t>(sfg::maingraph->edgemax));
+	m_nodes.resize(static_cast<size_t>(sfg::maingraph->nodemax));
+
+	sfg::gml_nlist* nl = NULL;
+	sfg::gml_node* n = NULL;
+	nl = sfg::maingraph->nodelist;
+
+	while (nl)
+	{
+		n = nl->node;
+
+		SugiyamaNode& node = m_nodes[static_cast<size_t>(n->nr - 1)];
+		node.isDummy = (n->tx == 0) && (n->ty == 0);
+		node.pos = { float(n->finx), float(n->finy) };
+
+		nl = nl->next;
+	}
+
+	sfg::gml_edge* e = NULL;
+	sfg::gml_elist* el = sfg::maingraph->edgelist;
+	while (el)
+	{
+		e = el->edge;
+
+		SugiyamaEdge& edge = m_edges.emplace_back();
+		edge.from = static_cast<size_t>(e->from_node->nr - 1);
+		edge.to = static_cast<size_t>(e->to_node->nr - 1);
+
+		el = el->next;
+	}
+
+	sfg::sfg_deinit();
 }
 
-void DisassemblerGraph::Node::Render(ImVec2 offset)
-{
-	if (m_isVisited) return;
-	m_isVisited = true;
-
-	ImDrawList* dl = ImGui::GetWindowDrawList();
-	dl->AddRectFilled(m_pos + offset, m_pos + m_size + offset, 0xff2b2b2b);
-	
-	ImFont* font = MainApplication::FontMonoRegular;
-	const float fontSize = font->FontSize;
-
-	const float lineHeight = fontSize * 1.5f;
-	const float mnemonic_width = 50.f;
-
-	ImVec2 cursor = m_pos + offset;
-
-	for (auto& instruction : m_instructions)
-	{
-		instruction.fmtMnemonic.Render(dl, cursor, font, fontSize);
-		instruction.fmtOperand.Render(dl, cursor + ImVec2(mnemonic_width, 0), font, fontSize);
-		cursor.y += lineHeight;
-	}
-
-	ImVec2 arrowPos1{ m_pos.x + m_size.x / 2.f, m_pos.y + m_size.y };
-
-	// make sure we don't jump into ourselve recurively
-	if (m_conditionalNode != nullptr && m_conditionalNode != this)
-	{
-		m_conditionalNode->Render(offset);
-		ImVec2 arrowPos2{ m_conditionalNode->m_pos.x + m_conditionalNode->m_size.x / 2.f, m_conditionalNode->m_pos.y};
-		dl->AddLine(arrowPos1 + offset, arrowPos2 + offset, 0xffababab);
-	}
-
-	if (m_nextNode != nullptr)
-	{
-		m_nextNode->Render(offset);
-		ImVec2 arrowPos2{ m_nextNode->m_pos.x + m_nextNode->m_size.x / 2.f, m_nextNode->m_pos.y };
-		dl->AddLine(arrowPos1 + offset, arrowPos2 + offset, 0xffababab);
-	}
-}
 
 bool DisassemblerGraph::Init(POINTER address, const AnalyzedData& data)
 {
-	m_nodes.clear();
+	m_blocks.clear();
 	
 	// do this to avoid nested hell
 	const SubroutineInfo* pSubroutine = nullptr;
@@ -154,18 +176,18 @@ bool DisassemblerGraph::Init(POINTER address, const AnalyzedData& data)
 
 	if (pSubroutine == nullptr) return false;
 
-	m_nodes.reserve(pSubroutine->blocks.size());
+	m_blocks.reserve(pSubroutine->blocks.size());
 
 	for (const SubroutineBlock& block : pSubroutine->blocks)
 	{
-		Node& node = m_nodes.emplace_back();
-		node.m_instructions.reserve(block.instructionCount);
+		Block& thisBlock = m_blocks.emplace_back();
+		thisBlock.instructions.reserve(block.instructionCount);
 
 		// copy the mnemonic and operands
 		for (size_t i = block.instructionIndex; i < block.instructionIndex + block.instructionCount; i++)
 		{
 			const AnalyzedInstruction& insData = data.GetInstruction(i);
-			Instruction& insCopied = node.m_instructions.emplace_back();
+			Instruction& insCopied = thisBlock.instructions.emplace_back();
 
 			insCopied.address = insData.address;
 			insCopied.fmtAddress = insData.fmtAddress;
@@ -174,15 +196,22 @@ bool DisassemblerGraph::Init(POINTER address, const AnalyzedData& data)
 		}
 
 
-		// Note: we calculate the pointer Node* before it is even added to the vector
-		if (block.nextBlockIndex != UPTR_UNDEFINED)
-			node.m_nextNode = &m_nodes[0] + block.nextBlockIndex;
-
-		if (block.nextCondBlockIndex != UPTR_UNDEFINED)
-			node.m_conditionalNode = &m_nodes[0] + block.nextCondBlockIndex;
 	}
 
-	m_nodes[0].Calculte();
+	size_t x = 0;
+	for (const SubroutineBlock& block : pSubroutine->blocks)
+	{
+		Block& thisBlock = m_blocks[x++];
+
+		// Note: we calculate the pointer Node* before it is even added to the vector
+		if (block.nextBlockIndex != UPTR_UNDEFINED)
+			thisBlock.nextBlock = &m_blocks[0] + block.nextBlockIndex;
+
+		if (block.nextCondBlockIndex != UPTR_UNDEFINED)
+			thisBlock.conditionalBlock = &m_blocks[0] + block.nextCondBlockIndex;
+	}
+
+	CalculateGraph();
 
 	return true;
 }
@@ -190,12 +219,7 @@ bool DisassemblerGraph::Init(POINTER address, const AnalyzedData& data)
 // must call render() inside of an imgui window
 void DisassemblerGraph::Render()
 {
-	for (auto& node : m_nodes)
-	{
-		node.m_isVisited = false;
-	}
-
-	ImVec2 windowPos = ImGui::GetWindowPos();
+	ImVec2 graphPos = ImGui::GetWindowPos();
 
 	static ImVec2 graph_offset{ 0,0 };
 	static ImVec2 graph_offset_old = graph_offset;
@@ -215,7 +239,77 @@ void DisassemblerGraph::Render()
 		graph_offset = graph_offset_old + ImGui::GetMouseDragDelta(0);
 	}
 
-	windowPos += graph_offset;
+	graphPos += graph_offset;
 
-	m_nodes[0].Render(windowPos);
+
+
+	ImFont* font = MainApplication::FontMonoRegular;
+	const float fontSize = font->FontSize;
+
+	const float lineHeight = fontSize * 1.5f;
+	const float mnemonic_width = 50.f;
+	ImDrawList* dl = ImGui::GetWindowDrawList();
+
+	for (size_t nodeIndex = 0; nodeIndex < m_nodes.size(); nodeIndex++)
+	{
+		SugiyamaNode& node = m_nodes[nodeIndex];
+		if (node.isDummy) continue;
+
+		Block& block = m_blocks[nodeIndex];
+		ImVec2 blockPos = node.pos + graphPos;
+		dl->AddRectFilled(blockPos, blockPos + block.size, 0xff2b2b2b);
+
+		if (ImGui::IsMouseHoveringRect(blockPos, blockPos + block.size, false))
+		{
+			ImGui::BeginTooltip();
+			if (block.nextBlock != nullptr)
+			{
+				ImGui::Text("Next");
+				ImGui::SameLine();
+				block.nextBlock->instructions[0].fmtAddress.Render();
+			}
+			if (block.conditionalBlock != nullptr)
+			{
+				ImGui::Text("Cond");
+				ImGui::SameLine();
+				block.conditionalBlock->instructions[0].fmtAddress.Render();
+			}
+			ImGui::EndTooltip();
+		}
+
+		ImVec2 cursor = blockPos;
+
+		for (auto& instruction : block.instructions)
+		{
+			ImVec2 addrSize = instruction.fmtAddress.CalcSize(font, fontSize);
+			instruction.fmtAddress.Render(dl, cursor, font, fontSize);
+			instruction.fmtMnemonic.Render(dl, cursor + ImVec2(addrSize.x + 10.f, 0.f), font, fontSize);
+			instruction.fmtOperand.Render(dl, cursor + ImVec2(addrSize.x + 10.f + mnemonic_width, 0), font, fontSize);
+			cursor.y += lineHeight;
+		}
+	}
+
+	for (SugiyamaEdge& edge : m_edges)
+	{
+		SugiyamaNode& fromNode = m_nodes[edge.from];
+		SugiyamaNode& toNode = m_nodes[edge.to];
+		//Block& fromBlock = m_blocks[]
+		ImVec2 fromPos = fromNode.pos + graphPos;
+		ImVec2 toPos = toNode.pos + graphPos;
+
+		if (!fromNode.isDummy)
+		{
+			Block& fromBlock = m_blocks[edge.from];
+			fromPos += ImVec2(fromBlock.size.x / 2.f, fromBlock.size.y);
+		}
+
+		if (!toNode.isDummy)
+		{
+			Block& toBlock = m_blocks[edge.to];
+			toPos += ImVec2(toBlock.size.x / 2.f, 0.f);
+		}
+
+		dl->AddLine(fromPos, toPos, 0xffffffff);
+	}
+
 }

@@ -180,6 +180,28 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 		table->NextColumn();
 		insData.fmtComment.Render();
 	}
+	//if (subroutine != nullptr && insData.blockIndex != UPTR_UNDEFINED)
+	//{
+	//	ImGui::SameLine();
+	//	auto& block = subroutine->blocks[insData.blockIndex];
+	//	if (block.nextBlockIndex != UPTR_UNDEFINED)
+	//	{
+	//		auto& nextblock = subroutine->blocks[block.nextBlockIndex];
+	//		auto& firstins = pThis->m_analyzedData.instructions[nextblock.instructionIndex];
+	//		ImGui::Text("Next block at: ");
+	//		ImGui::SameLine();
+	//		firstins.fmtAddress.Render();
+	//	}
+	//	if (block.nextCondBlockIndex != UPTR_UNDEFINED)
+	//	{
+	//		auto& nextblock = subroutine->blocks[block.nextCondBlockIndex];
+	//		auto& firstins = pThis->m_analyzedData.instructions[nextblock.instructionIndex];
+	//		ImGui::Text("Cond block at: ");
+	//		ImGui::SameLine();
+	//		firstins.fmtAddress.Render();
+
+	//	}
+	//}
 	return Widgets::Table::Execution::Continue;
 };
 
@@ -213,6 +235,10 @@ void ViewDisassembler::TablePopupRenderCallback(Widgets::Table* table, size_t in
 
 	Settings::shortcuts.DisasmFollowInstruction.RenderInPopup();
 	Settings::shortcuts.DisasmGoToReference.RenderInPopup();
+
+	ImGui::Separator();
+	Settings::shortcuts.DisasmSwitchMode.RenderInPopup();
+	Settings::shortcuts.DisasmDecompile.RenderInPopup(Engine::HasDecompiler());
 
 	ImGui::Separator();
 	Settings::shortcuts.DisasmAddToWatchList.RenderInPopup();
@@ -592,15 +618,16 @@ void ViewDisassembler::HandleShortcuts()
 		}
 	}
 
-	if (Settings::shortcuts.DisasmSwitchMode.IsPressedInWindow())
+	if (Engine::HasDecompiler() && Settings::shortcuts.DisasmDecompile.IsPressedInWindow())
 	{
 		auto& selected = m_table.GetSelectedItems();
 		if (selected.size() > 0)
 		{
 			// do this to avoid nested hell
 			const SubroutineInfo* pSubroutine = nullptr;
-
 			POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
+
+			// find the subroutine needed to decompile
 			for (const SubroutineInfo& subroutine : m_analyzedData.subroutines)
 			{
 				if (subroutine.address <= selectedItemAddress && selectedItemAddress <= subroutine.address + subroutine.size)
@@ -612,31 +639,48 @@ void ViewDisassembler::HandleShortcuts()
 
 			if (pSubroutine != nullptr)
 			{
+				// open the decompiler view
 				auto views = MainView::FindViewsByClass<ViewDecompiler>();
-				views[0].get().pView->Decompile(pSubroutine->address, pSubroutine->size);
+
+				// if there are none decompiler view opened, create a new one
+				if (views.size() == 0)
+				{
+					auto& view = MainView::AddView<ViewDecompiler>();
+					view.bOpen = true;
+					view.pView->Decompile(pSubroutine->address, pSubroutine->size);
+					view.pView->Focus();
+				}
+				else
+				{
+					auto& view = views.back().get();
+					view.bOpen = true;
+					view.pView->Decompile(pSubroutine->address, pSubroutine->size);
+					view.pView->Focus();
+					
+				}
 			}
 		}
 	}
 
-	//if (Settings::shortcuts.DisasmSwitchMode.IsPressedInWindow())
-	//{
+	if (Settings::shortcuts.DisasmSwitchMode.IsPressedInWindow())
+	{
 
-	//	if (!m_isGraphMode)
-	//	{
-	//		auto& selected = m_table.GetSelectedItems();
-	//		if (selected.size() > 0)
-	//		{
-	//			POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
-	//			m_isGraphMode = m_graph.Init(selectedItemAddress, m_analyzedData);
-	//		}
-	//	}
-	//	else
-	//	{
+		if (!m_isGraphMode)
+		{
+			auto& selected = m_table.GetSelectedItems();
+			if (selected.size() > 0)
+			{
+				POINTER selectedItemAddress = GetInstructionAt(selected[0]).address;
+				m_isGraphMode = m_graph.Init(selectedItemAddress, m_analyzedData);
+			}
+		}
+		else
+		{
 
-	//		m_isGraphMode = false;
-	//	}
+			m_isGraphMode = false;
+		}
 
-	//}
+	}
 }
 
 void ViewDisassembler::Render(bool& bOpen)
@@ -852,12 +896,12 @@ void ViewDisassembler::Disassemble(Engine::AnalyzerFlags flags)
 {
 	if (!Engine::IsAttached()) return;
 
-	POINTER startAddress = m_pVirtualBase - 1024;
+	POINTER startAddress = m_pVirtualBase - 0x2048;
 
 	try
 	{
 
-		Engine::Analyze(startAddress, 2048, flags, m_memoryBuffer, m_analyzedData);
+		Engine::Analyze(startAddress, 0x4096, flags, m_memoryBuffer, m_analyzedData);
 
 		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
 		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)
@@ -919,4 +963,4 @@ void ViewDisassembler::GoToAddress(POINTER address)
 
 		m_pVirtualBase = m_analyzedData.instructions[m_instructionOffset].address;
 	}
-       }
+}
