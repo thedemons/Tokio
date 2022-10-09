@@ -136,26 +136,24 @@ bool OpenFileInExplorer(const std::wstring& filePath) noexcept
 
 bool ClipboardCopy(const std::wstring& text) noexcept
 {
-	if (!OpenClipboard(0)) return false;
-	if (!EmptyClipboard()) return false;
+	if (!::OpenClipboard(NULL))
+		return false;
 
-	HANDLE hClipboardData = GlobalAlloc(GMEM_DDESHARE, sizeof(wchar_t) * (text.size() + 1));
-	if (!hClipboardData) return false;
-
-	bool result = false;
-	void* pchData = GlobalLock(hClipboardData);
-
-	if (pchData)
+	HGLOBAL wbuf_handle = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(wchar_t) * (text.size() + 1));
+	if (wbuf_handle == nullptr)
 	{
-		memcpy(pchData, text.c_str(), text.size() * sizeof(wchar_t));
-
-		if (GlobalUnlock(hClipboardData))
-		{
-			result = SetClipboardData(CF_UNICODETEXT, hClipboardData);
-		}
+		::CloseClipboard();
+		return false;
 	}
-	GlobalFree(pchData);
-	CloseClipboard();
+
+	void* wbuf_global = ::GlobalLock(wbuf_handle);
+	memcpy(wbuf_global, text.c_str(), text.size() * sizeof(wchar_t));
+
+	::GlobalUnlock(wbuf_handle);
+	::EmptyClipboard();
+	if (::SetClipboardData(CF_UNICODETEXT, wbuf_handle) == NULL)
+		::GlobalFree(wbuf_handle);
+	::CloseClipboard();
 	return true;
 }
 
