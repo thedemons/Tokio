@@ -66,4 +66,13 @@ public:
 	}
 
 	virtual void OnDetach(){}
+
+	void Focus()
+	{
+		ImGuiWindow* window = ImGui::FindWindowByName(Title().c_str());
+		if (window != nullptr)
+		{
+			ImGui::FocusWindow(window);
+		}
+	}
 };

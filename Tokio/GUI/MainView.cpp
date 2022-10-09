@@ -56,7 +56,7 @@ void Init()
 	AddView<ViewSymbolList>();
 	AddView<ViewSettings>();
 	AddView<ViewDisassembler>();
-	AddView<ViewDecompiler>();
+	//AddView<ViewDecompiler>();
 
 	Engine::OnAttachCallback(HandlerAttachProcess);
 	Engine::OnDetachCallback(HandlerDetachProcess);
@@ -118,6 +118,13 @@ void RenderMenuBar()
 				if (!view.pView->isClosable()) continue;
 				ImGui::MenuItem(view.pView->Title().c_str(), nullptr, &view.bOpen);
 			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Add new Memory Scan")) AddView<ViewMemoryScan>();
+			if (ImGui::MenuItem("Add new Symbol List")) AddView<ViewSymbolList>();
+			if (ImGui::MenuItem("Add new Disassembler")) AddView<ViewDisassembler>();
+
 			ImGui::EndMenu();
 		}
 

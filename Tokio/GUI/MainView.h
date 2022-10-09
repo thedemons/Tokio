@@ -130,9 +130,7 @@ void SetViewFocus(size_t index = 0) noexcept
 
 			auto& view = views[index].get();
 			view.bOpen = true;
-
-			ImGuiWindow* window = ImGui::FindWindowByName(view.pView->Title().c_str());
-			ImGui::FocusWindow(window);
+			view.pView->Focus();
 		}
 		else
 		{
