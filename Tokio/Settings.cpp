@@ -51,13 +51,14 @@ void Load()
 	static ImGui::TokenizedText icon_find_references    { ICON_FA_SEARCH          , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_add_to_watch_list  { ICON_FA_EYE             , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_open_in_memory_view{ ICON_FA_MEMORY          , 0xFFFFD766 };
-	static ImGui::TokenizedText icon_switch_mode        { ICON_FA_LIGHT_SWITCH_OFF, 0xFFFFD766 };
+	static ImGui::TokenizedText icon_switch_mode        { ICON_FA_CHART_NETWORK   , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_open_file_location { ICON_FA_FOLDER_OPEN     , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_freeze             { ICON_FA_SNOWFLAKE	      , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_power_off          { ICON_FA_POWER_OFF	      , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_attach_process     { ICON_FA_STEP_FORWARD	  , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_refresh            { ICON_FA_REDO	          , 0xFFFFD766 };
 	static ImGui::TokenizedText icon_disassembler       { ICON_FA_MICROCHIP	      , 0xFFFFD766 };
+	static ImGui::TokenizedText icon_pseudo_code        { ICON_FA_CODE     	      , 0xFF4AA657 };
 
 	shortcuts.DisasmCopyAddress          = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         , &icon_copy                };
 	shortcuts.DisasmGoToAdress           = { ImGuiKey_LeftCtrl, ImGuiKey_G, "Go to address"        , &icon_goto_address        };
@@ -66,6 +67,7 @@ void Load()
 	shortcuts.DisasmAddToWatchList       = { ImGuiKey_LeftCtrl, ImGuiKey_T, "Add to watch list"    , &icon_add_to_watch_list   };
 	shortcuts.DisasmOpenInMemoryView     = { ImGuiKey_LeftCtrl, ImGuiKey_B, "Open in memory view"  , &icon_open_in_memory_view };
 	shortcuts.DisasmSwitchMode           = { ImGuiKey_Space               , "Switch mode"          , &icon_switch_mode         };
+	shortcuts.DisasmDecompile            = { ImGuiKey_F4                  , "Decompile"            , &icon_pseudo_code };
 
 	shortcuts.SymListCopyAddress         = { ImGuiKey_LeftCtrl, ImGuiKey_C, "Copy address"         , &icon_copy                };
 	shortcuts.SymListRefresh             = { ImGuiKey_LeftCtrl, ImGuiKey_R, "Refresh symbols"      , &icon_refresh             };

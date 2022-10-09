@@ -142,6 +142,7 @@ struct ShortCuts
 	ShortcutKey DisasmAddToWatchList;
 	ShortcutKey DisasmOpenInMemoryView;
 	ShortcutKey DisasmSwitchMode;
+	ShortcutKey DisasmDecompile;
 	
 	ShortcutKey SymListCopyAddress;
 	ShortcutKey SymListRefresh;
