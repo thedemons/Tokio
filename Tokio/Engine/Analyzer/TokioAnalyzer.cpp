@@ -152,13 +152,17 @@ bool AnalyzeSubroutineBlocks(
 			// somewhere outside the analyzed range
 			if (instruction.referencedIndex != UPTR_UNDEFINED)
 			{
-				bool bNextInvalid =
-					next_instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
-					next_instruction.mnemonic.type == DisasmOperandType::Invalid ||
-					next_instruction.isNotReadable;
+				//bool bNextInvalid =
+				//	next_instruction.mnemonic.type == DisasmOperandType::mneInt3 ||
+				//	next_instruction.mnemonic.type == DisasmOperandType::Invalid ||
+				//	next_instruction.isNotReadable;
 
-				// a conditional jump but its next instruction is invalid, this is not a subroutine
-				if (bNextInvalid) return false;
+				// FIXME: Edge case - still a subroutine
+				// jnz 0x12345
+				// int3
+				// xor eax,eax
+				//// a conditional jump but its next instruction is invalid, this is not a subroutine
+				//if (bNextInvalid) return false;
 
 				// analyzed the block that this instruction jumps to
 				thisBlock.nextCondBlockIndex = subroutine.blocks.size();
