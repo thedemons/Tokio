@@ -29,7 +29,6 @@ PluginInterface& LoadDllPlugin(const std::wstring& dllPath) EXCEPT
 
     if (pEntry == nullptr)
     {
-        printf("%d\n", GetLastError());
         throw Tokio::Exception(Tokio::Exception::Type::WinAPI,
             "Could not find the entry point for plugin %s", Tokio::String(dllPath).c_str());
     }
