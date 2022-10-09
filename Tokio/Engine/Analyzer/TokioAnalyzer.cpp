@@ -114,6 +114,10 @@ bool AnalyzeSubroutineBlocks(
 	for (; index < data.instructions.size() - 1; index++)
 	{
 		AnalyzedInstruction& instruction = data.instructions[index];
+		if (instruction.address == 0x7FFE09C117E9)
+		{
+			printf("!23\n");
+		}
 		AnalyzedInstruction& next_instruction = data.instructions[index + 1];
 
 		instruction.blockIndex = thisBlockIndex;
@@ -162,13 +166,22 @@ bool AnalyzeSubroutineBlocks(
 				if (instruction.referencedIndex > index && bNextInvalid) return true;
 
 				// analyzed the block that this instruction jumps to
-				thisBlock.nextBlockIndex = subroutine.blocks.size();
-				return AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex, UPTR_UNDEFINED, thisBlockIndex);
+				bool result = AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex, UPTR_UNDEFINED, thisBlockIndex);
+				auto& refIns = data.instructions[instruction.referencedIndex];
+				if (refIns.iSubroutine == UPTR_UNDEFINED)
+					subroutine.blocks[thisBlockIndex].nextBlockIndex = refIns.blockIndex;
+				return result;
 			}
 
 			// if the referenced index was invalid, there are multiple reasons why
 			// it might jumps to somewhere outside of the analyzed range, or the opcode
 			// was corrupted, or this simply isn't a subroutine
+			return true;
+		}
+		// the next instruction is already analyzed
+		else if (next_instruction.blockIndex != UPTR_UNDEFINED)
+		{
+			thisBlock.instructionCount = index - start_index + 1;
 			return true;
 		}
 		// if is is a jump with condition, there are two paths
@@ -194,8 +207,11 @@ bool AnalyzeSubroutineBlocks(
 				//if (bNextInvalid) return false;
 
 				// analyzed the block that this instruction jumps to
-				thisBlock.nextCondBlockIndex = subroutine.blocks.size();
 				bool result = AnalyzeSubroutineBlocks(data, subroutine, instruction.referencedIndex, thisBlockIndex);
+
+				auto& refIns = data.instructions[instruction.referencedIndex];
+				if (refIns.iSubroutine == UPTR_UNDEFINED)
+					subroutine.blocks[thisBlockIndex].nextCondBlockIndex = refIns.blockIndex;
 
 				// continue analyze the next instruction if everything is fine
 				if (!result) return false;
@@ -205,19 +221,20 @@ bool AnalyzeSubroutineBlocks(
 			if (next_instruction.blockIndex != UPTR_UNDEFINED)
 			{
 				// we set this block next index to the next instruction block index
-				thisBlock.nextBlockIndex = next_instruction.blockIndex;
+				subroutine.blocks[thisBlockIndex].nextBlockIndex = next_instruction.blockIndex;
 				subroutine.blocks[next_instruction.blockIndex].prevBlockIndex = thisBlockIndex;
 				return true;
 			}
 			else
 			{
+				// continue analyze the next instruction
+				bool result = AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
+
 				// notice that we don't use the pointer thisBlock here, because when we call
 				// AnalyzeSubroutineBlocks again (recursively), it might have emplace_back() 
 				// and thus make the thisBlock pointer invalid
-				subroutine.blocks[thisBlockIndex].nextBlockIndex = subroutine.blocks.size();
-
-				// continue analyze the next instruction
-				return AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
+				subroutine.blocks[thisBlockIndex].nextBlockIndex = data.instructions[index + 1].blockIndex;
+				return result;
 			}
 		}
 		// or if it has any referer, i don't know how well this will work since other
@@ -227,6 +244,7 @@ bool AnalyzeSubroutineBlocks(
 			// create a new block on the next index
 			thisBlock.instructionCount = index - start_index + 1;
 			thisBlock.nextBlockIndex = subroutine.blocks.size();
+
 			return AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
 		}
 
@@ -266,6 +284,7 @@ inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, siz
 		POINTER endAddr = data.instructions[end_index].address;
 
 		if (subroutine.address == UPTR_UNDEFINED)
+		// FIXME
 		//if (startAddr < subroutine.address)
 		{
 			subroutine.address = startAddr;
@@ -434,7 +453,7 @@ void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data, size_t numInstruc
 				bool bReferenceInRange = false;
 				if (it->referencedAddress > it->address)
 				{
-					reference = std::find(it + 1, iterEnd, it->referencedAddress);
+					reference = std::find(it, iterEnd, it->referencedAddress);
 					bReferenceInRange = reference != iterEnd;
 				}
 				else
@@ -451,6 +470,7 @@ void TokioAnalyzer::AnalyzeCrossReferences(AnalyzedData& data, size_t numInstruc
 
 					reference->referers.push_back(it._Ptr);
 
+					it->fmtComment.push_back(0xffffffff, "j %llX", it->referencedAddress);
 					reference->fmtComment.append_space(xRefString);
 					reference->fmtComment += it->fmtAddress;
 
