@@ -45,13 +45,31 @@ using namespace std::string_literals;
 namespace Engine
 {
 
-PluginInterface& LoadDllPlugin(const std::wstring& dllPath) EXCEPT
+PluginInterface& LoadDllPlugin(std::filesystem::path pluginDir) EXCEPT
 {
-    HMODULE hModule = LoadLibraryW(dllPath.c_str());
+    std::error_code ec;
+    std::filesystem::current_path(pluginDir, ec);
+
+    if (ec.value())
+    {
+        throw Tokio::Exception("LoadDllPlugin() could not set current working directory"s);
+    }
+
+    auto pluginName = pluginDir.filename();
+    auto pluginFilePath = pluginName.concat(L".dll");
+
+    if (!std::filesystem::exists(pluginFilePath))
+    {
+        throw Tokio::Exception("Found extension directory named \"%s\" but couldn't find \"%s\"\n",
+            pluginName.string().c_str(), pluginFilePath.string().c_str());
+    }
+
+
+    HMODULE hModule = LoadLibraryW(pluginFilePath.c_str());
     if (hModule == nullptr)
     {
         throw Tokio::Exception(Tokio::Exception::Type::WinAPI,
-            "Failed to load the plugin %s", Tokio::String(dllPath).c_str());
+            "Failed to load the plugin %s", Tokio::String(pluginFilePath).c_str());
     }
 
     PLUGIN_ENTRY pEntry = reinterpret_cast<PLUGIN_ENTRY>(GetProcAddress(hModule, "PluginEntry"));
@@ -59,7 +77,7 @@ PluginInterface& LoadDllPlugin(const std::wstring& dllPath) EXCEPT
     if (pEntry == nullptr)
     {
         throw Tokio::Exception(Tokio::Exception::Type::WinAPI,
-            "Could not find the entry point for plugin %s", Tokio::String(dllPath).c_str());
+            "Could not find the entry point for plugin %s", Tokio::String(pluginFilePath).c_str());
     }
 
     static const EngineInterface EInterface{
@@ -75,6 +93,8 @@ PluginInterface& LoadDllPlugin(const std::wstring& dllPath) EXCEPT
 
 void LoadPlugins() EXCEPT
 {
+    auto currentWorkingDir = std::filesystem::current_path();
+
     try
     {
         std::wstring pluginsDir = L"Plugins\\";
@@ -82,25 +102,14 @@ void LoadPlugins() EXCEPT
         {
             if (!entry.is_directory()) continue;
 
-            auto pluginName = entry.path().filename();
-            auto pluginPath = entry.path() / pluginName.concat(L".dll");
-            
-            if (!std::filesystem::exists(pluginPath))
+            try
             {
-                Tokio::Log("Found extension directory named \"%s\" but couldn't find \"%s\"\n",
-                    pluginName.string().c_str(), pluginPath.string().c_str());
+                PluginInterface& plugin = LoadDllPlugin(entry.path());
+                Tokio::Log("Loaded plugin: %s %s\n", plugin.name.c_str(), plugin.version.c_str());
             }
-            else
+            catch (Tokio::Exception& e)
             {
-                try
-                {
-                    PluginInterface& plugin = LoadDllPlugin(pluginPath);
-                    Tokio::Log("Loaded plugin: %s %s\n", plugin.name.c_str(), plugin.version.c_str());
-                }
-                catch (Tokio::Exception& e)
-                {
-                    e.Log();
-                }
+                e.Log();
             }
         }
     }
@@ -108,6 +117,8 @@ void LoadPlugins() EXCEPT
     {
         // no plugins folder
     }
+
+    std::filesystem::current_path(currentWorkingDir);
 }
 
 void LoadDecompilerPlugin() noexcept
