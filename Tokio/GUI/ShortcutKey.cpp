@@ -93,6 +93,8 @@ bool ShortcutKey::RenderInPopup(bool bEnabled)
 	ImVec2 icon_size = m_icon.CalcSize();
 	ImVec2 label_size = icon_size + ImGui::CalcTextSize(m_description.c_str(), m_description.c_str() + m_description.size(), false);
 
+	float icon_padding = g.FontSize * 1.5f;
+
 	const bool menuset_is_open = IsRootOfOpenMenuSet();
 	ImGuiWindow* backed_nav_window = g.NavWindow;
 	if (menuset_is_open)
@@ -119,7 +121,7 @@ bool ShortcutKey::RenderInPopup(bool bEnabled)
 		ImGui::PopStyleVar();
 
 		m_icon.Render(g.CurrentWindow->DrawList, text_pos);
-		ImGui::RenderText(text_pos + ImVec2(icon_size.x, 0), m_description.c_str(), m_description.c_str() + m_description.size());
+		ImGui::RenderText(text_pos + ImVec2(icon_size.x ? icon_padding : 0.f, 0.f), m_description.c_str(), m_description.c_str() + m_description.size());
 
 		window->DC.CursorPos.x += IM_FLOOR(style.ItemSpacing.x * (-1.0f + 0.5f)); // -1 spacing to compensate the spacing added when Selectable() did a SameLine(). It would also work to call SameLine() ourselves after the PopStyleVar().
 	}
@@ -134,7 +136,7 @@ bool ShortcutKey::RenderInPopup(bool bEnabled)
 
 		ImVec2 text_pos = pos + ImVec2(offsets->OffsetLabel, 0.0f);
 		m_icon.Render(g.CurrentWindow->DrawList, text_pos);
-		ImGui::RenderText(text_pos + ImVec2(icon_size.x ? 20.f : 0.f, 0), m_description.c_str(), m_description.c_str() + m_description.size());
+		ImGui::RenderText(text_pos + ImVec2(icon_size.x ? icon_padding : 0.f, 0.f), m_description.c_str(), m_description.c_str() + m_description.size());
 
 		if (shortcut_w > 0.0f)
 		{
