@@ -88,9 +88,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ZYDIS_STATIC_BUILD;ZYCORE_STATIC_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman;$(VcpkgRoot)\installed\x64-windows\include;$(VcpkgRoot)\installed\x64-windows\include\qt5;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtGui;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtCore;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtWidgets;$(VcpkgRoot)\installed\x64-windows\tools\qt5\mkspecs\win32-msvc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -113,9 +113,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);ZYDIS_STATIC_BUILD;ZYCORE_STATIC_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman;$(VcpkgRoot)\installed\x64-windows\include;$(VcpkgRoot)\installed\x64-windows\include\qt5;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtGui;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtCore;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtWidgets;$(VcpkgRoot)\installed\x64-windows\tools\qt5\mkspecs\win32-msvc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -138,9 +138,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);ZYDIS_STATIC_BUILD;ZYCORE_STATIC_BUILD</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir)ThirdParty\Zydis</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -163,9 +163,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);ZYDIS_STATIC_BUILD;ZYCORE_STATIC_BUILD</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman;$(VcpkgRoot)\installed\x64-windows\include;$(VcpkgRoot)\installed\x64-windows\include\qt5;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtGui;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtCore;$(VcpkgRoot)\installed\x64-windows\include\qt5\QtWidgets;$(VcpkgRoot)\installed\x64-windows\tools\qt5\mkspecs\win32-msvc</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DXSDK_DIR)Include;$(ProjectDir);$(SolutionDir);$(SolutionDir)ThirdParty\Zydis;$(SolutionDir)ThirdParty\snowman</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -206,6 +206,8 @@
     <ClCompile Include="Engine\Symbol\Demangler\undname.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Engine\Symbol\Win32Symbol.cpp" />
     <ClCompile Include="GUI\ImGui\custom\TokenizedText.cpp" />
@@ -266,6 +268,26 @@
     <ClCompile Include="GUI\Widgets\WTextInput.cpp" />
     <ClCompile Include="MainApplication.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="sfg\sfg.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Level3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Level3</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Level3</WarningLevel>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatWarningAsError>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</TreatWarningAsError>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Tokio.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -324,6 +346,7 @@
     <ClInclude Include="Resources\FontAwesomeImpl.h" />
     <ClInclude Include="Serialize.hpp" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="sfg\sfg.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

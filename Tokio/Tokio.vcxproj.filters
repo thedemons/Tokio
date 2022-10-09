@@ -67,6 +67,9 @@
     <Filter Include="Engine\Plugins">
       <UniqueIdentifier>{e981a090-8127-4310-9613-0fc1a44da4ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Third-Party\sfg">
+      <UniqueIdentifier>{44161f5d-af3d-4674-9285-68877426b869}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Tokio.cpp">
@@ -194,6 +197,12 @@
     </ClCompile>
     <ClCompile Include="Engine\Plugins\PluginLoader.cpp">
       <Filter>Engine\Plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="sfg\sfg.cpp">
+      <Filter>GUI\Views</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -361,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Plugins\PluginLoader.h">
       <Filter>Engine\Plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="sfg\sfg.h">
+      <Filter>GUI\Views</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
