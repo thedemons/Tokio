@@ -103,40 +103,58 @@ _NODISCARD _CONSTEXPR20 bool Is32Bit() noexcept
 }
 
 // Return a shared pointer of the target process
-_NODISCARD _CONSTEXPR20 std::shared_ptr<ProcessData> Target() noexcept
+_NODISCARD _CONSTEXPR20 std::shared_ptr<ProcessData> Target() noexcept NULLABLE
 {
 	return g_Target;
 }
 
 // return a shared pointer to the memory engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseMemory> Memory() noexcept
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseMemory> Memory() noexcept NULLABLE
 {
 	return g_Memory;
 }
 
 // return a shared pointer to the disassembler engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDisassembler> Disassembler() noexcept
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDisassembler> Disassembler() noexcept NULLABLE
 {
 	return g_Disassembler;
 }
 
 
 // return a shared pointer to the disassembler engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDecompiler> Decompiler() noexcept
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseDecompiler> Decompiler() noexcept NULLABLE
 {
 	return g_Decompiler;
 }
 
 // return a shared pointer to the analyzer engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseAnalyzer> Analyzer() noexcept
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseAnalyzer> Analyzer() noexcept NULLABLE
 {
 	return g_Analyzer;
 }
 
 // return a shared pointer to the disassembler engine
-_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseSymbol> Symbol() noexcept
+_NODISCARD _CONSTEXPR20 std::shared_ptr<BaseSymbol> Symbol() noexcept NULLABLE
 {
 	return g_Symbol;
+}
+
+// check if we have a disassembler for the current target
+_NODISCARD _CONSTEXPR20 bool HasDisassembler() noexcept
+{
+	return g_Disassembler != nullptr;
+}
+
+// check if we have a decompiler for the current target
+_NODISCARD _CONSTEXPR20 bool HasDecompiler() noexcept
+{
+	return g_Decompiler != nullptr;
+}
+
+// check if we have a symbol engine for the current target
+_NODISCARD _CONSTEXPR20 bool HasSymbol() noexcept
+{
+	return g_Symbol != nullptr;
 }
 
 _NODISCARD _CONSTEXPR20 size_t ReadMem(POINTER src, void* dest, size_t size) noexcept
