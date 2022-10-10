@@ -81,47 +81,47 @@ _NODISCARD std::string SnowmanDecompiler::Decompile(POINTER address, size_t size
 {
 	nc::core::Context m_context;
 
-	std::shared_ptr<image::Image> image = m_context.image();
-	image::Platform& platform = image->platform();
+	//std::shared_ptr<image::Image> image = m_context.image();
+	//image::Platform& platform = image->platform();
 
-	if (m_target->is32Bit())
-	{
-		platform.setArchitecture(QLatin1String("i386"));
-	}
-	else
-	{
-		platform.setArchitecture(QLatin1String("x86-64"));
-	}
+	//if (m_target->is32Bit())
+	//{
+	//	platform.setArchitecture(QLatin1String("i386"));
+	//}
+	//else
+	//{
+	//	platform.setArchitecture(QLatin1String("x86-64"));
+	//}
 
-	platform.setOperatingSystem(image::Platform::Windows);
-	image->setDemangler(std::make_unique<nc::core::mangling::DefaultDemangler>());
+	//platform.setOperatingSystem(image::Platform::Windows);
+	//image->setDemangler(std::make_unique<nc::core::mangling::DefaultDemangler>());
 
-	// add the symbols from m_target
-	for (ProcessModule& procMod : m_target->modules)
-	{
-		QString moduleName = QString::fromStdString(procMod.moduleNameA);
+	//// add the symbols from m_target
+	//for (ProcessModule& procMod : m_target->modules)
+	//{
+	//	QString moduleName = QString::fromStdString(procMod.moduleNameA);
 
-		image->addSymbol(
-			std::make_unique<image::Symbol>(
-				image::SymbolType::SECTION,
-				moduleName,
-				static_cast<ByteAddr>(procMod.base)
-				)
-		);
+	//	image->addSymbol(
+	//		std::make_unique<image::Symbol>(
+	//			image::SymbolType::SECTION,
+	//			moduleName,
+	//			static_cast<ByteAddr>(procMod.base)
+	//			)
+	//	);
 
-		for (ModuleSymbol& symbol : procMod.exports)
-		{
-			QString symbolName = QString::fromStdString(symbol.name);
+	//	for (ModuleSymbol& symbol : procMod.symbols)
+	//	{
+	//		QString symbolName = QString::fromStdString(symbol.fullName);
 
-			image->addSymbol(
-				std::make_unique<image::Symbol>(
-					image::SymbolType::FUNCTION,
-					symbolName,
-					static_cast<ByteAddr>(procMod.base + symbol.offset)
-					)
-			);
-		}
-	}
+	//		image->addSymbol(
+	//			std::make_unique<image::Symbol>(
+	//				image::SymbolType::FUNCTION,
+	//				symbolName,
+	//				static_cast<ByteAddr>(procMod.base + symbol.offset)
+	//				)
+	//		);
+	//	}
+	//}
 
 
 	//static const auto name = QString::fromUtf8(u8".text");
@@ -136,7 +136,9 @@ _NODISCARD std::string SnowmanDecompiler::Decompile(POINTER address, size_t size
 	//section->setAllocated(true);
 	//section->setExternalByteSource(std::make_unique<MemoryStream>(m_memory));
 	//image->addSection(std::move(section));
-
+	auto result = EInterface.pGetSymbol()->AddressToModuleSymbol(address);
+	if (result.has_value())
+		Driver::parse(m_context, QString::fromStdString(result.Module()->modulePathA));
 	Driver::disassemble(m_context, m_stream.get(), static_cast<ByteAddr>(address), static_cast<ByteAddr>(address + size));
 	Driver::decompile(m_context);
 

@@ -311,11 +311,31 @@ struct PE_EXPORT_DIRECTORY
 	DWORD   AddressOfNameOrdinals{0};		        // RVA from base of image
 };
 
+struct PE_THUNK_DATA_64
+{
+	union
+	{
+		ULONGLONG ForwarderString;  // PBYTE 
+		ULONGLONG Function;         // PDWORD
+		ULONGLONG Ordinal;
+		ULONGLONG AddressOfData;    // PIMAGE_IMPORT_BY_NAME
+	} u1{0};
+};
 
+struct PE_THUNK_DATA_32
+{
+	union
+	{
+		DWORD ForwarderString;      // PBYTE 
+		DWORD Function;             // PDWORD
+		DWORD Ordinal;
+		DWORD AddressOfData;        // PIMAGE_IMPORT_BY_NAME
+	} u1{0};
+};
 
 namespace Engine
 {
-template <typename NtHeaderType>
+template <typename NtHeaderType, typename ThunkType>
 void ParseNtHeader(void* pBase, ProcessModule& procMod) EXCEPT
 {
 
@@ -324,38 +344,90 @@ void ParseNtHeader(void* pBase, ProcessModule& procMod) EXCEPT
 	auto* pNtHeader = reinterpret_cast<NtHeaderType*>(pByteBase + pDosHeader->e_lfanew);
 	//auto* pSectionHeaders = pNtHeader->GetFirstSectionHeader();
 
-	// virtual address of the directory
-	DWORD dirVirtualAddr = pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-	POINTER RVA_offset = pNtHeader->GetRVAOffset(pByteBase, dirVirtualAddr);
-
-	if (RVA_offset == 0)
+	PE_DATA_DIRECTORY* pExportEntry = &pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+	if (pExportEntry->Size > 0)
 	{
-		throw Tokio::Exception("Win32Symbol ParseNtHeader Failed to get the RVA offset of module: %s", procMod.modulePathA.c_str());
+		// virtual address of the export directory
+		DWORD exportDirVirtualAddr = pExportEntry->VirtualAddress;
+		POINTER RVA_offset = pNtHeader->GetRVAOffset(pByteBase, exportDirVirtualAddr);
+
+		if (RVA_offset == 0)
+		{
+			throw Tokio::Exception("Win32Symbol ParseNtHeader Failed to get the RVA offset of module: %s", procMod.modulePathA.c_str());
+		}
+
+		auto* pExportDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + exportDirVirtualAddr);
+
+		auto* lpFunctionNames = reinterpret_cast<DWORD*>(RVA_offset + pExportDirectory->AddressOfNames);
+		auto* lpFunctions = reinterpret_cast<DWORD*>(RVA_offset + pExportDirectory->AddressOfFunctions);
+		auto* lpOrdinals = reinterpret_cast<WORD*>(RVA_offset + pExportDirectory->AddressOfNameOrdinals);
+
+		for (size_t j = 0; j < pExportDirectory->NumberOfNames; j++)
+		{
+			// ordinal of the export
+			WORD ordinal = lpOrdinals[j];
+
+			// offset of the export
+			DWORD function = lpFunctions[ordinal];
+
+			// symbol name
+			char* name = reinterpret_cast<char*>(lpFunctionNames[j] + RVA_offset);
+
+			ModuleSymbol& data = procMod.AddSymbol();
+			data.offset = static_cast<POINTER>(function);
+			data.ordinal = ordinal;
+			data.fullName = DemangleSymbolMSVC(name);
+		}
 	}
 
-	//auto* pDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + dirVirtualAddr);
-	auto* pExportDirectory = reinterpret_cast<PE_EXPORT_DIRECTORY*>(RVA_offset + dirVirtualAddr);
+	//PE_DATA_DIRECTORY* pImportEntry = &pNtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT];
 
-	auto* lpFunctionNames = reinterpret_cast<DWORD*>(RVA_offset + pExportDirectory->AddressOfNames);
-	auto* lpFunctions = reinterpret_cast<DWORD*>(RVA_offset + pExportDirectory->AddressOfFunctions);
-	auto* lpOrdinals = reinterpret_cast<WORD*>(RVA_offset + pExportDirectory->AddressOfNameOrdinals);
+	//if (pImportEntry->Size > 0)
+	//{
+	//	DWORD importDirVirtualAddr = pImportEntry->VirtualAddress;
+	//	POINTER RVA_offset = pNtHeader->GetRVAOffset(pByteBase, importDirVirtualAddr);
+	//	auto* pImportDescriptor = reinterpret_cast<IMAGE_IMPORT_DESCRIPTOR*>(RVA_offset + importDirVirtualAddr);
 
-	for (size_t j = 0; j < pExportDirectory->NumberOfNames; j++)
-	{
-		// ordinal of the export
-		WORD ordinal = lpOrdinals[j];
+	//	//sizeof(IMAGE_IMPORT_DESCRIPTOR)
+	//	for (size_t index = 0; ; index++)
+	//	{
+	//		if (pImportDescriptor[index].Characteristics == 0) break;
+	//		const char* szDllName = reinterpret_cast<const char*>(RVA_offset +  pImportDescriptor[index].Name);
 
-		// offset of the export
-		DWORD function = lpFunctions[ordinal];
+	//		printf("%s [%s]\n", procMod.moduleNameA.c_str(), szDllName);
+	//		if (!pImportDescriptor[index].FirstThunk || !pImportDescriptor[index].OriginalFirstThunk)
+	//			continue;
 
-		// symbol name
-		char* name = reinterpret_cast<char*>(lpFunctionNames[j] + RVA_offset);
+	//		auto* pThunk = reinterpret_cast<ThunkType*>(RVA_offset + pImportDescriptor[index].FirstThunk);
+	//		auto* pOrigThunk = reinterpret_cast<ThunkType*>(RVA_offset + pImportDescriptor[index].OriginalFirstThunk);
 
-		ModuleSymbol& data = procMod.AddExportSymbol();
-		data.offset = static_cast<POINTER>(function);
-		data.ordinal = ordinal;
-		data.name = DemangleSymbolMSVC(name);
-	}
+	//		MEMORY_BASIC_INFORMATION memInfo;
+
+	//		for (; pOrigThunk->u1.AddressOfData; pOrigThunk++, pThunk++)
+	//		{
+	//			auto* pThunkData = reinterpret_cast<IMAGE_IMPORT_BY_NAME*>(RVA_offset + pOrigThunk->u1.AddressOfData);
+
+	//			// check for bad pointer to thunk data, it's slow
+	//			// FIXME-PERFORMANCE
+	//			if (VirtualQuery(pThunkData, &memInfo, sizeof(memInfo)) == 0) break;
+
+	//			POINTER function = static_cast<POINTER>(RVA_offset + pThunk->u1.Function);
+	//			printf("%s - %llx\n", pThunkData->Name, function);
+	//			/*
+	//			if (pThunk->u1.AddressOfData == function)
+	//			{
+	//				DWORD oldProtect = 0;
+	//				if (!VirtualProtect(&pThunk->u1.Function, sizeof(DWORD_PTR), PAGE_EXECUTE_READWRITE, &oldProtect))
+	//					return FALSE;
+
+	//				pThunk->u1.Function = yourfunc;
+
+	//				VirtualProtect(&pThunk->u1.Function, sizeof(DWORD_PTR), oldProtect, &oldProtect);
+	//				return true;
+	//			}*/
+	//		}
+	//	}
+	//}
 }
 
 void GetPEInfo(ProcessModule& procMod) EXCEPT
@@ -402,12 +474,12 @@ void GetPEInfo(ProcessModule& procMod) EXCEPT
 	{
 		// strip 4 bytes of the address if the module is 32-bit
 		procMod.base &= 0xFFFFFFFFull;
-		ParseNtHeader<PE_NT_HEADER_32>(pVoidBase, procMod);
+		ParseNtHeader<PE_NT_HEADER_32, PE_THUNK_DATA_32>(pVoidBase, procMod);
 	}
 	// for 64 bit process
 	else
 	{
-		ParseNtHeader<PE_NT_HEADER_64>(pVoidBase, procMod);
+		ParseNtHeader<PE_NT_HEADER_64, PE_THUNK_DATA_64>(pVoidBase, procMod);
 	}
 
 	UnmapViewOfFile(pVoidBase);
@@ -650,13 +722,13 @@ _NODISCARD bool Win32Symbol::AddressToSymbol(POINTER address, std::string& symbo
 				symbol.size(),
 				"%s.%s+%llX",
 				pModule->moduleNameA.c_str(),
-				pSymbol->name.c_str(),
+				pSymbol->fullName.c_str(),
 				offsetFromVA
 			);
 		}
 		else
 		{
-			len = sprintf_s(symbol.data(), size, "%s.%s", pModule->moduleNameA.c_str(), pSymbol->name.c_str());
+			len = sprintf_s(symbol.data(), size, "%s.%s", pModule->moduleNameA.c_str(), pSymbol->fullName.c_str());
 		}
 
 		symbol.resize(static_cast<size_t>(len));

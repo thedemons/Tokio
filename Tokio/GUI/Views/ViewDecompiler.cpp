@@ -30,6 +30,7 @@
 #include "stdafx.h"
 #include "ViewDecompiler.h"
 #include "Engine/Engine.h"
+#include "Graphics.h"
 
 ViewDecompiler::ViewDecompiler()
 {
@@ -135,7 +136,7 @@ void ViewDecompiler::Render(bool& bOpen)
 	ImGui::Begin(Title().c_str(), &bOpen, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::PopStyleVar();
 
-	ImGui::PushFont(MainApplication::FontMonoRegular);
+	ImGui::PushFont(Graphics::FontMono);
 	m_textEditor.Render("TextEditor");
 	ImGui::PopFont();
 

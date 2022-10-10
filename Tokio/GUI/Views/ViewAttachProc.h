@@ -56,41 +56,41 @@ private:
 private: // members
 	struct WindowData
 	{
-		PID pid = 0;								// associated process
-		WindowHandle hwnd = 0;					    // window handle
-		std::string title;							// window title
-		std::string classname;						// window class name
-		std::string unique_title; 					// for tree node rendering
-		std::string hidden_title; 					// for tree node rendering
-		ID3D11ShaderResourceView* icon = nullptr;	// window icon texture
+		PID pid = 0;								    // associated process
+		WindowHandle hwnd = 0;					        // window handle
+		std::string title;							    // window title
+		std::string classname;						    // window class name
+		std::string unique_title; 					    // for tree node rendering
+		std::string hidden_title; 					    // for tree node rendering
+		ImTextureID icon = nullptr;	                    // window icon texture
 	};
 
 	struct ProcessListData
 	{
-		PID pid = 0;								// process pid
-		std::string  name;							// process name
-		std::string  path;							// file path
-		std::wstring wname;							// wide process name
-		std::wstring wpath;							// wide file path
-		uint64_t creationTime = 0;					// creation time
-		ProcessEntry entry;			    // just in case
+		PID pid = 0;								    // process pid
+		std::string  name;							    // process name
+		std::string  path;							    // file path
+		std::wstring wname;							    // wide process name
+		std::wstring wpath;							    // wide file path
+		uint64_t creationTime = 0;					    // creation time
+		ProcessEntry entry;			                    // just in case
 		
-		std::vector<WindowData> windows;			// associated windows
-		ID3D11ShaderResourceView* icon = nullptr;	// process icon texture
+		std::vector<WindowData> windows;			    // associated windows
+		ImTextureID icon = nullptr;	                    // process icon texture
 
-		bool isHidden = false;						// is this item hidden? (the filter is on)
+		bool isHidden = false;						    // is this item hidden? (the filter is on)
 	};
 
-	Widgets::Table m_table;							// main table
-	Widgets::TextInput m_textFilter;				// text input for filtering processes
+	Widgets::Table m_table;							    // main table
+	Widgets::TextInput m_textFilter;				    // text input for filtering processes
 
-	bool m_isOpenned = false;						// is the popup currenly openned
+	bool m_isOpenned = false;						    // is the popup currenly openned
 	std::vector<ProcessListData> m_processList;			// list of all process
 
-	double m_timeLastRefresh = 0.f;					// last refresh time, for refreshing the process list every x ms
+	double m_timeLastRefresh = 0.f;					    // last refresh time, for refreshing the process list every x ms
 	double m_refreshInterval = 1111.f;					// refresh every 1000ms
 
-	std::map<DWORD, ProcessListData> m_processCache;
+	std::map<PID, ProcessListData> m_processCache;
 
 public:
 	ViewAttachProc();
@@ -116,7 +116,7 @@ public:
 private:
 
 	bool IsItemFiltered(const ProcessListData& data, const std::string& filter);
-	void SelectProcessByPid(DWORD pid);
+	void SelectProcessByPid(PID pid);
 	void GetProcessList();
 };
 

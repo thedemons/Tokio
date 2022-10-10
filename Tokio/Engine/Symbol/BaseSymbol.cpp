@@ -41,23 +41,23 @@ BaseSymbol::BaseSymbol(const std::shared_ptr<ProcessData>& target) EXCEPT : m_ta
 // this also calculate the symbol size
 void BaseSymbol::SortSymbol(ProcessModule& procMod)
 {
-	if (procMod.exports.size() == 0) return;
+	if (procMod.symbols.size() == 0) return;
 
 	static const auto lmSortSymbolAsc = [](const ModuleSymbol& a, const ModuleSymbol& b) -> bool
 	{
 		return a.offset < b.offset;
 	};
 
-	std::sort(procMod.exports.begin(), procMod.exports.end(), lmSortSymbolAsc);
+	std::sort(procMod.symbols.begin(), procMod.symbols.end(), lmSortSymbolAsc);
 
 	// calculate the size of the symbols by subtracting the offset of the next symbol by this symbol offset
-	for (size_t i = 0; i < procMod.exports.size() - 1; i++)
+	for (size_t i = 0; i < procMod.symbols.size() - 1; i++)
 	{
-		procMod.exports[i].size = procMod.exports[i + 1].offset - procMod.exports[i].offset - 1;
+		procMod.symbols[i].size = procMod.symbols[i + 1].offset - procMod.symbols[i].offset - 1;
 	}
 
 	// default the last symbol size to 0x10 // FIXME
-	procMod.exports.back().size = 0x10;
+	procMod.symbols.back().size = 0x10;
 }
 
 // Make a copy of the modules (m_sortedModules)

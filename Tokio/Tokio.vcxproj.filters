@@ -96,9 +96,6 @@
     <ClCompile Include="GUI\MainView.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
-    <ClCompile Include="MainApplication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Engine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -198,10 +195,13 @@
     <ClCompile Include="Engine\Plugins\PluginLoader.cpp">
       <Filter>Engine\Plugins</Filter>
     </ClCompile>
-    <ClCompile Include="sfg\sfg.cpp">
-      <Filter>GUI\Views</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sfg\sfg.cpp">
+      <Filter>Third-Party\sfg</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -262,9 +262,6 @@
     </ClInclude>
     <ClInclude Include="Engine\Engine.h">
       <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="MainApplication.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Memory\BaseMemory.h">
       <Filter>Engine\Memory</Filter>
@@ -372,7 +369,10 @@
       <Filter>Engine\Plugins</Filter>
     </ClInclude>
     <ClInclude Include="sfg\sfg.h">
-      <Filter>GUI\Views</Filter>
+      <Filter>Third-Party\sfg</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

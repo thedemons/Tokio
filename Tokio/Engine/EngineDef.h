@@ -91,13 +91,23 @@ struct VirtualMemoryInfo
 
 struct ProcessModule;
 
+enum class SymbolType
+{
+	Unknown,
+	Import,
+	Export,
+};
+
 struct ModuleSymbol
 {
-	dword_t ordinal   {0}   ;		// ordinal index
-	POINTER offset {0}   ;	    // offset from the base
-	size_t size	   {0}   ;		// size of the subroutine
-	std::string name     ;	    // symbol name
-	ProcessModule* parent;	    // pointer to the module of this symbol
+	SymbolType type       = SymbolType::Unknown;      // the type of the symbol
+	dword_t ordinal       = 0;		                  // ordinal index
+	POINTER offset        = 0;	                      // offset from the base
+	size_t size           = 0;		                  // size of the subroutine
+	ProcessModule* parent = nullptr;                  // pointer to the module of this symbol
+
+	std::string fullName;	                          // full name including arguments, type, template,..
+	std::string shortName;	                          // short name for functions only
 
 	ModuleSymbol(ProcessModule* parent) : parent(parent){}
 };
@@ -129,12 +139,12 @@ struct ProcessModule
 
 	// all of the exports of this module
 	// this vector remains empty until BaseSymbol::Update has been called
-	std::vector<ModuleSymbol> exports;
+	std::vector<ModuleSymbol> symbols;
 
 	// warning: only BaseSymbol and its derived engines should be using this
-	inline ModuleSymbol& AddExportSymbol()
+	inline ModuleSymbol& AddSymbol()
 	{
-		return exports.emplace_back(this);
+		return symbols.emplace_back(this);
 	};
 };
 
@@ -225,7 +235,7 @@ public:
 	_NODISCARD _CONSTEXPR20 ModuleSymbol* Symbol() const noexcept
 	{
 		if (symbol_index == UPTR_UNDEFINED) return nullptr;
-		return &modules[module_index].get().exports[symbol_index];
+		return &modules[module_index].get().symbols[symbol_index];
 	}
 
 	// check if the address belongds to any of the symbols
@@ -233,11 +243,11 @@ public:
 	{
 		auto& procMod = modules[module_index].get();
 
-		if (procMod.exports.size() == 0) return false;
+		if (procMod.symbols.size() == 0) return false;
 		
 		POINTER RvaOffset = address - procMod.base;
-		auto& firstSymbol = procMod.exports.front();
-		auto& lastSymbol = procMod.exports.back();
+		auto& firstSymbol = procMod.symbols.front();
+		auto& lastSymbol = procMod.symbols.back();
 
 		return firstSymbol.offset <= RvaOffset && RvaOffset <= lastSymbol.offset + lastSymbol.size;
 	}
@@ -258,7 +268,7 @@ public:
 	// increase the symbol index by one, if out of bound then set to UPTR_UNDEFINED and return false
 	_NODISCARD _CONSTEXPR20 bool NextSymbol() noexcept
 	{
-		if (++symbol_index >= modules[module_index].get().exports.size())
+		if (++symbol_index >= modules[module_index].get().symbols.size())
 		{
 			symbol_index = UPTR_UNDEFINED;
 			return false;

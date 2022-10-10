@@ -32,6 +32,7 @@
 #include "ViewSymbolList.h"
 #include "ViewDisassembler.h"
 #include "Settings.h"
+#include "Graphics.h"
 
 #include "Common/StringHelper.h"
 
@@ -57,7 +58,7 @@ ViewSymbolList::TableRenderCallback(
 	if (node.isModule)
 	{
 
-		ImGui::PushFont(MainApplication::FontMonoBold);
+		ImGui::PushFont(Graphics::FontMonoBold);
 
 		table->AddItemHeader();
 		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node.address);
@@ -71,7 +72,7 @@ ViewSymbolList::TableRenderCallback(
 	// Render it as symbol
 	else
 	{
-		ImGui::PushFont(MainApplication::FontMonoRegular);
+		ImGui::PushFont(Graphics::FontMono);
 		ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node.address);
 
 		table->NextColumn();
@@ -126,7 +127,7 @@ void ViewSymbolList::TablePopupRenderCallback(SymbolTable* table, ModuleNode* no
 		if (node->isModule)
 		{
 
-			ImGui::PushFont(MainApplication::FontMonoBold);
+			ImGui::PushFont(Graphics::FontMonoBold);
 			ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node->address);
 
 			ImGui::SameLine();
@@ -135,7 +136,7 @@ void ViewSymbolList::TablePopupRenderCallback(SymbolTable* table, ModuleNode* no
 		}
 		else
 		{
-			ImGui::PushFont(MainApplication::FontMonoRegular);
+			ImGui::PushFont(Graphics::FontMono);
 			ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextAddressModule), "%llX", node->address);
 
 			ImGui::SameLine();
@@ -322,14 +323,14 @@ void ViewSymbolList::OnAttach(const std::shared_ptr<ProcessData>& targetProcess)
 		nodeModule.modulePathA = modData.modulePathA;
 		nodeModule.modulePathW = modData.modulePathW;
 
-		for (auto& exportData : modData.exports)
+		for (auto& exportData : modData.symbols)
 		{
 			ModuleNode& nodeSymbol = nodeModule.AddChild();
 
 			nodeSymbol.isModule = false;
 			nodeSymbol.ordinal = exportData.ordinal;
 			nodeSymbol.address = nodeModule.address + exportData.offset;
-			nodeSymbol.functionName = exportData.name;
+			nodeSymbol.functionName = exportData.fullName;
 		}
 	}
 }

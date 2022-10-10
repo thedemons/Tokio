@@ -28,7 +28,7 @@
  */
 
 #include "stdafx.h"
-#include "MainApplication.h"
+#include "Graphics.h"
 #include "Engine/Engine.h"
 #include "GUI/MainView.h"
 #include "Settings.h"
@@ -36,30 +36,67 @@
 
 void MainLoop()
 {
-	MainView::Render();
+	while (Graphics::BeginRender())
+	{
+		ImGui::NewFrame();
+
+		MainView::Render();
+
+		static char fps_info[1024];
+		sprintf_s(fps_info, "FPS: %.2f", ImGui::GetIO().Framerate);
+
+		ImGui::GetForegroundDrawList()->AddText({ ImGui::GetMainViewport()->Size.x - 100.f, 5.f }, 0xffffffff, fps_info);
+
+		ImGui::Render();
+		Graphics::EndRender();
+	}
+
+	Graphics::CleanUp();
+}
+
+void InitGraphics()
+{
+	Graphics::InitWindow();
+	Graphics::InitDevice();
+	Graphics::InitImgui();
+	Graphics::LoadFont();
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigWindowsMoveFromTitleBarOnly = true;
+	//io.ConfigDockingAlwaysTabBar = true;
+	//io.ConfigDockingTransparentPayload = true;
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowMinSize = { 100.f, 50.f };
+
+	ImGui::StyleColorsDark();
 }
 
 int main()
 {
 	try
 	{
-		MainApplication::Init();
+		Tokio::Log("Initilizing graphics\n");
+		InitGraphics();
+
+		Tokio::Log("Loading Settings\n");
 		Settings::Load();
+
+		Tokio::Log("Initilizing Engine\n");
 		Engine::Init();
+
+		Tokio::Log("Settings up Views\n");
 		MainView::Init();
 
-		MainApplication::SetRenderCallback(MainLoop);
-		MainApplication::StartLoop();
-		//Settings::Save();
-
+		Tokio::Log("Tokio started!\n");
+		Graphics::ShowWindow();
+		MainLoop();
 	}
 	catch (Tokio::Exception& e)
 	{
 		e.Log("Critical error");
-	}
-	catch (std::exception& e)
-	{
-		MessageBoxA(0, e.what(), "Error", 16);
 	}
 
 	return 0;

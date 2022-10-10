@@ -37,6 +37,7 @@
 #include "Common/SystemHelper.h"
 
 #include "Settings.h"
+#include "Graphics.h"
 
 using namespace std::string_literals;
 
@@ -58,7 +59,8 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 	{
 		return Widgets::Table::Execution::Stop;
 	}
-	//im_table->Columns[1].ItemWidth
+
+
 
 	// not readable address, draw a "??"
 	if (insData.isNotReadable)
@@ -82,7 +84,7 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 		cursorOffset.y += 25.f;
 		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImVec2(0, 10.f));
 
-		insData.fmtAddress.Render(MainApplication::FontMonoBigBold);
+		insData.fmtAddress.Render(Graphics::FontMonoBold);
 	}
 
 	// draw symbolic address
@@ -100,7 +102,7 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 
 	const SubroutineInfo* subroutine = insData.GetSubroutine();
 
-	if (subroutine != nullptr && subroutine->address == insData.address)
+	//if (subroutine != nullptr )
 	{
 		if (insData.isAtSubroutineStart)
 		{
@@ -109,13 +111,13 @@ ViewDisassembler::TableRenderCallback(Widgets::Table* table, size_t index, void*
 			ImGui::SameLine();
 			ImGui::TextColored(subColor, "sub_%llx start %d", insData.address, insData.iSubroutine);
 
-			insData.fmtAddress.Render();
-			ImGui::SameLine();
-			ImGui::TextColored(subColor, "blocks: %d", subroutine->blocks.size());
+			//insData.fmtAddress.Render();
+			//ImGui::SameLine();
+			//ImGui::TextColored(subColor, "blocks: %d", subroutine->blocks.size());
 
-			insData.fmtAddress.Render();
-			ImGui::SameLine();
-			ImGui::TextColored(subColor, "size: 0x%llX", subroutine->size);
+			//insData.fmtAddress.Render();
+			//ImGui::SameLine();
+			//ImGui::TextColored(subColor, "size: 0x%llX", subroutine->size);
 
 
 			cursorOffset.y += 17.f*2.f;
@@ -289,7 +291,7 @@ ViewDisassembler::ViewDisassembler()
 	desc.RenderCallback = TableRenderCallback;
 	desc.PopupRenderCallback = TablePopupRenderCallback;
 
-	desc.RowFont = MainApplication::FontMonoRegular;
+	desc.RowFont = Graphics::FontMono;
 
 	desc.Flags = ImGuiTableFlags_BordersOuter | // outer borders
 				 ImGuiTableFlags_SortTristate | // disable sort
@@ -517,12 +519,12 @@ void ViewDisassembler::HandleScrolling()
 			m_pVirtualBase += scrollDir;
 
 			// we disassemble before the refresh rate hit because we ran out of instructions to display
-			Disassemble();
+			Disassemble(Engine::AnalyzerFlags_::Symbol);
 		}
 		else if(scrollDir > 0 && m_instructionOffset + scrollDir > m_analyzedData.instructions.size() - 1)
 		{
 			m_pVirtualBase += scrollDir;
-			Disassemble();
+			Disassemble(Engine::AnalyzerFlags_::Symbol);
 		}
 		else
 		{
@@ -896,12 +898,12 @@ void ViewDisassembler::Disassemble(Engine::AnalyzerFlags flags)
 {
 	if (!Engine::IsAttached()) return;
 
-	POINTER startAddress = m_pVirtualBase - 0x2048;
+	POINTER startAddress = m_pVirtualBase - 2048;
 
 	try
 	{
 
-		Engine::Analyze(startAddress, 0x4096, flags, m_memoryBuffer, m_analyzedData);
+		Engine::Analyze(startAddress, 4096, flags, m_memoryBuffer, m_analyzedData);
 
 		// find the start index of the address (skip the garbage instructions before it as we -0x10 to the address)
 		for (m_instructionOffset = 0; m_instructionOffset < m_analyzedData.instructions.size(); m_instructionOffset++)

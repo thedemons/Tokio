@@ -27,68 +27,35 @@
  * SOFTWARE.
  */
 
+// Thanks to the author of this awesome library, it helped me alot with getting file icon
+// https://github.com/dfranx/ImFileDialog/blob/main/ImFileDialog.h
+
 #pragma once
 #include "stdafx.h"
 #include "ViewAttachProc.h"
+
+#include "Graphics.h"
 #include "GUI/Widgets/Widgets.hpp"
 
 #include "Engine/Engine.h"
+
 #include "Common/Exception.h"
 #include "Common/StringHelper.h"
 #include "Common/PathHelper.h"
 #include "Common/SystemHelper.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#include <shellapi.h>
+
 namespace ViewAttachProcUtils
 {
 
-std::map<HICON, ID3D11ShaderResourceView*> m_iconIndices;
-std::map<WindowHandle, ID3D11ShaderResourceView*> m_windowIcons;
-std::map<std::wstring, ID3D11ShaderResourceView*> m_fileIcons;
+std::map<HICON, ImTextureID> m_iconIndices;
+std::map<WindowHandle, ImTextureID> m_windowIcons;
+std::map<std::wstring, ImTextureID> m_fileIcons;
 
-// Thanks to the author of this awesome library, it helps me alot
-// https://github.com/dfranx/ImFileDialog/blob/main/ImFileDialog.h
 
-ID3D11ShaderResourceView* GetTextureFromBitmap(void* buffer, UINT width, UINT height) NULLABLE
-{
-	D3D11_SUBRESOURCE_DATA subResource;
-	subResource.pSysMem = buffer;
-	subResource.SysMemPitch = width * 4;
-	subResource.SysMemSlicePitch = 0;
-
-	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = width;
-	desc.Height = height;
-	desc.MipLevels = desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_IMMUTABLE;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.MiscFlags = 0;
-
-	ID3D11Texture2D* pTexture = nullptr;
-	HRESULT hr = MainApplication::g_pd3dDevice->CreateTexture2D(&desc, &subResource, &pTexture);
-	if (hr != S_OK) return nullptr;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	ZeroMemory(&srvDesc, sizeof(srvDesc));
-
-	srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = desc.MipLevels;
-	srvDesc.Texture2D.MostDetailedMip = 0;
-
-	ID3D11ShaderResourceView* pResource = nullptr;
-	hr = MainApplication::g_pd3dDevice->CreateShaderResourceView(pTexture, &srvDesc, &pResource);
-
-	if (hr != S_OK)
-	{
-		pTexture->Release();
-		if (hr != S_OK) return nullptr;
-	}
-
-	return pResource;
-}
 
 HICON GetFileHIcon(const std::wstring& path) NULLABLE
 {
@@ -108,7 +75,7 @@ HICON GetFileHIcon(const std::wstring& path) NULLABLE
 	return fileInfo.hIcon;
 }
 
-ID3D11ShaderResourceView* GetTextureFromHIcon(const HICON hIcon) NULLABLE
+ImTextureID GetTextureFromHIcon(const HICON hIcon) NULLABLE
 {
 	// check if hFileIcon is already loaded
 	auto findIcon = m_iconIndices.find(hIcon);
@@ -136,7 +103,7 @@ ID3D11ShaderResourceView* GetTextureFromHIcon(const HICON hIcon) NULLABLE
 
 
 	// create the texture
-	auto texture = GetTextureFromBitmap(bitmapBuffer.data(), width, height);
+	auto texture = Graphics::TextureFromBitmap(bitmapBuffer.data(), width, height);
 	if (texture == nullptr) return nullptr;
 
 	// cache the icon
@@ -145,7 +112,7 @@ ID3D11ShaderResourceView* GetTextureFromHIcon(const HICON hIcon) NULLABLE
 	return texture;
 }
 
-ID3D11ShaderResourceView* GetFileIconTexture(const std::wstring& path) NULLABLE
+ImTextureID GetFileIconTexture(const std::wstring& path) NULLABLE
 {
 	// return the stored texture if we have loaded it already
 	auto findIcon = m_fileIcons.find(path);
@@ -162,7 +129,7 @@ ID3D11ShaderResourceView* GetFileIconTexture(const std::wstring& path) NULLABLE
 	return texture;
 }
 
-ID3D11ShaderResourceView* GetWindowIconTexture(WindowHandle hwnd) NULLABLE
+ImTextureID GetWindowIconTexture(WindowHandle hwnd) NULLABLE
 {
 	// return the stored texture if we have loaded it already
 	auto findIcon = m_windowIcons.find(hwnd);
@@ -556,7 +523,7 @@ bool ViewAttachProc::IsItemFiltered(const ProcessListData& data, const std::stri
 	return true;
 }
 
-void ViewAttachProc::SelectProcessByPid(DWORD pid)
+void ViewAttachProc::SelectProcessByPid(PID pid)
 {
 	for (auto& procData : m_processList)
 	{
@@ -584,7 +551,7 @@ void ViewAttachProc::GetProcessList()
 
 
 	// remember the current selected process in the table
-	DWORD oldSelectedPID = 0;
+	PID oldSelectedPID = 0;
 	if (auto& oldSelectedItems = m_table.GetSelectedItems(); oldSelectedItems.size() > 0)
 	{
 		oldSelectedPID = m_processList[oldSelectedItems[0]].pid;

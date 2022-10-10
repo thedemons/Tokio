@@ -31,7 +31,7 @@
 #ifndef TOKIO_MAIN_VIEW_H
 #define TOKIO_MAIN_VIEW_H
 
-#include "MainApplication.h"
+#include "imgui.hpp"
 #include "Views/BaseView.hpp"
 #include "Common/Exception.h"
 

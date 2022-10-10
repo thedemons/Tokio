@@ -53,10 +53,9 @@ private:
 		std::string modulePathA;
 		std::wstring moduleNameW;
 		std::wstring modulePathW;
-		std::vector<ModuleSymbol> exports;
 
 		// for symbols
-		UINT ordinal = 0;
+		dword_t ordinal = 0;
 		std::string functionName;
 
 		bool isHidden = false;		// true to hide this node, if the filter is on

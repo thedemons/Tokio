@@ -94,7 +94,7 @@ bool AnalyzeSubroutineBlocks(
 
 		return true;
 	}
-
+	//printf("new block\n");
 	size_t thisBlockIndex = subroutine.blocks.size();
 
 	if (thisBlockIndex > 1000)
@@ -114,10 +114,10 @@ bool AnalyzeSubroutineBlocks(
 	for (; index < data.instructions.size() - 1; index++)
 	{
 		AnalyzedInstruction& instruction = data.instructions[index];
-		if (instruction.address == 0x7FFE09C117E9)
-		{
-			printf("!23\n");
-		}
+		//if (instruction.address == 0x7ffe09c11741)
+		//{
+		//	printf("!23\n");
+		//}
 		AnalyzedInstruction& next_instruction = data.instructions[index + 1];
 
 		instruction.blockIndex = thisBlockIndex;
@@ -178,12 +178,6 @@ bool AnalyzeSubroutineBlocks(
 			// was corrupted, or this simply isn't a subroutine
 			return true;
 		}
-		// the next instruction is already analyzed
-		else if (next_instruction.blockIndex != UPTR_UNDEFINED)
-		{
-			thisBlock.instructionCount = index - start_index + 1;
-			return true;
-		}
 		// if is is a jump with condition, there are two paths
 		else if (instruction.mnemonic.type == DisasmOperandType::mneJumpCondition)
 		{
@@ -237,6 +231,14 @@ bool AnalyzeSubroutineBlocks(
 				return result;
 			}
 		}
+		// the next instruction is already analyzed
+		else if (next_instruction.blockIndex != UPTR_UNDEFINED)
+		{
+			thisBlock.instructionCount = index - start_index + 1;
+			thisBlock.nextBlockIndex = next_instruction.blockIndex;
+			subroutine.blocks[next_instruction.blockIndex].prevBlockIndex = thisBlockIndex;
+			return true;
+		}
 		// or if it has any referer, i don't know how well this will work since other
 		// instructions outside the subroutine could refer to it, might need rework. FIXME!
 		else if (next_instruction.referers.size() > 0)
@@ -244,8 +246,10 @@ bool AnalyzeSubroutineBlocks(
 			// create a new block on the next index
 			thisBlock.instructionCount = index - start_index + 1;
 			thisBlock.nextBlockIndex = subroutine.blocks.size();
+			bool result = AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
 
-			return AnalyzeSubroutineBlocks(data, subroutine, index + 1, UPTR_UNDEFINED, thisBlockIndex);
+			subroutine.blocks[thisBlockIndex].nextBlockIndex = data.instructions[index + 1].blockIndex;
+			return result;
 		}
 
 
@@ -292,11 +296,24 @@ inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, siz
 			startidx = block.instructionIndex;
 		}
 		if (endAddr > subroutine.size)
+		if ((block.nextBlockIndex == UPTR_UNDEFINED && block.nextCondBlockIndex == UPTR_UNDEFINED) && endAddr > subroutine.size)
 		{
 			subroutine.size = endAddr;
 			subroutine.instructionCount = end_index;
 			endidx = end_index;
 		}
+
+		for (size_t index = block.instructionIndex; index < block.instructionIndex + block.instructionCount; index++)
+		{
+			data.instructions[index].iSubroutine = subroutineIndex;
+		}
+	}
+
+
+	// could not find the subroutine end point
+	if (endidx == UPTR_UNDEFINED)
+	{
+		return UPTR_UNDEFINED;
 	}
 
 	subroutine.size -= subroutine.address;
@@ -308,8 +325,8 @@ inline size_t InitSubroutine(AnalyzedData& data, SubroutineInfo& subroutine, siz
 	data.instructions[endidx].isAtSubroutineEnd = true;
 
 	// assign the subroutine to those instructions
-	for (size_t i = startidx; i <= endidx; i++)
-		data.instructions[i].iSubroutine = subroutineIndex;
+	//for (size_t i = startidx; i <= endidx; i++)
+	//	data.instructions[i].iSubroutine = subroutineIndex;
 
 
 	// if the size of the subroutine symbol doesn't match the subroutine
@@ -344,6 +361,7 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, size_t numInstruction
 			bLastInt3 = true;
 			continue;
 		}
+		if (instruction.iSubroutine != UPTR_UNDEFINED) continue;
 
 		bool bIsNull = true;
 		for (size_t bufIndex = instruction.bufferOffset; bufIndex < instruction.bufferOffset + instruction.length; bufIndex++)
@@ -362,8 +380,8 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, size_t numInstruction
 		// case 5: this is the instruction right after the last subroutine, and this is not null, not int3 and readable
 		//system("cls");
 
-		bool case5 = bLastSubroutineEnded && !bIsInt3 && !bIsNull && !instruction.isNotReadable;
-		if (case5 || (bLastInt3) || (bLastNull && !bIsNull) || (bLastUnreadable && !instruction.isNotReadable) || instruction.isAtSubroutineStart)
+		//bool case5 = bLastSubroutineEnded && !bIsInt3 && !bIsNull && !instruction.isNotReadable;
+		//if (case5 || (bLastInt3) || (bLastNull && !bIsNull) || (bLastUnreadable && !instruction.isNotReadable) || instruction.isAtSubroutineStart)
 		{
 			size_t subroutineIndex = data.subroutines.size();
 			SubroutineInfo& subroutine = data.AddSubroutine();
@@ -387,14 +405,18 @@ void TokioAnalyzer::AnalyzeSubroutines(AnalyzedData& data, size_t numInstruction
 
 				if (!bDestroySubroutine)
 				{
-					index = InitSubroutine(data, subroutine, subroutineIndex);
+					size_t endIndex = InitSubroutine(data, subroutine, subroutineIndex);
+					if (endIndex != UPTR_UNDEFINED)
+					{
+						index = endIndex;
 
-					// FIXME: THIS IS SO FUCKING DIRTY
-					bLastUnreadable = false;
-					bLastInt3 = false;
-					bLastNull = false;
-					bLastSubroutineEnded = true;
-					continue;
+						// FIXME: THIS IS SO FUCKING DIRTY
+						bLastUnreadable = false;
+						bLastInt3 = false;
+						bLastNull = false;
+						bLastSubroutineEnded = true;
+						continue;
+					}
 				}
 			}
 
@@ -541,7 +563,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 			ImGui::TokenizedText symbol(5);
 			symbol.push_back(pModule->moduleShortName, settings.Module);
 			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Symbol);
+			symbol.push_back(pSymbol->fullName, settings.Symbol);
 			symbol.push_back("+"s, settings.Delimeter);
 			symbol.push_back(settings.Displacement, "%llX", offsetFromVA);
 
@@ -556,7 +578,7 @@ ImGui::TokenizedText FormatSymbolAddress(
 			ImGui::TokenizedText symbol(3);
 			symbol.push_back(pModule->moduleShortName, settings.Module);
 			symbol.push_back("."s, settings.Delimeter);
-			symbol.push_back(pSymbol->name, settings.Symbol);
+			symbol.push_back(pSymbol->fullName, settings.Symbol);
 
 			if (isAtBaseModule) *isAtBaseModule = false;
 			if (isAtSubroutineStart) *isAtSubroutineStart = true;

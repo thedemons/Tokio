@@ -62,14 +62,14 @@ void Init()
 	Engine::OnDetachCallback(HandlerDetachProcess);
 
 
-	try
-	{
-		Engine::Attach(GetCurrentProcessId());
-	}
-	catch (Tokio::Exception& e)
-	{
-		e.Log("Couldn't attach to the process");
-	}
+	//try
+	//{
+	//	Engine::Attach(GetCurrentProcessId());
+	//}
+	//catch (Tokio::Exception& e)
+	//{
+	//	e.Log("Couldn't attach to the process");
+	//}
 }
 
 void RenderMenuBar()

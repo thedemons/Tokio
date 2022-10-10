@@ -32,47 +32,12 @@
 #include "Engine/Engine.h"
 
 #include "sfg/sfg.h"
-//
-//int getnodedata(int num, int level, int pos, int xpos, int ypos, int tx, int ty, int nselfedges, int type,
-//	int indegree, int outdegree, int ly0, int ly1)
-//{
-//
-//	//auto& node = nodes[num - 1];
-//	//node.isDummy = tx == 0 && ty == 0;
-//	//node.pos = { float(xpos), float(ypos) };
-//	//if (node.isDummy)
-//	//	node.size = { 5.f, 5.f };
-//	//else
-//	//	node.size = { float(tx), float(ty) };
-//
-//	/* return(1); to stop the callback */
-//	//printf("node %d relative pos (%d,%d) (type %d) in/outdegree %d:%d final pos (%d,%d) (%d, %d)\n", num, pos, level, type, indegree, outdegree, xpos,
-//		//ypos, tx, ty);
-//	/* return 0 to continue callbacks */
-//	return 0;
-//}
-//
-///* this gets the edge data after layout */
-//int getedgedata(int num, int from, int to, int type, int rev)
-//{
-//	//if (type == 1)
-//	//{
-//	//auto& edge = edges.emplace_back();
-//	//edge.from = from - 1;
-//	//edge.to = to - 1;
-//	////}
-//	/* return(1); to stop the callback */
-//	if (type)
-//	{
-//	}
-//	printf("edge %d (type %d) from node %d to %d reversed=%d\n", num, type, from, to, rev);
-//	/* return 0 to continue callbacks */
-//	return (0);
-//}
+
+#include "Graphics.h"
 
 void DisassemblerGraph::CalculateGraph()
 {
-	ImFont* font = MainApplication::FontMonoRegular;
+	ImFont* font = Graphics::FontMono;
 	const float fontSize = font->FontSize;
 
 	const float lineHeight = fontSize * 1.5f;
@@ -243,7 +208,7 @@ void DisassemblerGraph::Render()
 
 
 
-	ImFont* font = MainApplication::FontMonoRegular;
+	ImFont* font = Graphics::FontMono;
 	const float fontSize = font->FontSize;
 
 	const float lineHeight = fontSize * 1.5f;

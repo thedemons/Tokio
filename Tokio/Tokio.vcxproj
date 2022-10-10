@@ -210,6 +210,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Engine\Symbol\Win32Symbol.cpp" />
+    <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="GUI\ImGui\custom\TokenizedText.cpp" />
     <ClCompile Include="GUI\ImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -266,7 +267,6 @@
     <ClCompile Include="GUI\Widgets\WTable.cpp" />
     <ClCompile Include="GUI\Widgets\WTextEditor.cpp" />
     <ClCompile Include="GUI\Widgets\WTextInput.cpp" />
-    <ClCompile Include="MainApplication.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="sfg\sfg.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -312,6 +312,7 @@
     <ClInclude Include="Engine\Symbol\Demangler\DemanglerMSVC.h" />
     <ClInclude Include="Engine\Symbol\Demangler\undname.h" />
     <ClInclude Include="Engine\Symbol\Win32Symbol.h" />
+    <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUI\ImGui\custom\TokenizedText.h" />
     <ClInclude Include="GUI\ImGui\imconfig.h" />
     <ClInclude Include="GUI\ImGui\imgui.h" />
@@ -341,7 +342,6 @@
     <ClInclude Include="GUI\Widgets\WTextInput.h" />
     <ClInclude Include="GUI\Widgets\WTreeTable.hpp" />
     <ClInclude Include="imgui.hpp" />
-    <ClInclude Include="MainApplication.h" />
     <ClInclude Include="Resources\FontAwesome.h" />
     <ClInclude Include="Resources\FontAwesomeImpl.h" />
     <ClInclude Include="Serialize.hpp" />
