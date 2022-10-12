@@ -94,7 +94,7 @@ bool AnalyzeSubroutineBlocks(
 
 		return true;
 	}
-	//printf("new block\n");
+		//printf("new block\n");
 	size_t thisBlockIndex = subroutine.blocks.size();
 
 	if (thisBlockIndex > 1000)
