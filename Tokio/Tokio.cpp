@@ -36,12 +36,12 @@
 
 void MainLoop()
 {
+
 	while (Graphics::BeginRender())
 	{
 		ImGui::NewFrame();
 
 		MainView::Render();
-
 		static char fps_info[1024];
 		sprintf_s(fps_info, "FPS: %.2f", ImGui::GetIO().Framerate);
 
@@ -58,20 +58,28 @@ void InitGraphics()
 {
 	Graphics::InitWindow();
 	Graphics::InitDevice();
-	Graphics::InitImgui();
-	Graphics::LoadFont();
 
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	
+	io.IniFilename = "Tokio.ini";
+
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+
 	io.ConfigWindowsMoveFromTitleBarOnly = true;
-	//io.ConfigDockingAlwaysTabBar = true;
+	io.ConfigDockingAlwaysTabBar = false;
+	//io.ConfigViewportsNoAutoMerge = true;
 	//io.ConfigDockingTransparentPayload = true;
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowMinSize = { 100.f, 50.f };
+	style.WindowMinSize = { 300.f, 50.f };
 
 	ImGui::StyleColorsDark();
+
+	Graphics::InitImgui();
+	Graphics::LoadFont();
 }
 
 int main()
