@@ -233,8 +233,6 @@ void BuildFont()
 			ImFontGlyph* bot_glyph = (ImFontGlyph*)font->FindGlyph(c);
 			ImFontGlyph* top_glyph = (ImFontGlyph*)font->FindGlyph(c2);
 
-			// Fill the custom rectangle with red pixels (in reality you would draw/copy your bitmap data here!)
-
 			size_t bot_x = size_t(roundf( bot_glyph->U0 * tex_width));
 			size_t bot_y = size_t(roundf( bot_glyph->V0 * tex_height));
 			size_t bot_w = size_t(roundf((bot_glyph->U1 - bot_glyph->U0) * tex_width));
@@ -255,10 +253,8 @@ void BuildFont()
 				for (size_t x = 0; x < bot_w; x++)
 				{
 					ImU32* pixel_bmp = row_bmp + (bot_x + x);
-
 					ImU32 alpha = ((*pixel_bmp >> 24) & 0xff) << 24;
-					ImU32 newCol = alpha | color_bot;
-					*pixel_bmp = newCol;
+					*pixel_bmp = alpha | color_bot;
 				}
 			}
 
@@ -269,8 +265,7 @@ void BuildFont()
 				{
 					ImU32* pixel_bmp = row_bmp + (top_x + x);
 					ImU32 alpha = ((*pixel_bmp >> 24) & 0xff) << 24;
-					ImU32 newCol = alpha | color_top;
-					*pixel_bmp = newCol;
+					*pixel_bmp = alpha | color_top;
 				}
 			}
 
