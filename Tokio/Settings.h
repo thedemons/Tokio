@@ -33,9 +33,12 @@
 
 #include "imgui.hpp"
 #include "Serialize.hpp"
-#include "Engine/EngineDef.h"
+
 #include "GUI/ShortcutKey.h"
+#include "GUI/ImGui/custom/TokenizedText.h"
+
 #include "Common/TypeDef.h"
+#include "Engine/EngineDef.h"
 
 namespace Settings
 {
@@ -52,10 +55,9 @@ public:
 	{
 		Dark,
 		Light,
-		VSDark,
 		Custom,
 	};
-	Type type = Type::VSDark;
+	Type type = Type::Dark;
 
 	// user-defined theme
 	std::wstring customThemePath;
@@ -94,6 +96,59 @@ public:
 		ImU32 mneReturn;       
 		ImU32 mneInt3;        
 	} disasm{ 0 };
+
+	struct FontData
+	{
+		float fontSize = 17.f;
+		float fontMonoSize = 14.f;
+	} font;
+
+	struct IconData1
+	{
+		ImU32 save               = 0xFFAF60;
+		ImU32 copy               = 0xE3E3E3;
+		ImU32 goto_address       = 0xFFB368;
+		ImU32 follow_address     = 0xFFD766;
+		ImU32 find_references    = 0xFFD766;
+		ImU32 switch_mode        = 0xFFD766;
+		ImU32 open_file_location = 0x6AD9FF;
+		ImU32 freeze             = 0xFFD766;
+		ImU32 power_off          = 0x6B62EE;
+		ImU32 refresh            = 0xE0E0E0;
+
+		ImU32 attach_proc        = 0xDD963A;
+		ImU32 settings           = 0x909090;
+		ImU32 symbol_list        = 0xF2EE21;
+		ImU32 memory_view        = 0xFFD766;
+		ImU32 memory_scan        = 0xFFD766;
+		ImU32 watch_list         = 0x6C62EF;
+		ImU32 disassembler       = 0x076004;
+		ImU32 pseudo_code        = 0xE86071;
+	}iconColor1;
+
+	struct IconData2
+	{
+		ImU32 save               = 0xFFAF60;
+		ImU32 copy               = 0xE3E3E3;
+		ImU32 goto_address       = 0xFFB368;
+		ImU32 follow_address     = 0xFFD766;
+		ImU32 find_references    = 0xFFD766;
+		ImU32 switch_mode        = 0xFFD766;
+		ImU32 open_file_location = 0x6AD9FF;
+		ImU32 freeze             = 0xFFD766;
+		ImU32 power_off          = 0x6B62EE;
+		ImU32 refresh            = 0xE0E0E0;
+
+		ImU32 attach_proc        = 0x62D6FF;
+		ImU32 settings           = 0xE0E0E0;
+		ImU32 symbol_list        = 0xCECECE;
+		ImU32 memory_view        = 0xFFD766;
+		ImU32 memory_scan        = 0xFFD766;
+		ImU32 watch_list         = 0xE3E3E3;
+		ImU32 disassembler       = 0x39C2EA;
+		ImU32 pseudo_code        = 0xE86071;
+	}iconColor2;
+
 };
 
 // doesn't need to inherite Serializable since basically this is a struct with no dynamic-size value
@@ -191,7 +246,7 @@ _NODISCARD _CONSTEXPR20 dword_t GetDisasmColor(DisasmOperandType tokenType) noex
 		theme.disasm.mneInt3,
 	};
 
-	unsigned int index = static_cast<unsigned int>(tokenType);
+	size_t index = static_cast<size_t>(tokenType);
 
 	if (!(index >= 0 && index < (sizeof(arrayColor) / sizeof(dword_t)) ))
 	{
