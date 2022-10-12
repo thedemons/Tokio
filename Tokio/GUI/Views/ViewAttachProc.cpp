@@ -38,6 +38,7 @@
 #include "GUI/Widgets/Widgets.hpp"
 
 #include "Engine/Engine.h"
+#include "Settings.h"
 
 #include "Common/Exception.h"
 #include "Common/StringHelper.h"
@@ -359,7 +360,7 @@ void ViewAttachProc::TablePopupRenderCallback(Widgets::Table* table, size_t inde
 	ImGui::Text("%s", procData.name.c_str());
 	ImGui::Separator();
 
-	if (ImGui::Selectable(ICON_FILEFOLDER u8" Open file location"))
+	if (Settings::shortcuts.AttachProcOpenFileLocation.RenderInPopup())
 	{
 		if (!Tokio::OpenFileInExplorer(procData.wpath))
 		{
@@ -367,12 +368,12 @@ void ViewAttachProc::TablePopupRenderCallback(Widgets::Table* table, size_t inde
 		}
 	}
 
-	if (ImGui::Selectable(ICON_KILL u8" Kill process"))
+	if (Settings::shortcuts.AttachProcKillProcess.RenderInPopup())
 	{
 
 	}
 
-	if (ImGui::Selectable(ICON_SUSPEND u8" Suspend process"))
+	if (Settings::shortcuts.AttachProcSuspendProcess.RenderInPopup())
 	{
 
 	}
@@ -401,7 +402,7 @@ void ViewAttachProc::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 
 ViewAttachProc::ViewAttachProc()
 {
-	m_title = ICON_ATTACH_PROC u8" Attach Process";
+	m_title = ICON_TOKIO_ATTACH_PROC " Attach Process";
 
 	Widgets::Table::Desc desc;
 	desc.Name = "##TableAttachProc";

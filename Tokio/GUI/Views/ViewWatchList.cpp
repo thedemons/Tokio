@@ -35,7 +35,7 @@
 
 ViewWatchList::ViewWatchList()
 {
-	m_title = MainView::GetViewTitle<ViewWatchList>(ICON_WATCH_LIST u8" Watch List");
+	m_title = MainView::GetViewTitle<ViewWatchList>(ICON_TOKIO_WATCH_LIST " Watch List");
 }
 
 void ViewWatchList::Render(bool& bOpen)

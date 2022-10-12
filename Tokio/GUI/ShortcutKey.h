@@ -49,15 +49,15 @@ private:
 	std::string m_description;
 
 	// icon
-	ImGui::TokenizedText m_icon;
+	std::string m_icon;
 
 	bool m_overridePress = false;
 
 	void UpdateName();
 public:
 	ShortcutKey();
-	ShortcutKey(const ImGuiKey press, const char* description = nullptr, const ImGui::TokenizedText* icon = nullptr);
-	ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description = nullptr, const ImGui::TokenizedText* icon = nullptr);
+	ShortcutKey(const ImGuiKey press, const char* description = nullptr, const char* icon = nullptr);
+	ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description = nullptr, const char* icon = nullptr);
 	
 	// NOTICE: if the item was clicked when rendering, the next 
 	// IsPressed() or IsPressedInWindow() call will return true

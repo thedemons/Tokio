@@ -231,7 +231,7 @@ void ViewSymbolList::FilterEditCallback(Widgets::TextInput* tinput, ImGuiInputTe
 
 ViewSymbolList::ViewSymbolList()
 {
-	m_title = MainView::GetViewTitle<ViewSymbolList>(ICON_SYMBOL_LIST u8" Symbol List");
+	m_title = MainView::GetViewTitle<ViewSymbolList>(ICON_TOKIO_SYMBOL_LIST " Symbol List");
 
 	SymbolTable::Desc desc;
 	desc.Name = "##TableModuleList";

@@ -35,7 +35,7 @@
 
 ViewMemoryScan::ViewMemoryScan()
 {
-	m_title = MainView::GetViewTitle<ViewMemoryScan>(ICON_MEMORY_SCAN u8" Memory Scan");
+	m_title = MainView::GetViewTitle<ViewMemoryScan>(ICON_TOKIO_MEMORY_SCAN " Memory Scan");
 }
 
 void ViewMemoryScan::Render(bool& bOpen)

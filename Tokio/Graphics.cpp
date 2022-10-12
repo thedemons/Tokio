@@ -29,11 +29,9 @@
 
 #include "stdafx.h"
 #include "Graphics.h"
-#include "Settings.h"
 #include "imgui.hpp"
-
-#include "Resources/FontAwesome.h"
-#include "Resources/FontAwesomeImpl.h"
+#include "Settings.h"
+#include "GUI\Icons.hpp"
 
 #pragma warning (push)
 #pragma warning (disable : 4005)
@@ -55,6 +53,7 @@ IDXGISwapChain* g_pSwapChain = nullptr;
 ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
 ID3D11RenderTargetView* g_pMainRenderTargetView = nullptr;
 
+bool isNeedReloadFont = false;
 
 LRESULT WINAPI WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -113,54 +112,53 @@ void CreateRenderTarget() EXCEPT
 
 void InitDevice() EXCEPT
 {
-    // Setup swap chain
-    DXGI_SWAP_CHAIN_DESC sd;
-    ZeroMemory(&sd, sizeof(sd));
-    sd.BufferCount = 2;
-    sd.BufferDesc.Width = 0;
-    sd.BufferDesc.Height = 0;
-    sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 60;
-    sd.BufferDesc.RefreshRate.Denominator = 1;
-    sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-    sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = hWnd;
-    sd.SampleDesc.Count = 1;
-    sd.SampleDesc.Quality = 0;
-    sd.Windowed = TRUE;
-    sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	// Setup swap chain
+	DXGI_SWAP_CHAIN_DESC sd;
+	ZeroMemory(&sd, sizeof(sd));
+	sd.BufferCount = 2;
+	sd.BufferDesc.Width = 0;
+	sd.BufferDesc.Height = 0;
+	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sd.BufferDesc.RefreshRate.Numerator = 60;
+	sd.BufferDesc.RefreshRate.Denominator = 1;
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	sd.OutputWindow = hWnd;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	sd.Windowed = TRUE;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-    UINT createDeviceFlags = 0;
+	UINT createDeviceFlags = 0;
 
-    D3D_FEATURE_LEVEL featureLevel;
-    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
-    HRESULT hr = D3D11CreateDeviceAndSwapChain(
-        nullptr,
-        D3D_DRIVER_TYPE_HARDWARE,
-        nullptr,
-        createDeviceFlags,
-        featureLevelArray,
-        2,
-        D3D11_SDK_VERSION,
-        &sd,
-        &g_pSwapChain,
-        &g_pd3dDevice,
-        &featureLevel,
-        &g_pd3dDeviceContext
-    );
+	D3D_FEATURE_LEVEL featureLevel;
+	const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
+	HRESULT hr = D3D11CreateDeviceAndSwapChain(
+		nullptr,
+		D3D_DRIVER_TYPE_HARDWARE,
+		nullptr,
+		createDeviceFlags,
+		featureLevelArray,
+		2,
+		D3D11_SDK_VERSION,
+		&sd,
+		&g_pSwapChain,
+		&g_pd3dDevice,
+		&featureLevel,
+		&g_pd3dDeviceContext
+	);
 
 
-    if (hr != S_OK)
-    {
-        throw Tokio::Exception("Failed to create DirectX device");
-    }
+	if (hr != S_OK)
+	{
+		throw Tokio::Exception("Failed to create DirectX device");
+	}
 
 	CreateRenderTarget();
 }
 
 void InitImgui() EXCEPT
 {
-	ImGui::CreateContext();
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 }
@@ -169,31 +167,132 @@ ImFont* AddFontFromFile(const char* ttf, float size)
 {
 	static auto fontAtlas = ImGui::GetIO().Fonts;
 	static auto glyphRange = fontAtlas->GetGlyphRangesVietnamese();
+	auto font = fontAtlas->AddFontFromFileTTF(ttf, size, 0, glyphRange);
 
-	ImFont* font = fontAtlas->AddFontFromFileTTF(ttf, size, 0, glyphRange);
-
-	static const ImWchar rangesAwesome[] = { ICON_MIN_FA, ICON_MAX_FA, 0 };
+	static const ImWchar rangesAwesome[] = { ICON_MIN_FA, ICON_MAX_FA, ICON_DUO_OFFSET + ICON_MIN_FA, ICON_DUO_OFFSET + ICON_MAX_FA, 0 };
 	ImFontConfig configAwesome;
 	configAwesome.MergeMode = true;
-	configAwesome.FontDataOwnedByAtlas = false; // don't free memory
+	//configAwesome.FontDataOwnedByAtlas = false; // don't free memory
 	configAwesome.OversampleH = configAwesome.OversampleV = 1;
-	fontAtlas->AddFontFromFileTTF("Fonts\\fa-solid-900.ttf", 14.0f, &configAwesome, rangesAwesome);
+	//fontAtlas->AddFontFromMemoryTTF((void*)fa_solid_900, sizeof(fa_solid_900), 12.f, &configAwesome, rangesAwesome);
+	fontAtlas->AddFontFromFileTTF("Fonts\\fa-duotone-900.ttf", roundf(size*0.9f), &configAwesome, rangesAwesome);
 
 	return font;
 }
 
-void LoadFont() noexcept
+void BuildFont()
 {
+	auto& io = ImGui::GetIO();
+	io.Fonts->Build();
 
-	FontRegular = AddFontFromFile("Fonts\\NotoSans-Regular.ttf", 17.f);
-	FontBold = AddFontFromFile("Fonts\\NotoSans-Bold.ttf", 17.f);
+	int tex_width, tex_height;
+	ImU32* tex_pixels = nullptr;
+	io.Fonts->GetTexDataAsRGBA32(reinterpret_cast<unsigned char**>(&tex_pixels), &tex_width, &tex_height);
 
-	FontMono = AddFontFromFile("Fonts\\CascadiaMonoPL-Regular.ttf", 14.f);
-	FontMonoBold = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf", 14.f);
+	struct IconColorData
+	{
+		const char* icon;
+		ImU32 color_bot;
+		ImU32 color_top;
+	};
 
-	ImGui::GetIO().Fonts->Build();
+	const auto& col_bot = Settings::theme.iconColor1;
+	const auto& col_top = Settings::theme.iconColor2;
+	ImFont* fontList[] = { FontRegular, FontBold, FontMono, FontMonoBold };
+	IconColorData glyphCol[] = {
+		{ICON_TOKIO_SAVE              , col_bot.save              , col_top.save              },
+		{ICON_TOKIO_COPY              , col_bot.copy              , col_top.copy              },
+		{ICON_TOKIO_GOTO_ADDRESS      , col_bot.goto_address      , col_top.goto_address      },
+		{ICON_TOKIO_FOLLOW_ADDRESS    , col_bot.follow_address    , col_top.follow_address    },
+		{ICON_TOKIO_FIND_REFERENCES   , col_bot.find_references   , col_top.find_references   },
+		{ICON_TOKIO_SWITCH_MODE       , col_bot.switch_mode       , col_top.switch_mode       },
+		{ICON_TOKIO_OPEN_FILE_LOCATION, col_bot.open_file_location, col_top.open_file_location},
+		{ICON_TOKIO_FREEZE            , col_bot.freeze            , col_top.freeze            },
+		{ICON_TOKIO_POWER_OFF         , col_bot.power_off         , col_top.power_off         },
+		{ICON_TOKIO_REFRESH           , col_bot.refresh           , col_top.refresh           },
+
+		{ICON_TOKIO_ATTACH_PROC       , col_bot.attach_proc       , col_top.attach_proc       },
+		{ICON_TOKIO_SETTINGS          , col_bot.settings          , col_top.settings          },
+		{ICON_TOKIO_SYMBOL_LIST       , col_bot.symbol_list       , col_top.symbol_list       },
+		{ICON_TOKIO_MEMORY_VIEW       , col_bot.memory_view       , col_top.memory_view       },
+		{ICON_TOKIO_MEMORY_SCAN       , col_bot.memory_scan       , col_top.memory_scan       },
+		{ICON_TOKIO_WATCH_LIST        , col_bot.watch_list        , col_top.watch_list        },
+		{ICON_TOKIO_DISASSEMBLER      , col_bot.disassembler      , col_top.disassembler      },
+		{ICON_TOKIO_PSEUDO_CODE       , col_bot.pseudo_code       , col_top.pseudo_code       },
+	};
+
+
+	for (ImFont* font : fontList)
+	{
+		for (auto& [utf8, color_bot, color_top] : glyphCol)
+		{
+			unsigned int c = 0x00, c2 = 0x00;
+			ImTextCharFromUtf8(&c, utf8, utf8 + 0x4);
+			c2 = ICON_DUO_OFFSET + c;
+
+			ImFontGlyph* bot_glyph = (ImFontGlyph*)font->FindGlyph(c);
+			ImFontGlyph* top_glyph = (ImFontGlyph*)font->FindGlyph(c2);
+
+			// Fill the custom rectangle with red pixels (in reality you would draw/copy your bitmap data here!)
+
+			size_t bot_x = size_t(roundf( bot_glyph->U0 * tex_width));
+			size_t bot_y = size_t(roundf( bot_glyph->V0 * tex_height));
+			size_t bot_w = size_t(roundf((bot_glyph->U1 - bot_glyph->U0) * tex_width));
+			size_t bot_h = size_t(roundf((bot_glyph->V1 - bot_glyph->V0) * tex_height));
+
+			size_t top_x = size_t(roundf( top_glyph->U0 * tex_width));
+			size_t top_y = size_t(roundf( top_glyph->V0 * tex_height));
+			size_t top_w = size_t(roundf((top_glyph->U1 - top_glyph->U0) * tex_width));
+			size_t top_h = size_t(roundf((top_glyph->V1 - top_glyph->V0) * tex_height));
+
+
+			bot_glyph->Colored = true;
+			top_glyph->Colored = true;
+
+			for (size_t y = 0; y < bot_h; y++)
+			{
+				ImU32* row_bmp = tex_pixels + (bot_y + y) * tex_width;
+				for (size_t x = 0; x < bot_w; x++)
+				{
+					ImU32* pixel_bmp = row_bmp + (bot_x + x);
+
+					ImU32 alpha = ((*pixel_bmp >> 24) & 0xff) << 24;
+					ImU32 newCol = alpha | color_bot;
+					*pixel_bmp = newCol;
+				}
+			}
+
+			for (size_t y = 0; y < top_h; y++)
+			{
+				ImU32* row_bmp = tex_pixels + (top_y + y) * tex_width;
+				for (size_t x = 0; x < top_w; x++)
+				{
+					ImU32* pixel_bmp = row_bmp + (top_x + x);
+					ImU32 alpha = ((*pixel_bmp >> 24) & 0xff) << 24;
+					ImU32 newCol = alpha | color_top;
+					*pixel_bmp = newCol;
+				}
+			}
+
+		}
+	}
 }
 
+void LoadFont() noexcept
+{
+	FontRegular = AddFontFromFile("Fonts\\NotoSans-Regular.ttf", Settings::theme.font.fontSize);
+	FontBold = AddFontFromFile("Fonts\\NotoSans-Bold.ttf", Settings::theme.font.fontSize);
+
+	FontMono = AddFontFromFile("Fonts\\CascadiaMonoPL-Regular.ttf", Settings::theme.font.fontMonoSize);
+	FontMonoBold = AddFontFromFile("Fonts\\CascadiaMonoPL-Bold.ttf", Settings::theme.font.fontMonoSize);
+
+	BuildFont();
+}
+
+void ReloadFont() noexcept
+{
+	isNeedReloadFont = true;
+}
 
 void ShowWindow() noexcept
 {
@@ -267,18 +366,36 @@ bool BeginRender() noexcept
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
-	
+
 	return true;
 }
 
 void EndRender() noexcept
 {
+	static const auto& io = ImGui::GetIO();
+
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	// Update and Render additional Platform Windows
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 
 	if (Settings::general.bEnableVsync)
 		g_pSwapChain->Present(1, 0); // Present with vsync
 	else
 		g_pSwapChain->Present(0, 0); // Present without vsync
+
+	if (isNeedReloadFont)
+	{
+		isNeedReloadFont = false;
+
+		io.Fonts->ClearTexData();
+		BuildFont();
+		ImGui_ImplDX11_InvalidateDeviceObjects();
+	}
 }
 
 void CleanUp() noexcept

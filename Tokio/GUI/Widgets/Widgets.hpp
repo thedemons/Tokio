@@ -48,34 +48,6 @@
 //#include "WPopup.h"
 
 
-#define ICON_ATTACH_PROC  u8"🖥"
-#define ICON_MEMORY_SCAN  u8"🔍"
-#define ICON_SYMBOL_LIST  u8"🕹"
-#define ICON_DISASSEMBLER u8"♨"
-#define ICON_PE_VIEW      u8"👓"
-#define ICON_MEMORY_VIEW  u8"💽"
-#define ICON_WATCH_LIST   u8"👁"
-
-#define ICON_COPY ICON_FA_CLIPBOARD u8" "
-#define ICON_GOTO_ADDRESS ICON_FA_ARROW_RIGHT u8" "
-#define ICON_FOLLOW_ADDRESS ICON_FA_ARROW_DOWN u8" "
-
-#define ICON_SUSPEND	  u8"❄"
-#define ICON_KILL		  u8"💀"
-
-#define ICON_SETTING      u8"⚙"
-#define ICON_WRENCH       u8"🛠"
-#define ICON_TOOLBOX      u8"🧰"
-#define ICON_SHARE        u8"🔗"
-#define ICON_SHARE        u8"🔗"
-#define ICON_KEYBOARD     u8"⌨"
-#define ICON_MOUSE	      u8"🖱"
-#define ICON_HELP		  u8"💡"
-#define ICON_FILEFOLDER   u8"📦"
-#define ICON_FOLDER       u8"📂"
-#define ICON_PIN          u8"📌"
-#define ICON_RULER        u8"📐"
-#define ICON_FIRE         u8"🔥"
 
 
 namespace Widgets

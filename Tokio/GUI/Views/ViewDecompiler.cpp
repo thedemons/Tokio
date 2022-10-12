@@ -34,7 +34,7 @@
 
 ViewDecompiler::ViewDecompiler()
 {
-	m_title = MainView::GetViewTitle<ViewDecompiler>(ICON_MEMORY_SCAN u8" Decompiler");
+	m_title = MainView::GetViewTitle<ViewDecompiler>(ICON_TOKIO_PSEUDO_CODE " Decompiler");
 
 	auto lang = Widgets::TextEditor::LanguageDefinition::CPlusPlus();
 

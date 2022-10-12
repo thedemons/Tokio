@@ -45,11 +45,13 @@ inline ImFont* FontBold = nullptr;
 inline ImFont* FontMono = nullptr;
 inline ImFont* FontMonoBold = nullptr;
 
+
 void InitWindow() EXCEPT;
 void InitDevice() EXCEPT;
 void InitImgui() EXCEPT;
 
 void LoadFont() noexcept;
+void ReloadFont() noexcept;
 
 void ShowWindow() noexcept;
 bool BeginRender() noexcept;

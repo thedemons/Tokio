@@ -278,7 +278,7 @@ void ViewDisassembler::PopupNavigateRenderCallback(Widgets::Popup* popup, void* 
 
 ViewDisassembler::ViewDisassembler()
 {
-	m_title = MainView::GetViewTitle<ViewDisassembler>(ICON_DISASSEMBLER u8" Disassembler");
+	m_title = MainView::GetViewTitle<ViewDisassembler>(ICON_TOKIO_DISASSEMBLER " Disassembler");
 
 	Widgets::Table::Desc desc;
 	desc.Name = "##TableDisassembler";

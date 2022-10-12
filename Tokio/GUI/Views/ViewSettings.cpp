@@ -36,7 +36,7 @@
 
 ViewSettings::ViewSettings()
 {
-	m_title = ICON_SETTING u8"Settings";
+	m_title = ICON_TOKIO_SETTINGS " Settings";
 }
 
 void DrawGeneralTab()

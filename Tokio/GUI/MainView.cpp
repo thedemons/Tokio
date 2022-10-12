@@ -32,7 +32,7 @@
 #include "MainView.h"
 
 #include "Engine/Engine.h"
-#include "Widgets/Widgets.hpp"
+#include "GUI/Icons.hpp"
 
 #include "Views/ViewWatchList.h"
 #include "Views/ViewAttachProc.h"
@@ -82,7 +82,7 @@ void RenderMenuBar()
 	{
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 3.f);
 
-		bOpenAttachProc |= ImGui::Button(u8"🖥");
+		bOpenAttachProc |= ImGui::Button(ICON_TOKIO_ATTACH_PROC);
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::BeginTooltip();
@@ -90,7 +90,7 @@ void RenderMenuBar()
 			ImGui::EndTooltip();
 		}
 
-		bOpenSettings   |= ImGui::Button(ICON_SETTING);
+		bOpenSettings   |= ImGui::Button(ICON_TOKIO_SETTINGS);
 
 		if (ImGui::IsItemHovered())
 		{
@@ -99,11 +99,11 @@ void RenderMenuBar()
 			ImGui::EndTooltip();
 		}
 
-		if (ImGui::BeginMenuEx("File", u8"123", true))
+		if (ImGui::BeginMenuEx("File", nullptr, true))
 		{
-			bOpenAttachProc |= ImGui::Selectable(u8"🖥 Attach Process");
+			bOpenAttachProc |= ImGui::Selectable(ICON_TOKIO_ATTACH_PROC " Attach Process");
 
-			if (ImGui::Selectable(u8"💾 Save", false))
+			if (ImGui::Selectable(ICON_TOKIO_SAVE " Save", false))
 			{
 
 			}

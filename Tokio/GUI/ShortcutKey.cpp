@@ -36,20 +36,20 @@ ShortcutKey::ShortcutKey()
 
 }
 
-ShortcutKey::ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description, const ImGui::TokenizedText* icon) :
+ShortcutKey::ShortcutKey(const ImGuiKey hold, const ImGuiKey press, const char* description, const char* icon) :
 	m_holdKey(hold), m_pressKey(press)
 {
 	if (description) m_description = description;
-	if (icon) m_icon = *icon;
+	if (icon) m_icon = icon;
 
 	UpdateName();
 }
 
-ShortcutKey::ShortcutKey(const ImGuiKey press, const char* description, const ImGui::TokenizedText* icon) :
+ShortcutKey::ShortcutKey(const ImGuiKey press, const char* description, const char* icon) :
 	m_pressKey(press)
 {
 	if (description) m_description = description;
-	if (icon) m_icon = *icon;
+	if (icon) m_icon = icon;
 
 	UpdateName();
 }
@@ -90,7 +90,7 @@ bool ShortcutKey::RenderInPopup(bool bEnabled)
 	ImGuiContext& g = *GImGui;
 	ImGuiStyle& style = g.Style;
 	ImVec2 pos = window->DC.CursorPos;
-	ImVec2 icon_size = m_icon.CalcSize();
+	ImVec2 icon_size = m_icon.size() > 0 ? ImGui::CalcTextSize(m_icon.c_str(), m_icon.c_str() + m_icon.size(), false) : ImVec2(0.f, 0.f);
 	ImVec2 label_size = icon_size + ImGui::CalcTextSize(m_description.c_str(), m_description.c_str() + m_description.size(), false);
 
 	float icon_padding = g.FontSize * 1.5f;
@@ -120,7 +120,7 @@ bool ShortcutKey::RenderInPopup(bool bEnabled)
 		pressed = ImGui::Selectable("", false, selectable_flags, ImVec2(w, 0.0f));
 		ImGui::PopStyleVar();
 
-		m_icon.Render(g.CurrentWindow->DrawList, text_pos);
+		ImGui::RenderText(text_pos, m_icon.c_str(), m_icon.c_str() + m_icon.size());
 		ImGui::RenderText(text_pos + ImVec2(icon_size.x ? icon_padding : 0.f, 0.f), m_description.c_str(), m_description.c_str() + m_description.size());
 
 		window->DC.CursorPos.x += IM_FLOOR(style.ItemSpacing.x * (-1.0f + 0.5f)); // -1 spacing to compensate the spacing added when Selectable() did a SameLine(). It would also work to call SameLine() ourselves after the PopStyleVar().
@@ -135,7 +135,8 @@ bool ShortcutKey::RenderInPopup(bool bEnabled)
 		pressed = ImGui::Selectable("", false, selectable_flags | ImGuiSelectableFlags_SpanAvailWidth, ImVec2(min_w, 0.0f));
 
 		ImVec2 text_pos = pos + ImVec2(offsets->OffsetLabel, 0.0f);
-		m_icon.Render(g.CurrentWindow->DrawList, text_pos);
+
+		ImGui::RenderText(text_pos, m_icon.c_str(), m_icon.c_str() + m_icon.size());
 		ImGui::RenderText(text_pos + ImVec2(icon_size.x ? icon_padding : 0.f, 0.f), m_description.c_str(), m_description.c_str() + m_description.size());
 
 		if (shortcut_w > 0.0f)
