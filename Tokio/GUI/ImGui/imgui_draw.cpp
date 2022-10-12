@@ -3789,6 +3789,51 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
                     vtx_current_idx += 4;
                     idx_write += 6;
                 }
+
+                if (c >= 0xe000)
+                {
+                    const ImFontGlyph* glyph_top = FindGlyph((ImWchar)c + 0x100000);
+                    // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
+                    float top_x1 = x1 + (glyph_top->X0 - glyph->X0);
+                    float top_x2 = x2 + (glyph_top->X1 - glyph->X1);
+                    float top_y1 = y1 + (glyph_top->Y0 - glyph->Y0);
+                    float top_y2 = y2 + (glyph_top->Y1 - glyph->Y1);
+                    float top_u1 = glyph_top->U0;
+                    float top_v1 = glyph_top->V0;
+                    float top_u2 = glyph_top->U1;
+                    float top_v2 = glyph_top->V1;
+                    
+                    idx_write[0] = (ImDrawIdx)(vtx_current_idx); idx_write[1] = (ImDrawIdx)(vtx_current_idx+1); idx_write[2] = (ImDrawIdx)(vtx_current_idx+2);
+                    idx_write[3] = (ImDrawIdx)(vtx_current_idx); idx_write[4] = (ImDrawIdx)(vtx_current_idx+2); idx_write[5] = (ImDrawIdx)(vtx_current_idx+3);
+
+                    vtx_write[0].pos.x = top_x1;
+                    vtx_write[0].pos.y = top_y1;
+                    vtx_write[1].pos.x = top_x2;
+                    vtx_write[1].pos.y = top_y1;
+                    vtx_write[2].pos.x = top_x2;
+                    vtx_write[2].pos.y = top_y2;
+                    vtx_write[3].pos.x = top_x1;
+                    vtx_write[3].pos.y = top_y2;
+
+                    vtx_write[0].uv.x = top_u1;
+                    vtx_write[0].uv.y = top_v1;
+                    vtx_write[1].uv.x = top_u2;
+                    vtx_write[1].uv.y = top_v1;
+                    vtx_write[2].uv.x = top_u2;
+                    vtx_write[2].uv.y = top_v2;
+                    vtx_write[3].uv.x = top_u1;
+                    vtx_write[3].uv.y = top_v2;
+
+                    ImU32 top_glyph_col = glyph_top->Colored ? col_untinted : col;
+                    vtx_write[0].col = top_glyph_col;
+                    vtx_write[1].col = top_glyph_col;
+                    vtx_write[2].col = top_glyph_col;
+                    vtx_write[3].col = top_glyph_col;
+
+                    vtx_write += 4;
+                    vtx_current_idx += 4;
+                    idx_write += 6;
+                }
             }
         }
         x += char_width;
