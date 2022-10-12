@@ -139,7 +139,7 @@ void TokenizedText::push_back(ImU32 color, const char* fmt, ...)
 }
 
 // render in the window, same as ImGui::Text()
-void TokenizedText::Render(ImFont* font)
+void TokenizedText::Render(ImFont* font) const
 {
     if (m_tokens.size() == 0) return;
 
@@ -150,7 +150,7 @@ void TokenizedText::Render(ImFont* font)
     if (font == nullptr) font = g.Font;
 
     // we don't call ImGui::SameLine() for the last token
-    for (auto iter = m_tokens.begin(); iter != m_tokens.end() - 1; iter++)
+    for ( auto iter = m_tokens.begin(); iter != m_tokens.end() - 1; iter++)
     {
         RenderToken(g, window, font, font->FontSize, *iter);
         SameLine(0, 0);
@@ -161,7 +161,7 @@ void TokenizedText::Render(ImFont* font)
 }
 
 // render in the drawlist, same as ImDrawList->AddText()
-void TokenizedText::Render(ImDrawList* drawList, ImVec2 pos, ImFont* font, float fontSize)
+void TokenizedText::Render(ImDrawList* drawList, const ImVec2& pos, ImFont* font, float fontSize) const
 {
     if (m_tokens.size() == 0) return;
 
@@ -173,22 +173,72 @@ void TokenizedText::Render(ImDrawList* drawList, ImVec2 pos, ImFont* font, float
     float wrap_width = 0.f;
     ImVec2 currentPosition = pos;
 
-    for (Token& token : m_tokens)
+    ImVec4 clip_rect = drawList->_CmdHeader.ClipRect;
+
+    for (const Token& token : m_tokens)
     {
         const char* text_begin = token.text.c_str();
         const char* text_end = text_begin + token.text.size();
 
-        const ImVec2 text_size = font->CalcTextSizeA(font->FontSize, FLT_MAX, wrap_width, text_begin, text_end, 0);
+        const ImVec2 text_size = font->CalcTextSizeA(fontSize, FLT_MAX, wrap_width, text_begin, text_end, 0);
 
-        ImVec4 clip_rect = drawList->_CmdHeader.ClipRect;
         font->RenderText(drawList, fontSize, currentPosition, token.color, clip_rect, text_begin, text_end, 0.f, false);
 
         currentPosition.x += text_size.x;
     }
 }
 
+// render in the drawlist, same as ImDrawList->AddText()
+void TokenizedText::Render(ImDrawList* drawList, const ImVec2& pos_min, const ImVec2& pos_max, const ImRect* clip_rect, ImFont* font, float fontSize, const ImVec2& align, const ImVec2* text_size_if_known) const
+{
+    ImGuiContext& g = *GImGui;
+    if (font == nullptr) font = g.Font;
+    if (fontSize == 0.f) fontSize = font->FontSize;
+
+    // Perform CPU side clipping for single clipped element to avoid using scissor state
+    ImVec2 pos = pos_min;
+    const ImVec2 text_size = text_size_if_known ? *text_size_if_known : CalcSize();
+
+    const ImVec2* clip_min = clip_rect ? &clip_rect->Min : &pos_min;
+    const ImVec2* clip_max = clip_rect ? &clip_rect->Max : &pos_max;
+    bool need_clipping = (pos.x + text_size.x >= clip_max->x) || (pos.y + text_size.y >= clip_max->y);
+    if (clip_rect) // If we had no explicit clipping rectangle then pos==clip_min
+        need_clipping |= (pos.x < clip_min->x) || (pos.y < clip_min->y);
+
+    // Align whole block. We should defer that to the better rendering function when we'll have support for individual line alignment.
+    if (align.x > 0.0f) pos.x = ImMax(pos.x, pos.x + (pos_max.x - pos.x - text_size.x) * align.x);
+    if (align.y > 0.0f) pos.y = ImMax(pos.y, pos.y + (pos_max.y - pos.y - text_size.y) * align.y);
+
+
+    ImVec4 cmdClipRect = drawList->_CmdHeader.ClipRect;
+    if (need_clipping)
+    {
+        cmdClipRect.x = ImMax(cmdClipRect.x, clip_min->x);
+        cmdClipRect.y = ImMax(cmdClipRect.y, clip_min->y);
+        cmdClipRect.z = ImMin(cmdClipRect.z, clip_max->x);
+        cmdClipRect.w = ImMin(cmdClipRect.w, clip_max->y);
+    }
+
+    // might implement it in the future
+    float wrap_width = 0.f;
+    ImVec2 currentPosition = pos;
+
+
+    for (const Token& token : m_tokens)
+    {
+        const char* text_begin = token.text.c_str();
+        const char* text_end = text_begin + token.text.size();
+
+        const ImVec2 tokenSize = font->CalcTextSizeA(fontSize, FLT_MAX, wrap_width, text_begin, text_end, 0);
+
+        font->RenderText(drawList, fontSize, currentPosition, token.color, cmdClipRect, text_begin, text_end, 0.f, need_clipping);
+
+        currentPosition.x += tokenSize.x;
+    }
+}
+
 // MODIFIED ImGui::TextEx
-void TokenizedText::RenderToken(ImGuiContext& g, ImGuiWindow* window, ImFont* font, float fontSize, const Token& token)
+void TokenizedText::RenderToken(ImGuiContext& g, ImGuiWindow* window, ImFont* font, float fontSize, const Token& token) const
 {
     const ImVec2 text_pos(window->DC.CursorPos.x, window->DC.CursorPos.y + window->DC.CurrLineTextBaseOffset);
     const float wrap_pos_x = window->DC.TextWrapPos;
@@ -303,15 +353,9 @@ _NODISCARD ImVec2 TokenizedText::CalcSize(ImFont* font, float size) const
     if (font == nullptr) font = g.Font;
     if (size == 0.f) size = font->FontSize;
 
-    ImVec2 textSize{ 0,0 };
-    for (const Token& token : m_tokens)
-    {
-        ImVec2 calcSize = font->CalcTextSizeA(size, FLT_MAX, 0.f, token.text.c_str(), token.text.c_str() + token.text.size());
-        textSize.x += calcSize.x;
-        if (calcSize.y > textSize.y) textSize.y = calcSize.y;
-    }
-
-    return textSize;
+    
+    const char* text_begin = c_str();
+    return font->CalcTextSizeA(size, FLT_MAX, 0.f, text_begin, text_begin + m_cstr.size());
 }
 }
 

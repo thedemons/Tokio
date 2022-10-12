@@ -40,7 +40,7 @@
 
 struct IMGUI_API ImGuiWindow;
 struct ImGuiContext;
-
+struct IMGUI_API ImRect;
 
 namespace ImGui
 {
@@ -61,9 +61,11 @@ public:
 
 private:
     std::vector<Token> m_tokens;
+    mutable size_t m_cstrCachedSize = 0;
+    mutable std::string m_cstr;
 
     // MODIFIED ImGui::TextEx
-    void RenderToken(ImGuiContext& g, ImGuiWindow* window, ImFont* font, float fontSize, const Token& token);
+    void RenderToken(ImGuiContext& g, ImGuiWindow* window, ImFont* font, float fontSize, const Token& token) const;
 
 public:
     // reserved size for the vector
@@ -88,15 +90,30 @@ public:
     void push_back(ImVec4 color, const char* fmt, ...);
 
     // render in the window, same as ImGui::Text()
-    void Render(ImFont* font = nullptr);
+    void Render(ImFont* font = nullptr) const;
 
     // render in the drawlist, same as ImDrawList->AddText()
-    void Render(ImDrawList* drawList, ImVec2 pos, ImFont* font = nullptr, float fontSize = 0.f);
+    void Render(ImDrawList* drawList, const ImVec2& pos, ImFont* font = nullptr, float fontSize = 0.f) const;
+
+    // render in the drawlist, same as ImDrawList->AddText()
+    void Render(ImDrawList* drawList, const ImVec2& pos_min, const ImVec2& pos_max, const ImRect* clip_rect, ImFont* font = nullptr, float fontSize = 0.f, const ImVec2& align = ImVec2(0.f,0.f), const ImVec2* text_size_if_known = nullptr) const;
 
     template <size_t Size>
     TokenizedText(const char(&text)[Size], ImU32 color)
     {
         m_tokens.emplace_back(text, color);
+    }
+
+    _NODISCARD _CONSTEXPR20 const char* c_str() const noexcept
+    {
+        if (m_cstrCachedSize != m_tokens.size())
+        {
+            m_cstr.clear();
+            m_cstrCachedSize = m_tokens.size();
+            for (const Token& token : m_tokens) m_cstr += token.text;
+        }
+
+        return m_cstr.c_str();
     }
 
     // move the other tokenizedText to this
@@ -114,6 +131,12 @@ public:
     _NODISCARD _CONSTEXPR20 size_t size() const noexcept
     {
         return m_tokens.size();
+    }
+
+    // allow modifying of a token color, use with cautions
+    _NODISCARD _CONSTEXPR20 ImU32& color(size_t index)
+    {
+        return m_tokens[index].color;
     }
 
     _CONSTEXPR20 TokenizedText& operator+=(const TokenizedText& b) 
