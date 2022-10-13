@@ -93,20 +93,24 @@ _NODISCARD ProcessEntry GetProcess(PID pid) EXCEPT
 // Get a list of windows, includes their titles, classname and pid
 _NODISCARD std::vector<WindowEntry> GetAllWindows() EXCEPT
 {
-	static auto enumProc = [](HWND hwnd, LPARAM lParam) -> BOOL
+	static const auto enumProc = [](HWND hwnd, LPARAM lParam) -> BOOL
 	{
 		auto lpResults = reinterpret_cast<std::vector<WindowEntry>*>(lParam);
 
 		WindowEntry data{};
-		wchar_t title[512], classname[512];
+		data.hwnd = hwnd;
 
-		GetWindowTextW(hwnd, title, 512);
-		GetClassNameW(hwnd, classname, 512);
+		data.title.resize(512);
+		data.classname.resize(512);
+
+		size_t titleLen = GetWindowTextW(hwnd, data.title.data(), 512);
+		size_t classLen = GetClassNameW(hwnd, data.classname.data(), 512);
+
+		data.title.resize(titleLen);
+		data.classname.resize(classLen);
+
 		GetWindowThreadProcessId(hwnd, &data.pid);
 
-		data.hwnd = hwnd;
-		data.title = title;
-		data.classname = classname;
 		lpResults->push_back(data);
 		return true;
 	};
