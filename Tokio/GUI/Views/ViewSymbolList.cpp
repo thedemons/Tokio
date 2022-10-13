@@ -294,6 +294,7 @@ void ViewSymbolList::Render(bool& bOpen)
 				if (node && disasmView.size() > 0)
 				{
 					disasmView[0].get().pView->GoToAddress(node->address);
+					disasmView[0].get().pView->Focus();
 				}
 			}
 		}
