@@ -123,7 +123,7 @@ public:
 		ImU32 memory_scan        = 0xFFD766;
 		ImU32 watch_list         = 0x6C62EF;
 		ImU32 disassembler       = 0x076004;
-		ImU32 pseudo_code        = 0xE86071;
+		ImU32 pseudo_code        = 0x00ff00;
 	}iconColor1;
 
 	struct IconData2
@@ -146,7 +146,7 @@ public:
 		ImU32 memory_scan        = 0xFFD766;
 		ImU32 watch_list         = 0xE3E3E3;
 		ImU32 disassembler       = 0x39C2EA;
-		ImU32 pseudo_code        = 0xE86071;
+		ImU32 pseudo_code        = 0x4AA657;
 	}iconColor2;
 
 };
