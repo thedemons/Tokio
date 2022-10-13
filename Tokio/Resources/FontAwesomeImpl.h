@@ -451,6 +451,7 @@
 #define ICON_FA_CLOUDS_SUN                          "\xef\x9d\x86"	// U+f746
 #define ICON_FA_CLUB                                "\xef\x8c\xa7"	// U+f327
 #define ICON_FA_COCKTAIL                            "\xef\x95\xa1"	// U+f561
+#define ICON_FA_CODE_RECTANGLE                      "\xee\x8c\xa2"	// U+e322
 #define ICON_FA_CODE                                "\xef\x84\xa1"	// U+f121
 #define ICON_FA_CODE_BRANCH                         "\xef\x84\xa6"	// U+f126
 #define ICON_FA_CODE_COMMIT                         "\xef\x8e\x86"	// U+f386
