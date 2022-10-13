@@ -45,7 +45,10 @@ void MainLoop()
 		static char fps_info[1024];
 		sprintf_s(fps_info, "FPS: %.2f", ImGui::GetIO().Framerate);
 
-		ImGui::GetForegroundDrawList()->AddText({ ImGui::GetMainViewport()->Size.x - 100.f, 5.f }, 0xffffffff, fps_info);
+		auto* viewport = ImGui::GetMainViewport();
+		auto* drawlist = ImGui::GetForegroundDrawList();
+		drawlist->AddText(viewport->Pos + ImVec2(viewport->Size.x - 100.f, 5.f), 0xffffffff, fps_info);
+
 
 		ImGui::Render();
 		Graphics::EndRender();
