@@ -468,9 +468,12 @@ void ViewAttachProc::Render(bool& bOpen)
 	if (!m_isOpenned) return;
 
 	// check for refresh interval
-	double timeSinceLastRefresh = ImGui::GetTime() - m_timeLastRefresh;
-	if (timeSinceLastRefresh > m_refreshInterval)
+	double currentTime = ImGui::GetTime();
+	if (currentTime - m_timeLastRefresh > m_refreshInterval && m_threadGetProc.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
+	{
+		m_timeLastRefresh = currentTime;
 		GetProcessList();
+	}
 
 	ImGui::PushStyleVar(ImGuiStyleVar_::ImGuiStyleVar_WindowPadding, { 0,0 });
 
@@ -481,7 +484,9 @@ void ViewAttachProc::Render(bool& bOpen)
 		ImGui::SetNextItemWidth(-1);
 		m_textFilter.Render();
 
+		m_mutex.lock();
 		m_table.Render(m_processList.size());
+		m_mutex.unlock();
 
 		ImGui::EndPopup();
 	}
@@ -537,8 +542,9 @@ void ViewAttachProc::SelectProcessByPid(PID pid)
 	}
 }
 
-void ViewAttachProc::GetProcessList()
+void ViewAttachProc::ThreadGetProc()
 {
+
 	std::map<PID, ProcessEntry> procList;
 	try
 	{
@@ -550,30 +556,11 @@ void ViewAttachProc::GetProcessList()
 		return;
 	}
 
+	std::vector<ProcessListData> tempList;
 
-	// remember the current selected process in the table
-	PID oldSelectedPID = 0;
-	if (auto& oldSelectedItems = m_table.GetSelectedItems(); oldSelectedItems.size() > 0)
-	{
-		oldSelectedPID = m_processList[oldSelectedItems[0]].pid;
-	}
-
-	// clear the current list first
-	m_processList.clear();
-	m_table.ClearSelectedItems();
-
-	// push these processes into m_processList
 	for (auto& [pid, entry] : procList)
 	{
-
-		// check if we have a cached data for this pid
-		if (auto findProc = m_processCache.find(pid); findProc != m_processCache.end())
-		{
-			m_processList.push_back(findProc->second);
-			continue;
-		}
-
-		ProcessListData& procData = m_processList.emplace_back();
+		ProcessListData& procData = tempList.emplace_back();
 		procData.pid = pid;
 		procData.entry = entry;
 		procData.wname = entry.szExe;
@@ -608,20 +595,15 @@ void ViewAttachProc::GetProcessList()
 					procData.creationTime = *(uint64_t*)&creationTime;
 				}
 			}
-
 		}
-
-		// cache the process data
-		m_processCache[procData.pid] = procData;
 	}
 
 	// find their associated hwnd
 	try
 	{
 		auto windowList = Tokio::GetAllWindows();
-		for (auto& procData : m_processList)
+		for (auto& procData : tempList)
 		{
-
 			for (auto& winData : windowList)
 			{
 				if (winData.pid != procData.pid) continue;
@@ -671,12 +653,31 @@ void ViewAttachProc::GetProcessList()
 		e.Log("Cannot get window list");
 	}
 
-	// manually trigger the sort because we
-	// have reset the process list
-	m_table.Sort();
 
-	m_timeLastRefresh = ImGui::GetTime();
+	std::unique_lock<std::mutex> lck(m_mutex);
+
+	// remember the current selected process in the table
+	PID oldSelectedPID = 0;
+	if (auto& oldSelectedItems = m_table.GetSelectedItems(); oldSelectedItems.size() > 0)
+	{
+		oldSelectedPID = m_processList[oldSelectedItems[0]].pid;
+		m_table.ClearSelectedItems();
+	}
+
+	m_processList = std::move(tempList);
+
+	// manually trigger the sort
+	m_table.Sort();
 
 	// restore the selected process
 	if (oldSelectedPID != 0) SelectProcessByPid(oldSelectedPID);
+}
+
+void ViewAttachProc::GetProcessList()
+{
+	m_threadGetProc = std::async(
+		std::launch::async, 
+		&ViewAttachProc::ThreadGetProc,
+		this
+	);
 }

@@ -88,9 +88,12 @@ private: // members
 	std::vector<ProcessListData> m_processList;			// list of all process
 
 	double m_timeLastRefresh = 0.f;					    // last refresh time, for refreshing the process list every x ms
-	double m_refreshInterval = 1111.f;					// refresh every 1000ms
+	double m_refreshInterval = 0.5f;					// refresh every 500ms
 
-	std::map<PID, ProcessListData> m_processCache;
+	std::future<void> m_threadGetProc;
+	std::mutex m_mutex;
+
+	void ThreadGetProc();
 
 public:
 	ViewAttachProc();
