@@ -199,7 +199,7 @@ void Table::Render(size_t nMaxItem, ImVec2 Size)
 		// draw table header
 		if (!(m_desc.WidgetFlags & TableFlags::NoHeader))
 		{
-			//ImGui::TableSetupScrollFreeze(0, 1);
+			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableHeadersRow();
 		}
 
